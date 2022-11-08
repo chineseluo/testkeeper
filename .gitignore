@@ -1,0 +1,6 @@
+*.pyc
+__pycache__
+tests/.pytest_cache
+site
+site.zip
+.idea

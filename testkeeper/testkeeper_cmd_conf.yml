@@ -1,0 +1,202 @@
+parameters:
+# 计划操作命令
+  - parent_cmd:
+      param_name: "plan_load"
+      type: "str"
+      help: "测试计划"
+      default: "None"
+      func: "plan_load"
+      children_cmd:
+        - param_name:
+            - '-f'
+            - '-file'
+            - '--file'
+          type: "str"
+          help: "加载测试计划"
+          default: "None"
+          dest: "file"
+
+  - parent_cmd:
+      param_name: "plan_show"
+      type: "str"
+      help: "查询测试计划"
+      default: "None"
+      func: "plan_show"
+      children_cmd:
+        - param_name:
+            - '-p'
+            - '-project_name'
+          type: "str"
+          help: "项目名称"
+          default: "None"
+          dest: "project_name"
+
+        - param_name:
+            - '-l'
+            - '-limit'
+          type: "str"
+          help: "显示条数，默认显示10条"
+          default: "None"
+          dest: "limit"
+
+
+  - parent_cmd:
+      param_name: "plan_update"
+      type: "str"
+      help: "更新测试计划"
+      default: "None"
+      func: "plan_update"
+      children_cmd:
+        - param_name:
+            - '-p_id'
+            - '-plan_id'
+          type: "str"
+          help: "测试计划ID"
+          default: "None"
+          dest: "plan_id"
+
+        - param_name:
+            - '-n'
+            - '-name'
+          type: "str"
+          help: "测试计划的字段"
+          default: "None"
+          dest: "name"
+
+        - param_name:
+            - '-v'
+            - '-value'
+          type: "str"
+          help: "修改的值"
+          default: "None"
+          dest: "value"
+
+
+
+  - parent_cmd:
+      param_name: "plan_delete"
+      type: "str"
+      help: "删除测试计划"
+      default: "None"
+      func: "plan_delete"
+
+      children_cmd:
+        - param_name:
+            - '-p_id'
+            - '-plan_id'
+          type: "str"
+          help: "测试计划ID"
+          default: "None"
+          dest: "plan_id"
+  - parent_cmd:
+      param_name: "plan_start"
+      type: "str"
+      help: "执行测试计划"
+      default: "None"
+      func: "plan_start"
+      children_cmd:
+        - param_name:
+            - '-p_id'
+            - '-plan_id'
+          type: "str"
+          help: "测试计划ID"
+          default: "None"
+          dest: "plan_id"
+
+  # 任务操作命令
+  - parent_cmd:
+      param_name: "job_add"
+      type: "str"
+      help: "测试计划"
+      default: "None"
+      func: "job_add"
+
+      children_cmd:
+        - param_name:
+          - "-p"
+          - "-project_name"
+          type: "str"
+          help: "项目名称"
+          default: "None"
+          dest: "project_name"
+
+        - param_name:
+            - "-p_id"
+            - "-plan_id"
+          type: "str"
+          help: "计划ID"
+          default: "None"
+          dest: "plan_id"
+
+
+  - parent_cmd:
+      param_name: "job_delete"
+      type: "str"
+      help: "删除测试任务"
+      default: "None"
+      func: "job_delete"
+
+      children_cmd:
+        - param_name:
+            - "-p"
+            - "-project_name"
+          type: "str"
+          help: "项目名称"
+          default: "None"
+          dest: "project_name"
+
+        - param_name:
+            - "-p_id"
+            - "-plan_id"
+          type: "str"
+          help: "计划ID"
+          default: "None"
+          dest: "plan_id"
+
+
+  - parent_cmd:
+      param_name: "job_update"
+      type: "str"
+      help: "更新测试任务"
+      default: "None"
+      func: "job_update"
+      children_cmd:
+        - param_name:
+            - "-p"
+            - "-project_name"
+          type: "str"
+          help: "项目名称"
+          default: "None"
+          dest: "project_name"
+
+        - param_name:
+            - "-p_id"
+            - "-plan_id"
+          type: "str"
+          help: "计划ID"
+          default: "None"
+          dest: "plan_id"
+        - param_name:
+            - "-j_id"
+            - "-job_id"
+          type: "str"
+          help: "计划ID"
+          default: "None"
+          dest: "job_id"
+
+
+  - parent_cmd:
+      param_name: "job_show"
+      type: "str"
+      help: "显示测试任务"
+      default: "None"
+      func: "job_show"
+      children_cmd:
+        - param_name:
+            - "-p_id"
+            - "-plan_id"
+          type: "str"
+          help: "计划ID"
+          default: "None"
+          dest: "plan_id"
+
