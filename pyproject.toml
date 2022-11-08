@@ -2,10 +2,14 @@
 name = "testkeeper"
 version = "0.1.0"
 description = "用于调度测试任务，观测任务执行进度"
-authors = ["chineseluo <848257135@qq.com>"]
+authors = ["成都-阿木木 <848257135@qq.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+flask = "^2.2.2"
+sqlalchemy = "^1.4.43"
+loguru = "^0.6.0"
+requests = "^2.28.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -16,8 +20,12 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 TK = "testkeeper.client:entry"
-TK = "testkeeper.client:entry"
+tk = "testkeeper.client:entry"
 testkeeper = "testkeeper.client:entry"
 TestKeeper = "testkeeper.client:entry"
 
 
+[[tool.poetry.source]]
+name = "aliyun"
+url = "http://mirrors.aliyun.com/pypi/simple"
+default = true
