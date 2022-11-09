@@ -39,7 +39,7 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_plan_show(self):
-        sys.argv = ["Tk", "plan_show", "-p", "测试项目", "-l", "10"]
+        sys.argv = ["Tk", "plan_show", "-p", "测试项目2", "-l", "10"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
@@ -51,7 +51,7 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_job_show(self):
-        sys.argv = ["Tk", "job_show", "-p_id", "e15d54685fc52ea1dded869c3dd2af69"]
+        sys.argv = ["Tk", "job_show", "-p_id", "2"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
@@ -63,13 +63,13 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_delete_plan(self):
-        sys.argv = ["Tk", "plan_delete", "-plan_id", "058bbcf189ad29e094c5c0ffba337a7b"]
+        sys.argv = ["Tk", "plan_delete", "-plan_id", "1"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
 
     def test_update_plan(self):
-        sys.argv = ["Tk", "plan_update", "-plan_id", "834b037d417a54675ea96e11e5e509f8", "-name", "cron", "-value",
+        sys.argv = ["Tk", "plan_update", "-plan_id", "3", "-name", "cron", "-value",
                     "c c c c"]
         with self.assertRaises(SystemExit) as cm:
             entry()

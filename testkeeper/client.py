@@ -42,6 +42,10 @@ def plan_delete(*args, **kwargs):
     plan_service.delete_test_plan(args[0].plan_id)
 
 
+def plan_start(*args, **kwargs):
+    ...
+
+
 def job_add(*args, **kwargs):
     logger.info("test")
 

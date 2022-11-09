@@ -42,36 +42,40 @@ class MockData:
         self.db_name = db_name
         self.db_session = SQLalchemyDbOperation(self.db_path, self.db_name).use_connect()
 
-    def insertTestJobTableData(self):
-        planId = get_string_md5_add_time_stamp("plan")
-        jobId = get_string_md5_add_time_stamp("job")
-        test_job_table_obj = TestJobTable(
-            planId=planId,
-            jobId=jobId,
-            jobName="job01",
-            executeStatus="running",
-            executeScriptPath="/tmp",
-            executeScriptCmd="echo test",
-            createTime=datetime.datetime.now()
-        )
-        test_plan_table_obj = TestPlanTable(
-            planId=planId,
-            projectName="测试项目",
-            testPlanName="测试计划",
-            cron="2 3 4 5 6",
-            createTime=datetime.datetime.now()
-        )
-        test_job_table_list = []
-        test_plan_table_list = []
-        test_job_table_list.append(test_job_table_obj)
-        test_plan_table_list.append(test_plan_table_obj)
-        self.db_session.bulk_save_objects(test_job_table_list)
-        self.db_session.bulk_save_objects(test_plan_table_list)
-        self.db_session.commit()
+    def insertTestJobTableData(self, plan_count: int, job_count: int):
+        for plan_index in range(1, plan_count):
+            test_plan_table_obj = TestPlanTable(
+                projectName=f"测试项目{plan_index}",
+                testPlanName=f"测试计划{plan_index}",
+                createUser="成都-阿木木",
+                isScheduledExecution=True,
+                cron="2 3 4 5 6",
+                isConfigMessagePush=True,
+                messagePushMethod="企业微信",
+                messagePushWebhook="www.baidu.com",
+                createTime=datetime.datetime.now()
+            )
+            for i in range(1, job_count):
+                test_job_table_obj = TestJobTable(
+                    jobName=f"job0{i}",
+                    createUser="成都-阿木木",
+                    executeMachineIpList=f"127.0.0.{i}",
+                    executeStatus="running",
+                    executeScriptPath="/tmp",
+                    executeScriptCmd="echo test",
+                    executeTimeout=660,
+                    runFailedIsNeedContinue=True,
+                    isSkipped=False,
+                    checkInterval=10,
+                    createTime=datetime.datetime.now()
+                )
+                test_plan_table_obj.testJobs.append(test_job_table_obj)
+            self.db_session.add(test_plan_table_obj)
+            self.db_session.commit()
 
 
 if __name__ == '__main__':
     db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))), "db")
     db_name = "testkeeper.db"
     md = MockData(db_path, db_name)
-    md.insertTestJobTableData()
+    md.insertTestJobTableData(5, 10)

@@ -14,30 +14,30 @@
 import json
 import os
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Integer, DateTime, Text, Table
+from sqlalchemy import Column, String, Integer, DateTime, Text, Table, ForeignKey, BOOLEAN
 from sqlalchemy.dialects.sqlite import *
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
+from sqlalchemy.orm import relationship, backref, sessionmaker
 
 Base = declarative_base()
 
 
 class TestPlanTable(Base):
     __tablename__ = "test_plan_table"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    planId = Column(String(100), nullable=False)
+    planId = Column(Integer, primary_key=True, autoincrement=True)
     projectName = Column(String(100), nullable=False)
     testPlanName = Column(String(100), nullable=False)
     createUser = Column(String(100), nullable=True)
-    isScheduledExecution = Column(bool, nullable=False)
+    isScheduledExecution = Column(BOOLEAN, nullable=False)
     cron = Column(String(100), nullable=False)
-    isConfigMessagePush = Column(bool, nullable=False)
+    isConfigMessagePush = Column(BOOLEAN, nullable=False)
     messagePushMethod = Column(String(500), nullable=False)
     messagePushWebhook = Column(String(500), nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
+    testJobs = relationship("TestJobTable", back_populates="testPlan")
 
     def __repr__(self):
         test_plan_table_dict = {
-            "id": self.id,
             "planId": self.planId,
             "projectName": self.projectName,
             "testPlanName": self.testPlanName,
@@ -45,7 +45,7 @@ class TestPlanTable(Base):
             "isScheduledExecution": self.isScheduledExecution,
             "cron": self.cron,
             "isConfigMessagePush": self.isConfigMessagePush,
-            "messagePushMethod": self.messagePush,
+            "messagePushMethod": self.messagePushMethod,
             "messagePushWebhook": self.messagePushWebhook,
             "createTime": str(self.createTime)
         }
@@ -53,7 +53,6 @@ class TestPlanTable(Base):
 
     def __str__(self):
         test_plan_table_dict = {
-            "id": self.id,
             "planId": self.planId,
             "projectName": self.projectName,
             "testPlanName": self.testPlanName,
@@ -61,7 +60,7 @@ class TestPlanTable(Base):
             "isScheduledExecution": self.isScheduledExecution,
             "cron": self.cron,
             "isConfigMessagePush": self.isConfigMessagePush,
-            "messagePushMethod": self.messagePush,
+            "messagePushMethod": self.messagePushMethod,
             "messagePushWebhook": self.messagePushWebhook,
             "createTime": str(self.createTime)
         }
@@ -70,31 +69,34 @@ class TestPlanTable(Base):
 
 class TestJobTable(Base):
     __tablename__ = "test_job_table"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    planId = Column(String(100), nullable=False)
-    jobId = Column(String(100), nullable=False)
+    jobId = Column(Integer, primary_key=True, autoincrement=True)
+    planId = Column(String(100), ForeignKey('test_plan_table.planId'))
     jobName = Column(String(100), nullable=False)
     createUser = Column(String(100), nullable=False)
     executeMachineIpList = Column(String(500), nullable=False)
     executeStatus = Column(String(100), nullable=False)
     executeScriptPath = Column(String(500), nullable=False)
     executeScriptCmd = Column(String(500), nullable=False)
-    runFailedIsNeedContinue = Column(bool, nullable=False)
-    isSkipped = Column(bool, nullable=False)
+    executeTimeout = Column(Integer, nullable=False, default=600)
+    runFailedIsNeedContinue = Column(BOOLEAN, nullable=False)
+    isSkipped = Column(BOOLEAN, nullable=False)
     checkInterval = Column(Integer, nullable=False, default=10)
     createTime = Column(TIMESTAMP, nullable=False)
+    testPlan = relationship("TestPlanTable", back_populates="testJobs")
 
     def __repr__(self):
         test_job_table_dict = {
-            "id": self.id,
             "planId": self.planId,
             "jobId": self.jobId,
             "jobName": self.jobName,
             "createUser": self.createUser,
+            "executeMachineIpList": self.executeMachineIpList,
             "executeStatus": self.executeStatus,
             "executeScriptPath": self.executeScriptPath,
             "executeScriptCmd": self.executeScriptCmd,
+            "executeTimeout": self.executeTimeout,
             "isSkipped": self.isSkipped,
+            "checkInterval": self.checkInterval,
             "runFailedIsNeedContinue": self.runFailedIsNeedContinue,
             "createTime": str(self.createTime)
         }
@@ -102,7 +104,6 @@ class TestJobTable(Base):
 
     def __str__(self):
         test_job_table_dict = {
-            "id": self.id,
             "planId": self.planId,
             "jobId": self.jobId,
             "jobName": self.jobName,
@@ -143,11 +144,11 @@ class TestMachine(Base):
 class User(Base):
     __tablename__ = "user_info_table"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    userName = Column(Integer, primary_key=True, autoincrement=True)
-    password = Column(Integer, primary_key=True, autoincrement=True)
-    role = Column(Integer, primary_key=True, autoincrement=True)
-    phone = Column(Integer, primary_key=True, autoincrement=True)
-    email = Column(Integer, primary_key=True, autoincrement=True)
+    userName = Column(String(100), nullable=True)
+    password = Column(String(100), nullable=True)
+    role = Column(String(100), nullable=True)
+    phone = Column(String(100), nullable=True)
+    email = Column(String(100), nullable=True)
     createTime = Column(TIMESTAMP, nullable=False)
 
 
