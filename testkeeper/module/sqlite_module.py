@@ -33,6 +33,7 @@ class TestPlanTable(Base):
     isConfigMessagePush = Column(BOOLEAN, nullable=False)
     messagePushMethod = Column(String(500), nullable=False)
     messagePushWebhook = Column(String(500), nullable=False)
+    updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
     testJobs = relationship("TestJobTable", back_populates="testPlan")
 
@@ -47,6 +48,7 @@ class TestPlanTable(Base):
             "isConfigMessagePush": self.isConfigMessagePush,
             "messagePushMethod": self.messagePushMethod,
             "messagePushWebhook": self.messagePushWebhook,
+            "updateTime": str(self.updateTime),
             "createTime": str(self.createTime)
         }
         return test_plan_table_dict
@@ -62,6 +64,7 @@ class TestPlanTable(Base):
             "isConfigMessagePush": self.isConfigMessagePush,
             "messagePushMethod": self.messagePushMethod,
             "messagePushWebhook": self.messagePushWebhook,
+            "updateTime": str(self.updateTime),
             "createTime": str(self.createTime)
         }
         return json.dumps(test_plan_table_dict)
@@ -73,16 +76,17 @@ class TestJobTable(Base):
     planId = Column(String(100), ForeignKey('test_plan_table.planId'))
     jobName = Column(String(100), nullable=False)
     createUser = Column(String(100), nullable=False)
-    executeMachineIpList = Column(String(500), nullable=False)
-    executeStatus = Column(String(100), nullable=False)
     executeScriptPath = Column(String(500), nullable=False)
     executeScriptCmd = Column(String(500), nullable=False)
     executeTimeout = Column(Integer, nullable=False, default=600)
     runFailedIsNeedContinue = Column(BOOLEAN, nullable=False)
     isSkipped = Column(BOOLEAN, nullable=False)
     checkInterval = Column(Integer, nullable=False, default=10)
+    updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
     testPlan = relationship("TestPlanTable", back_populates="testJobs")
+    testSteps = relationship("TestStepTable", back_populates="testJob")
+    executeMachineIpList = relationship("TestMachineTable", back_populates="testJob")
 
     def __repr__(self):
         test_job_table_dict = {
@@ -90,14 +94,13 @@ class TestJobTable(Base):
             "jobId": self.jobId,
             "jobName": self.jobName,
             "createUser": self.createUser,
-            "executeMachineIpList": self.executeMachineIpList,
-            "executeStatus": self.executeStatus,
             "executeScriptPath": self.executeScriptPath,
             "executeScriptCmd": self.executeScriptCmd,
             "executeTimeout": self.executeTimeout,
             "isSkipped": self.isSkipped,
             "checkInterval": self.checkInterval,
             "runFailedIsNeedContinue": self.runFailedIsNeedContinue,
+            "updateTime": str(self.updateTime),
             "createTime": str(self.createTime)
         }
         return test_job_table_dict
@@ -108,37 +111,179 @@ class TestJobTable(Base):
             "jobId": self.jobId,
             "jobName": self.jobName,
             "createUser": self.createUser,
-            "executeStatus": self.executeStatus,
             "executeScriptPath": self.executeScriptPath,
             "executeScriptCmd": self.executeScriptCmd,
             "isSkipped": self.isSkipped,
             "runFailedIsNeedContinue": self.runFailedIsNeedContinue,
+            "updateTime": str(self.updateTime),
             "createTime": str(self.createTime)
         }
         return json.dumps(test_job_table_dict)
 
 
+class TestStepTable(Base):
+    __tablename__ = "test_step_table"
+    stepId = Column(Integer, primary_key=True, autoincrement=True)
+    jobId = Column(String(100), ForeignKey('test_job_table.jobId'))
+    executeScriptPath = Column(String(500), nullable=False)
+    executeScriptCmd = Column(String(500), nullable=False)
+    updateTime = Column(TIMESTAMP, nullable=False)
+    createTime = Column(TIMESTAMP, nullable=False)
+    testJob = relationship("TestJobTable", back_populates="testSteps")
+
+    def __repr__(self):
+        test_step_table_dict = {
+            "stepId": self.stepId,
+            "jobId": self.jobId,
+            "executeScriptPath": self.executeScriptPath,
+            "executeScriptCmd": self.executeScriptCmd,
+            "updateTime": str(self.updateTime),
+            "createTime": str(self.createTime)
+        }
+        return test_step_table_dict
+
+    def __str__(self):
+        test_step_table_dict = {
+            "stepId": self.stepId,
+            "jobId": self.jobId,
+            "executeScriptPath": self.executeScriptPath,
+            "executeScriptCmd": self.executeScriptCmd,
+            "updateTime": str(self.updateTime),
+            "createTime": str(self.createTime)
+        }
+        return json.dumps(test_step_table_dict)
+
+
+class TestPlanStatusTable(Base):
+    __tablename__ = "test_plan_status_table"
+    planStatusId = Column(Integer, primary_key=True, autoincrement=True)
+    executeStatus = Column(String(100), nullable=False)
+    createTime = Column(TIMESTAMP, nullable=False)
+    testJobStatusList = relationship("TestJobStatusTable", back_populates="testPlanStatus")
+
+    def __str__(self):
+        test_plan_status_table_dict = {
+            "planStatusId": self.planStatusId,
+            "executeStatus": self.executeStatus,
+            "createTime": str(self.createTime)
+        }
+        return json.dumps(test_plan_status_table_dict)
+
+    def __repr__(self):
+        test_plan_status_table_dict = {
+            "planStatusId": self.planStatusId,
+            "executeStatus": self.executeStatus,
+            "createTime": str(self.createTime)
+        }
+        return test_plan_status_table_dict
+
+
 class TestJobStatusTable(Base):
     __tablename__ = "test_job_status_table"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    jobId = Column(String(100), nullable=False)
+    jobStatusId = Column(Integer, primary_key=True, autoincrement=True)
+    planStatusId = Column(String(100), ForeignKey("test_plan_status_table.planStatusId"))
     executeStatus = Column(String(100), nullable=False)
     executeMachineIp = Column(String(100), nullable=False)
     logFilePath = Column(String(100), nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
+    testPlanStatus = relationship("TestPlanStatusTable", back_populates="testJobStatusList")
+    testStepStatusList = relationship("TestStepStatusTable", back_populates="testJobStatus")
+
+    def __str__(self):
+        test_job_status_table_dir = {
+            "jobStatusId": self.jobStatusId,
+            "planStatusId": self.planStatusId,
+            "executeStatus": self.executeStatus,
+            "executeMachineIp": self.executeMachineIp,
+            "logFilePath": self.logFilePath,
+            "createTime": str(self.createTime)
+        }
+        return json.dumps(test_job_status_table_dir)
+
+    def __repr__(self):
+        test_job_status_table_dir = {
+            "jobStatusId": self.jobStatusId,
+            "planStatusId": self.planStatusId,
+            "executeStatus": self.executeStatus,
+            "executeMachineIp": self.executeMachineIp,
+            "logFilePath": self.logFilePath,
+            "createTime": str(self.createTime)
+        }
+        return test_job_status_table_dir
 
 
-class TestMachine(Base):
+class TestStepStatusTable(Base):
+    __tablename__ = "test_step_status_table"
+    jobStatusId = Column(String(100), ForeignKey("test_job_status_table.jobStatusId"))
+    stepStatusId = Column(Integer, primary_key=True, autoincrement=True)
+    executeStatus = Column(String(100), nullable=False)
+    createTime = Column(TIMESTAMP, nullable=False)
+    testJobStatus = relationship("TestJobStatusTable", back_populates="testStepStatusList")
+
+    def __str__(self):
+        test_step_status_table_dir = {
+            "jobStatusId": self.jobStatusId,
+            "stepStatusId": self.stepStatusId,
+            "executeStatus": self.executeStatus,
+            "createTime": str(self.createTime)
+        }
+        return json.dumps(test_step_status_table_dir)
+
+    def __repr__(self):
+        test_step_status_table_dir = {
+            "jobStatusId": self.jobStatusId,
+            "stepStatusId": self.stepStatusId,
+            "executeStatus": self.executeStatus,
+            "createTime": str(self.createTime)
+        }
+        return test_step_status_table_dir
+
+
+class TestMachineTable(Base):
     # TODO 增加一个机器资源自动采集功能
     __tablename__ = "test_machine_table"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    jobId = Column(String(100), nullable=False)
+    machineId = Column(Integer, primary_key=True, autoincrement=True)
+    jobId = Column(String(100), ForeignKey("test_job_table.jobId"))
     ip = Column(String(100), nullable=False)
+    username = Column(String(100), nullable=False)
+    password = Column(String(100), nullable=False)
     hostName = Column(String(100), nullable=True)
-    cpu = Column(String(100), nullable=True)
-    memory = Column(String(100), nullable=True)
-    disk = Column(String(100), nullable=True)
+    cpuSize = Column(String(100), nullable=True)
+    memorySize = Column(String(100), nullable=True)
+    diskSize = Column(String(100), nullable=True)
+    updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
+    testJob = relationship("TestJobTable", back_populates="executeMachineIpList")
+
+    def __str__(self):
+        test_machine_table_dict = {
+            "machineId": self.machineId,
+            "jobId": self.jobId,
+            "username": self.username,
+            "password": self.password,
+            "hostName": self.hostName,
+            "cpuSize": self.cpuSize,
+            "memorySize": self.memorySize,
+            "diskSize": self.diskSize,
+            "updateTime": self.updateTime,
+            "createTime": self.createTime
+        }
+        return json.dumps(test_machine_table_dict)
+
+    def __repr__(self):
+        test_machine_table_dict = {
+            "machineId": self.machineId,
+            "jobId": self.jobId,
+            "username": self.username,
+            "password": self.password,
+            "hostName": self.hostName,
+            "cpuSize": self.cpuSize,
+            "memorySize": self.memorySize,
+            "diskSize": self.diskSize,
+            "updateTime": self.updateTime,
+            "createTime": self.createTime
+        }
+        return test_machine_table_dict
 
 
 class User(Base):

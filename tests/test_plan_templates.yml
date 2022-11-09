@@ -1,0 +1,54 @@
+TestPlan:
+  version: 0.1.0
+  projectName: "testkeeper" # 项目名称
+  testPlanName: "性能测试" # 计划名称
+  createUser: "amumu" # 创建者
+  isScheduledExecution: True # 是否定时执行
+  cron: "2 2 2 2 2 2" # cron表达式
+  isConfigMessagePush: False # 是否启用消息推送
+  messagePushMethod: "企业微信" # 推送方式，企业微信or丁丁
+  messagePushWebhook: "http://www.baidu.com" # webhook地址
+  TestJob:
+    - jobName: "测试注册接口"
+      createUser: "longlong" # 创建者
+      executeMachineIpList: "执行机器" # 可能不是本机
+        - ip: "127.0.0.1"
+          username: "root"
+          password: "123456"
+        - ip: "127.0.0.2"
+          username: "root"
+          password: "123456"
+      executeScriptPath: "/tmp" # 执行脚本路径
+      executeScriptCmd: "echo test" # 执行命令
+      executeTimeout: 10 # 执行超时时间，单位为s
+      runFailedIsNeedContinue: False # 执行失败是否继续
+      isSkipped: False # 是否跳过该任务
+      checkInterval: 10 # 巡逻检查该任务进程的间隔时间
+      TestStep:
+        # TODO 如果需要单独执行步骤，那么步骤需要拆分成单独的可执行文件，job中的执行命令，所执行的文件，是应当包含如下的步骤的
+        - stepName: "停止服务"
+          executeScriptPath: "/tmp" # 执行脚本路径
+          executeScriptCmd: "echo 停止服务" # 执行命令
+        - stepName: "清理etcd数据"
+          executeScriptPath: "/tmp" # 执行脚本路径
+          executeScriptCmd: "echo 清理etcd数据" # 执行命令
+        - stepName: "启动服务"
+          executeScriptPath: "/tmp" # 执行脚本路径
+          executeScriptCmd: "echo 启动服务" # 执行命令
+        - stepName: "执行脚本"
+          executeScriptPath: "/tmp" # 执行脚本路径
+          executeScriptCmd: "echo 执行脚本" # 执行命令
+        - stepName: "收集指标"
+          executeScriptPath: "/tmp" # 执行脚本路径
+          executeScriptCmd: "echo 收集指标" # 执行命令
+
+    - jobName: "测试登陆接口"
+      createUser: "mumu" # 创建者
+      executeMachineIpList: "执行机器" # 可能不是本机
+      executeStatus: 'failed' # 执行状态
+      executeScriptPath: "/tmp" # 执行脚本路径
+      executeScriptCmd: "echo test" # 执行命令
+      executeTimeout: 10 # 执行超时时间，单位为s
+      runFailedIsNeedContinue: False # 执行失败是否继续
+      isSkipped: False # 是否跳过该任务
+      checkInterval: 10 # 巡逻检查该任务进程的间隔时间
