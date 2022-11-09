@@ -160,5 +160,4 @@ class LocalProcess:
 
 
 if __name__ == '__main__':
-    ShellClient.run_cmd_by_no_password(cmd_list=['cd /tmp', 'spadmin upgrader version'], password='pbwNPOlkWj',
-                                       host='10.120.40.51')
+    ...

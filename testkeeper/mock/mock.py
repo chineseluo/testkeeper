@@ -42,7 +42,7 @@ class MockData:
         self.db_name = db_name
         self.db_session = SQLalchemyDbOperation(self.db_path, self.db_name).use_connect()
 
-    def insertTestJobTableData(self, plan_count: int, job_count: int, step_count: int, machine_count:int):
+    def insertTestJobTableData(self, plan_count: int, job_count: int, step_count: int, machine_count: int):
         for plan_index in range(1, plan_count):
             test_plan_table_obj = TestPlanTable(
                 projectName=f"测试项目{plan_index}",
@@ -61,7 +61,7 @@ class MockData:
                     jobName=f"job0{i}",
                     createUser="成都-阿木木",
                     executeScriptPath="/tmp",
-                    executeScriptCmd="echo test",
+                    executeScriptCmd="sleep 30 && echo test",
                     executeTimeout=660,
                     runFailedIsNeedContinue=True,
                     isSkipped=False,
@@ -69,7 +69,7 @@ class MockData:
                     updateTime=datetime.datetime.now(),
                     createTime=datetime.datetime.now()
                 )
-                for machine_index in range(1,machine_count):
+                for machine_index in range(1, machine_count):
                     test_machine_table = TestMachineTable(
                         ip=f"127.0.0.{machine_index}",
                         username="root",
@@ -96,4 +96,4 @@ if __name__ == '__main__':
     db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))), "db")
     db_name = "testkeeper.db"
     md = MockData(db_path, db_name)
-    md.insertTestJobTableData(5, 10, 5, 3)
+    md.insertTestJobTableData(2, 2, 2, 2)

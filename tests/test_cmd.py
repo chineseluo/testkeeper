@@ -38,8 +38,20 @@ class TestCmd(unittest.TestCase):
             entry()
         self.assertEqual(cm.exception.code, 0)
 
+    def test_plan_show_all(self):
+        sys.argv = ["Tk", "plan_show"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        self.assertEqual(cm.exception.code, 0)
+
+    def test_plan_show_by_limit(self):
+        sys.argv = ["Tk", "plan_show", "-l", "10"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        self.assertEqual(cm.exception.code, 0)
+
     def test_plan_show(self):
-        sys.argv = ["Tk", "plan_show", "-p", "测试项目2", "-l", "10"]
+        sys.argv = ["Tk", "plan_show", "-p", "测试项目1", "-l", "10"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
@@ -51,7 +63,7 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_job_show(self):
-        sys.argv = ["Tk", "job_show", "-p_id", "2"]
+        sys.argv = ["Tk", "job_show", "-p_id", "3"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
@@ -69,8 +81,14 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_update_plan(self):
-        sys.argv = ["Tk", "plan_update", "-plan_id", "3", "-name", "cron", "-value",
-                    "c c c c"]
+        sys.argv = ["Tk", "plan_update", "-plan_id", "7", "-name", "executeScriptCmd", "-value",
+                    "sleep 30 && echo test"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        self.assertEqual(cm.exception.code, 0)
+
+    def test_plan_start(self):
+        sys.argv = ["Tk", "plan_start", "-plan_id", "8"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)

@@ -26,6 +26,10 @@ def plan_show(*args, **kwargs):
     if args[0].project_name is not None and args[0].limit is not None:
         LoggerFormat.console_pretty_table("plan show",
                                           plan_service.get_test_plan_list(args[0].project_name, int(args[0].limit)))
+    elif args[0].project_name is None and args[0].limit is not None:
+        LoggerFormat.console_pretty_table("plan list show", plan_service.get_test_plan_list(limit=args[0].limit))
+    elif args[0].project_name is not None and args[0].limit is None:
+        LoggerFormat.console_pretty_table("plan list show", plan_service.get_test_plan_list(project_name=args[0].project_name))
     else:
         LoggerFormat.console_pretty_table("plan list show", plan_service.get_test_plan_list())
 
@@ -43,7 +47,7 @@ def plan_delete(*args, **kwargs):
 
 
 def plan_start(*args, **kwargs):
-    ...
+    plan_service.execute_test_plan(args[0].plan_id)
 
 
 def job_add(*args, **kwargs):

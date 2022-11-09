@@ -27,6 +27,12 @@ class PlanService(SqlInterface):
             test_plan_list = [test_plan.__repr__() for test_plan in
                               self.sqlSession.query(TestPlanTable).filter(
                                   TestPlanTable.projectName == project_name).limit(limit).all()]
+        elif project_name is None and limit is not None:
+            test_plan_list = [test_plan.__repr__() for test_plan in
+                              self.sqlSession.query(TestPlanTable).filter().limit(limit).all()]
+        elif project_name is not None and limit is None:
+            test_plan_list = [test_plan.__repr__() for test_plan in
+                              self.sqlSession.query(TestPlanTable).filter(TestPlanTable.projectName == project_name).limit(limit).all()]
         else:
             test_plan_list = [test_plan.__repr__() for test_plan in
                               self.sqlSession.query(TestPlanTable).filter().limit(limit).all()]
@@ -62,22 +68,21 @@ class PlanService(SqlInterface):
             self.execute_test_job(test_job, test_job.jobId)
 
     def execute_test_job(self, test_job: TestJobTable, job_id: str):
+
         test_job = self.get_test_job(job_id) if test_job is None else test_job
         if test_job.isSkipped:
             logger.info(f"跳过当前执行的任务{test_job.jobName}")
         else:
             logger.info(f"正在执行任务：{test_job.jobName}")
             execute_result = self.shell_client.run_cmd(
-                f"cd {test_job.executeScriptPath} && run {test_job.executeScriptCmd}",
+                f"cd {test_job.executeScriptPath} && {test_job.executeScriptCmd}",
                 timeout=600)
-            if execute_result["ret"] != 0:
-                test_job.executeStatus = "failed"
-            else:
-                test_job.executeStatus = "success"
             if test_job.runFailedIsNeedContinue is not True and execute_result["ret"] != 0:
                 raise Exception(f"测试任务{test_job.jobName}执行失败！！！")
-            else:
+            elif test_job.runFailedIsNeedContinue is True and execute_result["ret"] != 0:
                 logger.warning(f"测试任务{test_job.jobName}执行失败，继续执行下一个任务......")
+            else:
+                logger.info(f"测试任务{test_job.jobName}执行成功，继续执行下一个任务......")
             self.sqlSession.commit()
 
     def stop_test_plan(self, plan_id: str):
