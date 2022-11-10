@@ -74,16 +74,11 @@ def check_call(cmd, print_fun=default_print_fun, timeout=600, action=None):
 
 def run_cmd_by_sshpass(
         cmd_list=None,
-        user_name=None,
-        password=None,
-        host=None,
         action=None,
         print_fun=default_print_fun):
     import subprocess
     cmd = ";".join(cmd_list)
-    online_upgrade_init_cmd = 'sshpass -p {} ssh -o "StrictHostKeyChecking no" {}@'.format(
-        password, user_name) + host + ' "' + cmd + '" '
-    retcode = subprocess.check_call(online_upgrade_init_cmd, shell=True, stderr=subprocess.STDOUT)
+    retcode = subprocess.check_call(cmd, shell=True, stderr=subprocess.STDOUT)
     __assert_ret(retcode, cmd, action)
 
 
@@ -96,9 +91,8 @@ class ShellClient:
 
     @staticmethod
     # 通过免密的方式执行shell 命令为了Jenkins前段显示
-    def run_cmd_by_sshpass(cmd_list=list(), user_name=HostInfo.USER_NAME_BY_ROOT,
-                           password=HostInfo.PASSWORD, host='', print_fun=default_print_fun, action=None):
-        return run_cmd_by_sshpass(cmd_list, user_name, password, host, print_fun, action)
+    def run_cmd_by_sshpass(cmd_list=list(), print_fun=default_print_fun, action=None):
+        return run_cmd_by_sshpass(cmd_list, print_fun, action)
 
     @staticmethod
     def start_cmd(cmd, print_fun=default_print_fun, encoding='utf-8'):

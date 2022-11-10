@@ -46,7 +46,7 @@ class MockData:
         for plan_index in range(1, plan_count):
             test_plan_table_obj = TestPlanTable(
                 projectName=f"测试项目{plan_index}",
-                testPlanName=f"测试计划{plan_index}",
+                planName=f"测试计划{plan_index}",
                 createUser="成都-阿木木",
                 isScheduledExecution=True,
                 cron="2 3 4 5 6",
@@ -81,6 +81,7 @@ class MockData:
 
                 for step_index in range(1, step_count):
                     test_step_table_obj = TestStepTable(
+                        stepName=f"step0{step_index}",
                         executeScriptPath="/tmp",
                         executeScriptCmd=f"echo test{step_index}",
                         updateTime=datetime.datetime.now(),

@@ -52,27 +52,33 @@ class SystemInfo:
 
     @staticmethod
     def get_all_process():
-        for item in psutil.process_iter(attrs=["pid", "cmd"]):
+        for item in psutil.process_iter():
             logger.info(item)
         return psutil.process_iter()
 
     @staticmethod
-    def get_process_status():
-        pid = SystemInfo.get_process_by_os()
-        process_is_exists = psutil.pid_exists(int(pid.strip()))
-        process_is_status = psutil.Process(int(pid.strip())).status()
+    def get_process_status(process_key: str, pid: int):
+        process_is_exists = psutil.pid_exists(pid)
+        process_is_status = psutil.Process(pid).status()
+        logger.info(f'进程关键字:{process_key},是否存在:{process_is_exists},进程状态:{process_is_status}')
         return process_is_exists, process_is_status
 
     @staticmethod
-    def get_process_by_os():
-        shell_client = ShellClient()
-        pid = shell_client.check_output('ps -ef|grep "echo test" | grep -v grep | awk' + " '{print $2}'")
-        return pid
+    def get_process_pid_by_os(shell_client: ShellClient, process_key: str):
+        pid = shell_client.check_output(f'ps -ef|grep "{process_key}" | grep -v grep | awk' + " '{print $2}'").strip()
+        return int(pid)
+
+    @staticmethod
+    def test_sys():
+        pids = psutil.pids()
+        for pid in pids:
+            p = psutil.Process(pid)
+            print("pid-%d,pname-%s" % (pid, p.name()))
 
 
 if __name__ == '__main__':
     logger.info(SystemInfo.get_cpu_count())
     logger.info(SystemInfo.get_disk_info())
 
-    logger.info(SystemInfo.get_total_memory())
-    logger.info(SystemInfo.get_process_status())
+    logger.info(SystemInfo.test_sys())
+    # logger.info(SystemInfo.get_process_status("echo test"))

@@ -26,7 +26,7 @@ class TestPlanTable(Base):
     __tablename__ = "test_plan_table"
     planId = Column(Integer, primary_key=True, autoincrement=True)
     projectName = Column(String(100), nullable=False)
-    testPlanName = Column(String(100), nullable=False)
+    planName = Column(String(100), nullable=False)
     createUser = Column(String(100), nullable=True)
     isScheduledExecution = Column(BOOLEAN, nullable=False)
     cron = Column(String(100), nullable=False)
@@ -41,7 +41,7 @@ class TestPlanTable(Base):
         test_plan_table_dict = {
             "planId": self.planId,
             "projectName": self.projectName,
-            "testPlanName": self.testPlanName,
+            "planName": self.testPlanName,
             "createUser": self.createUser,
             "isScheduledExecution": self.isScheduledExecution,
             "cron": self.cron,
@@ -57,7 +57,7 @@ class TestPlanTable(Base):
         test_plan_table_dict = {
             "planId": self.planId,
             "projectName": self.projectName,
-            "testPlanName": self.testPlanName,
+            "planName": self.testPlanName,
             "createUser": self.createUser,
             "isScheduledExecution": self.isScheduledExecution,
             "cron": self.cron,
@@ -125,6 +125,7 @@ class TestStepTable(Base):
     __tablename__ = "test_step_table"
     stepId = Column(Integer, primary_key=True, autoincrement=True)
     jobId = Column(String(100), ForeignKey('test_job_table.jobId'))
+    stepName = Column(String(500), nullable=False)
     executeScriptPath = Column(String(500), nullable=False)
     executeScriptCmd = Column(String(500), nullable=False)
     updateTime = Column(TIMESTAMP, nullable=False)
@@ -135,6 +136,7 @@ class TestStepTable(Base):
         test_step_table_dict = {
             "stepId": self.stepId,
             "jobId": self.jobId,
+            "stepName": self.stepName,
             "executeScriptPath": self.executeScriptPath,
             "executeScriptCmd": self.executeScriptCmd,
             "updateTime": str(self.updateTime),
@@ -146,6 +148,7 @@ class TestStepTable(Base):
         test_step_table_dict = {
             "stepId": self.stepId,
             "jobId": self.jobId,
+            "stepName": self.stepName,
             "executeScriptPath": self.executeScriptPath,
             "executeScriptCmd": self.executeScriptCmd,
             "updateTime": str(self.updateTime),
@@ -156,15 +159,21 @@ class TestStepTable(Base):
 
 class TestPlanStatusTable(Base):
     __tablename__ = "test_plan_status_table"
+    planId = Column(String(100), nullable=False)
+    planName = Column(String(100), nullable=False)
     planStatusId = Column(Integer, primary_key=True, autoincrement=True)
     executeStatus = Column(String(100), nullable=False)
+    updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
     testJobStatusList = relationship("TestJobStatusTable", back_populates="testPlanStatus")
 
     def __str__(self):
         test_plan_status_table_dict = {
             "planStatusId": self.planStatusId,
+            "planId": self.planId,
+            "planName": self.planName,
             "executeStatus": self.executeStatus,
+            "updateTime": self.updateTime,
             "createTime": str(self.createTime)
         }
         return json.dumps(test_plan_status_table_dict)
@@ -172,7 +181,10 @@ class TestPlanStatusTable(Base):
     def __repr__(self):
         test_plan_status_table_dict = {
             "planStatusId": self.planStatusId,
+            "planId": self.planId,
+            "planName": self.planName,
             "executeStatus": self.executeStatus,
+            "updateTime": self.updateTime,
             "createTime": str(self.createTime)
         }
         return test_plan_status_table_dict
@@ -181,10 +193,13 @@ class TestPlanStatusTable(Base):
 class TestJobStatusTable(Base):
     __tablename__ = "test_job_status_table"
     jobStatusId = Column(Integer, primary_key=True, autoincrement=True)
+    jobId = Column(String(100), nullable=False)
+    jobName = Column(String(100), nullable=False)
     planStatusId = Column(String(100), ForeignKey("test_plan_status_table.planStatusId"))
     executeStatus = Column(String(100), nullable=False)
     executeMachineIp = Column(String(100), nullable=False)
     logFilePath = Column(String(100), nullable=False)
+    updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
     testPlanStatus = relationship("TestPlanStatusTable", back_populates="testJobStatusList")
     testStepStatusList = relationship("TestStepStatusTable", back_populates="testJobStatus")
@@ -192,10 +207,13 @@ class TestJobStatusTable(Base):
     def __str__(self):
         test_job_status_table_dir = {
             "jobStatusId": self.jobStatusId,
+            "jobId": self.jobId,
+            "jobName": self.jobName,
             "planStatusId": self.planStatusId,
             "executeStatus": self.executeStatus,
             "executeMachineIp": self.executeMachineIp,
             "logFilePath": self.logFilePath,
+            "updateTime": self.updateTime,
             "createTime": str(self.createTime)
         }
         return json.dumps(test_job_status_table_dir)
@@ -203,10 +221,13 @@ class TestJobStatusTable(Base):
     def __repr__(self):
         test_job_status_table_dir = {
             "jobStatusId": self.jobStatusId,
+            "jobId": self.jobId,
+            "jobName": self.jobName,
             "planStatusId": self.planStatusId,
             "executeStatus": self.executeStatus,
             "executeMachineIp": self.executeMachineIp,
             "logFilePath": self.logFilePath,
+            "updateTime": self.updateTime,
             "createTime": str(self.createTime)
         }
         return test_job_status_table_dir
@@ -215,16 +236,22 @@ class TestJobStatusTable(Base):
 class TestStepStatusTable(Base):
     __tablename__ = "test_step_status_table"
     jobStatusId = Column(String(100), ForeignKey("test_job_status_table.jobStatusId"))
+    stepId = Column(String(100), nullable=False)
+    stepName = Column(String(100), nullable=False)
     stepStatusId = Column(Integer, primary_key=True, autoincrement=True)
     executeStatus = Column(String(100), nullable=False)
+    updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
     testJobStatus = relationship("TestJobStatusTable", back_populates="testStepStatusList")
 
     def __str__(self):
         test_step_status_table_dir = {
             "jobStatusId": self.jobStatusId,
+            "stepId": self.stepId,
+            "stepName": self.stepName,
             "stepStatusId": self.stepStatusId,
             "executeStatus": self.executeStatus,
+            "updateTime": self.updateTime,
             "createTime": str(self.createTime)
         }
         return json.dumps(test_step_status_table_dir)
@@ -232,8 +259,11 @@ class TestStepStatusTable(Base):
     def __repr__(self):
         test_step_status_table_dir = {
             "jobStatusId": self.jobStatusId,
+            "stepId": self.stepId,
+            "stepName": self.stepName,
             "stepStatusId": self.stepStatusId,
             "executeStatus": self.executeStatus,
+            "updateTime": self.updateTime,
             "createTime": str(self.createTime)
         }
         return test_step_status_table_dir
@@ -294,6 +324,7 @@ class User(Base):
     role = Column(String(100), nullable=True)
     phone = Column(String(100), nullable=True)
     email = Column(String(100), nullable=True)
+    updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
 
 
