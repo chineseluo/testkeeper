@@ -162,28 +162,27 @@ parameters:
       func: "job_update"
       children_cmd:
         - param_name:
-            - "-p"
-            - "-project_name"
-          type: "str"
-          help: "项目名称"
-          default: "None"
-          dest: "project_name"
-
-        - param_name:
-            - "-p_id"
-            - "-plan_id"
-          type: "str"
-          help: "计划ID"
-          default: "None"
-          dest: "plan_id"
-        - param_name:
             - "-j_id"
             - "-job_id"
           type: "str"
-          help: "计划ID"
+          help: "任务ID"
           default: "None"
           dest: "job_id"
+        - param_name:
+            - '-n'
+            - '-name'
+          type: "str"
+          help: "测试计划的字段"
+          default: "None"
+          dest: "name"
 
+        - param_name:
+            - '-v'
+            - '-value'
+          type: "str"
+          help: "修改的值"
+          default: "None"
+          dest: "value"
 
   - parent_cmd:
       param_name: "job_show"
@@ -214,6 +213,35 @@ parameters:
           help: "任务ID"
           default: "None"
           dest: "job_id"
+  - parent_cmd:
+      param_name: "step_update"
+      type: "str"
+      help: "修改测试步骤配置"
+      default: "None"
+      func: "step_update"
+      children_cmd:
+        - param_name:
+            - "-s_id"
+            - "-step_id"
+          type: "str"
+          help: "步骤ID"
+          default: "None"
+          dest: "step_id"
+        - param_name:
+            - '-n'
+            - '-name'
+          type: "str"
+          help: "测试计划的字段"
+          default: "None"
+          dest: "name"
+
+        - param_name:
+            - '-v'
+            - '-value'
+          type: "str"
+          help: "修改的值"
+          default: "None"
+          dest: "value"
 
   - parent_cmd:
       param_name: "plan_status_show"

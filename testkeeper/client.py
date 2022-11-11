@@ -61,7 +61,7 @@ def job_delete(*args, **kwargs):
 
 
 def job_update(*args, **kwargs):
-    logger.info("test")
+    plan_service.update_test_job(args[0].job_id, args[0].name, args[0].value)
 
 
 def job_show(*args, **kwargs):
@@ -78,6 +78,10 @@ def step_show(*args, **kwargs):
         LoggerFormat.console_pretty_table(title, plan_service.get_test_step_list(args[0].job_id))
     else:
         LoggerFormat.console_pretty_table(title, plan_service.get_test_step_list())
+
+
+def step_update(*args, **kwargs):
+    plan_service.update_test_step(args[0].step_id, args[0].name, args[0].value)
 
 
 def plan_status_show(*args, **kwargs):

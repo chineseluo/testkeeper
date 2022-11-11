@@ -86,9 +86,32 @@ class PlanService(SqlInterface):
             test_plan = self.sqlSession.query(TestPlanTable).filter_by(planId=plan_id).first()
             if name in test_plan.__dict__:
                 test_plan.__setattr__(name, value)
+                test_plan.updateTime = datetime.datetime.now()
                 self.sqlSession.commit()
             else:
-                raise Exception("修改的key不存在")
+                raise Exception(f"修改的key:{name} 不存在")
+
+    def update_test_job(self, job_id: str, name: str, value: str):
+        if name is not None and value is not None:
+            test_job = self.sqlSession.query(TestJobTable).filter_by(jobId=job_id).first()
+            logger.info(test_job)
+            if name in test_job.__dict__:
+                test_job.__setattr__(name, value)
+                test_job.updateTime = datetime.datetime.now()
+                self.sqlSession.commit()
+            else:
+                raise Exception(f"修改的key:{name} 不存在")
+
+    def update_test_step(self, step_id: str, name: str, value: str):
+        if name is not None and value is not None:
+            test_step = self.sqlSession.query(TestStepTable).filter_by(stepId=step_id).first()
+            logger.info(test_step)
+            if name in test_step.__dict__:
+                test_step.__setattr__(name, value)
+                test_step.updateTime = datetime.datetime.now()
+                self.sqlSession.commit()
+            else:
+                raise Exception(f"修改的key:{name} 不存在")
 
     def add_test_plan(self, file_path: str):
         ...

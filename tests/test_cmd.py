@@ -68,12 +68,6 @@ class TestCmd(unittest.TestCase):
             entry()
         self.assertEqual(cm.exception.code, 0)
 
-    def test_job_plan_id_is_none(self):
-        sys.argv = ["Tk", "job_show"]
-        with self.assertRaises(SystemExit) as cm:
-            entry()
-        self.assertEqual(cm.exception.code, 0)
-
     def test_plan_status_show_id_is_none(self):
         sys.argv = ["Tk", "plan_status_show"]
         with self.assertRaises(SystemExit) as cm:
@@ -107,6 +101,26 @@ class TestCmd(unittest.TestCase):
     def test_update_plan(self):
         sys.argv = ["Tk", "plan_update", "-plan_id", "1", "-name", "messagePushMethod", "-value",
                     "微信"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        self.assertEqual(cm.exception.code, 0)
+
+    def test_update_job(self):
+        sys.argv = ["Tk", "job_update", "-job_id", "1", "-name", "executeScriptCmd", "-value",
+                    "echo test2"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        self.assertEqual(cm.exception.code, 0)
+
+    def test_update_step(self):
+        sys.argv = ["Tk", "step_update", "-step_id", "1", "-name", "executeScriptCmd", "-value",
+                    "echo test2"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        self.assertEqual(cm.exception.code, 0)
+
+    def test_job_plan_id_is_none(self):
+        sys.argv = ["Tk", "job_show"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
