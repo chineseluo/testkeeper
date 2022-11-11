@@ -200,3 +200,70 @@ parameters:
           default: "None"
           dest: "plan_id"
 
+  - parent_cmd:
+      param_name: "plan_status_show"
+      type: "str"
+      help: "显示测试任务"
+      default: "None"
+      func: "plan_status_show"
+      children_cmd:
+        - param_name:
+            - "-p_id"
+            - "-plan_id"
+          type: "str"
+          help: "计划ID"
+          default: "None"
+          dest: "plan_id"
+
+  - parent_cmd:
+      param_name: "plan_status_update"
+      type: "str"
+      help: "显示测试计划状态"
+      default: "None"
+      func: "plan_status_update"
+      children_cmd:
+        - param_name:
+            - "-p_id"
+            - "-plan_id"
+          type: "str"
+          help: "计划ID"
+          default: "None"
+          dest: "plan_id"
+
+  - parent_cmd:
+      param_name: "job_status_show"
+      type: "str"
+      help: "显示测试任务"
+      default: "None"
+      func: "job_status_show"
+      children_cmd:
+        - param_name:
+            - "-p_id"
+            - "-plan_id"
+          type: "str"
+          help: "计划ID"
+          default: "None"
+          dest: "plan_id"
+
+        - param_name:
+            - "-j_id"
+            - "-job_id"
+          type: "str"
+          help: "任务ID"
+          default: "None"
+          dest: "job_id"
+
+  - parent_cmd:
+      param_name: "step_status_show"
+      type: "str"
+      help: "显示测试步骤状态"
+      default: "None"
+      func: "step_status_show"
+      children_cmd:
+        - param_name:
+            - "-p_id"
+            - "-plan_id"
+          type: "str"
+          help: "计划ID"
+          default: "None"
+          dest: "plan_id"

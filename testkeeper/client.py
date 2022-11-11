@@ -29,7 +29,8 @@ def plan_show(*args, **kwargs):
     elif args[0].project_name is None and args[0].limit is not None:
         LoggerFormat.console_pretty_table("plan list show", plan_service.get_test_plan_list(limit=args[0].limit))
     elif args[0].project_name is not None and args[0].limit is None:
-        LoggerFormat.console_pretty_table("plan list show", plan_service.get_test_plan_list(project_name=args[0].project_name))
+        LoggerFormat.console_pretty_table("plan list show",
+                                          plan_service.get_test_plan_list(project_name=args[0].project_name))
     else:
         LoggerFormat.console_pretty_table("plan list show", plan_service.get_test_plan_list())
 
@@ -67,6 +68,30 @@ def job_show(*args, **kwargs):
         LoggerFormat.console_pretty_table("job list show", plan_service.get_test_job_list(args[0].plan_id))
     else:
         LoggerFormat.console_pretty_table("job list show", plan_service.get_test_job_list())
+
+
+def plan_status_show(*args, **kwargs):
+    ...
+
+
+def plan_status_update(*args, **kwargs):
+    ...
+
+
+def job_status_show(*args, **kwargs):
+    ...
+
+
+def job_status_update(*args, **kwargs):
+    ...
+
+
+def step_status_show(*args, **kwargs):
+    ...
+
+
+def step_status_update(*args, **kwargs):
+    ...
 
 
 def init_scaffold_parser(subparsers):
