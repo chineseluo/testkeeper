@@ -52,6 +52,23 @@ class PlanService(SqlInterface):
                               self.sqlSession.query(TestPlanTable).filter().limit(limit).all()]
         return test_plan_list
 
+    def get_test_plan_status_list(self, project_name: str = None, limit: int = 3):
+        if project_name is not None and limit is not None:
+            test_plan_status_list = [test_plan.__repr__() for test_plan in
+                                     self.sqlSession.query(TestPlanStatusTable).filter(
+                                         TestPlanTable.projectName == project_name).limit(limit).all()]
+        elif project_name is None and limit is not None:
+            test_plan_status_list = [test_plan.__repr__() for test_plan in
+                                     self.sqlSession.query(TestPlanStatusTable).filter().limit(limit).all()]
+        elif project_name is not None and limit is None:
+            test_plan_status_list = [test_plan.__repr__() for test_plan in
+                                     self.sqlSession.query(TestPlanStatusTable).filter(
+                                         TestPlanTable.projectName == project_name).limit(limit).all()]
+        else:
+            test_plan_status_list = [test_plan.__repr__() for test_plan in
+                                     self.sqlSession.query(TestPlanStatusTable).filter().limit(limit).all()]
+        return test_plan_status_list
+
     def delete_test_plan(self, plan_id: str):
         if plan_id is None:
             logger.warning("plan_id不能为空！")
@@ -141,12 +158,15 @@ class PlanService(SqlInterface):
             self.check_execute_cmd(test_job, test_job_status_table_obj)
             if test_job.runFailedIsNeedContinue is not True and self.execute_result["ret"] != 0:
                 test_job_status_table_obj.executeStatus = ExecuteStatus.FAILED
+                test_plan_status_table_obj.executeStatus = ExecuteStatus.FAILED
                 raise Exception(f"测试任务{test_job.jobName}执行失败！！！")
             elif test_job.runFailedIsNeedContinue is True and self.execute_result["ret"] != 0:
                 test_job_status_table_obj.executeStatus = ExecuteStatus.FAILED
+                test_plan_status_table_obj.executeStatus = ExecuteStatus.FAILED
                 logger.warning(f"测试任务{test_job.jobName}执行失败，继续执行下一个任务......")
             else:
                 test_job_status_table_obj.executeStatus = ExecuteStatus.SUCCESS
+                test_plan_status_table_obj.executeStatus = ExecuteStatus.SUCCESS
                 logger.info(f"测试任务{test_job.jobName}执行成功")
             for test_step in test_job.testSteps:
                 test_step_status_table_obj = TestStepStatusTable(
@@ -157,6 +177,7 @@ class PlanService(SqlInterface):
                     createTime=datetime.datetime.now()
                 )
                 test_job_status_table_obj.testStepStatusList.append(test_step_status_table_obj)
+
             test_plan_status_table_obj.testJobStatusList.append(test_job_status_table_obj)
 
     def stop_test_plan(self, plan_id: str):
@@ -190,3 +211,25 @@ class PlanService(SqlInterface):
     def get_test_job(self, job_id: str):
         test_job = self.sqlSession.query(TestJobTable).filter(TestJobTable.jobId == job_id).first()
         return test_job
+
+    def get_test_job_status_list(self, plan_status_id: str = None):
+        if plan_status_id is not None:
+            test_job_status_list = [test_job.__repr__() for test_job in
+                                    self.sqlSession.query(TestJobStatusTable).filter(
+                                        TestJobStatusTable.planStatusId == plan_status_id).all()]
+        else:
+            test_job_status_list = [test_job.__repr__() for test_job in
+                                    self.sqlSession.query(TestJobStatusTable).filter().all()]
+        logger.info(test_job_status_list)
+        return test_job_status_list
+
+    def get_test_step_status_list(self, job_status_id: str = None):
+        if job_status_id is not None:
+            test_step_status_list = [test_job.__repr__() for test_job in
+                                     self.sqlSession.query(TestStepStatusTable).filter(
+                                         TestJobStatusTable.jobStatusId == job_status_id).all()]
+        else:
+            test_step_status_list = [test_job.__repr__() for test_job in
+                                     self.sqlSession.query(TestStepStatusTable).filter().all()]
+        logger.info(test_step_status_list)
+        return test_step_status_list

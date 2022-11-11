@@ -23,16 +23,17 @@ plan_service = PlanService()
 
 
 def plan_show(*args, **kwargs):
+    title = "PLAN CONFIG LIST SHOW ** 计划配置列表展示"
     if args[0].project_name is not None and args[0].limit is not None:
-        LoggerFormat.console_pretty_table("plan show",
+        LoggerFormat.console_pretty_table(title,
                                           plan_service.get_test_plan_list(args[0].project_name, int(args[0].limit)))
     elif args[0].project_name is None and args[0].limit is not None:
-        LoggerFormat.console_pretty_table("plan list show", plan_service.get_test_plan_list(limit=args[0].limit))
+        LoggerFormat.console_pretty_table(title, plan_service.get_test_plan_list(limit=args[0].limit))
     elif args[0].project_name is not None and args[0].limit is None:
-        LoggerFormat.console_pretty_table("plan list show",
+        LoggerFormat.console_pretty_table(title,
                                           plan_service.get_test_plan_list(project_name=args[0].project_name))
     else:
-        LoggerFormat.console_pretty_table("plan list show", plan_service.get_test_plan_list())
+        LoggerFormat.console_pretty_table(title, plan_service.get_test_plan_list())
 
 
 def plan_load(*args, **kwargs):
@@ -64,14 +65,25 @@ def job_update(*args, **kwargs):
 
 
 def job_show(*args, **kwargs):
+    title = "JOB CONFIG LIST SHOW ** 任务配置列表展示"
     if args[0].plan_id is not None:
-        LoggerFormat.console_pretty_table("job list show", plan_service.get_test_job_list(args[0].plan_id))
+        LoggerFormat.console_pretty_table(title, plan_service.get_test_job_list(args[0].plan_id))
     else:
-        LoggerFormat.console_pretty_table("job list show", plan_service.get_test_job_list())
+        LoggerFormat.console_pretty_table(title, plan_service.get_test_job_list())
 
 
 def plan_status_show(*args, **kwargs):
-    ...
+    title = "PLAN STATUS LIST SHOW ** 计划执行状态列表展示"
+    if args[0].project_name is not None and args[0].limit is not None:
+        LoggerFormat.console_pretty_table(title,
+                                          plan_service.get_test_plan_status_list(args[0].project_name, int(args[0].limit)))
+    elif args[0].project_name is None and args[0].limit is not None:
+        LoggerFormat.console_pretty_table(title, plan_service.get_test_plan_status_list(limit=args[0].limit))
+    elif args[0].project_name is not None and args[0].limit is None:
+        LoggerFormat.console_pretty_table(title,
+                                          plan_service.get_test_plan_status_list(project_name=args[0].project_name))
+    else:
+        LoggerFormat.console_pretty_table(title, plan_service.get_test_plan_status_list())
 
 
 def plan_status_update(*args, **kwargs):
@@ -79,7 +91,11 @@ def plan_status_update(*args, **kwargs):
 
 
 def job_status_show(*args, **kwargs):
-    ...
+    title = "JOB EXECUTE STATUS LIST SHOW ** 任务执行状态列表展示"
+    if args[0].plan_id is not None:
+        LoggerFormat.console_pretty_table(title, plan_service.get_test_job_status_list(args[0].plan_id))
+    else:
+        LoggerFormat.console_pretty_table(title, plan_service.get_test_job_status_list())
 
 
 def job_status_update(*args, **kwargs):
@@ -87,7 +103,11 @@ def job_status_update(*args, **kwargs):
 
 
 def step_status_show(*args, **kwargs):
-    ...
+    title = "STEP EXECUTE STATUS LIST SHOW ** 步骤执行状态列表展示"
+    if args[0].job_status_id is not None:
+        LoggerFormat.console_pretty_table(title, plan_service.get_test_step_status_list(args[0].job_status_id))
+    else:
+        LoggerFormat.console_pretty_table(title, plan_service.get_test_step_status_list())
 
 
 def step_status_update(*args, **kwargs):

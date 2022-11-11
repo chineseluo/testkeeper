@@ -246,10 +246,10 @@ class TestStepStatusTable(Base):
 
     def __str__(self):
         test_step_status_table_dir = {
+            "stepStatusId": self.stepStatusId,
             "jobStatusId": self.jobStatusId,
             "stepId": self.stepId,
             "stepName": self.stepName,
-            "stepStatusId": self.stepStatusId,
             "executeStatus": self.executeStatus,
             "updateTime": self.updateTime,
             "createTime": str(self.createTime)
@@ -258,10 +258,10 @@ class TestStepStatusTable(Base):
 
     def __repr__(self):
         test_step_status_table_dir = {
+            "stepStatusId": self.stepStatusId,
             "jobStatusId": self.jobStatusId,
             "stepId": self.stepId,
             "stepName": self.stepName,
-            "stepStatusId": self.stepStatusId,
             "executeStatus": self.executeStatus,
             "updateTime": self.updateTime,
             "createTime": str(self.createTime)

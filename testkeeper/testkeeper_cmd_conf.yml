@@ -208,12 +208,21 @@ parameters:
       func: "plan_status_show"
       children_cmd:
         - param_name:
-            - "-p_id"
-            - "-plan_id"
+            - '-p'
+            - '-project_name'
           type: "str"
-          help: "计划ID"
+          help: "项目名称"
           default: "None"
-          dest: "plan_id"
+          dest: "project_name"
+
+        - param_name:
+            - '-l'
+            - '-limit'
+          type: "str"
+          help: "显示条数，默认显示10条"
+          default: "None"
+          dest: "limit"
+
 
   - parent_cmd:
       param_name: "plan_status_update"
@@ -238,20 +247,12 @@ parameters:
       func: "job_status_show"
       children_cmd:
         - param_name:
-            - "-p_id"
-            - "-plan_id"
+            - "-plan_status_id"
           type: "str"
           help: "计划ID"
           default: "None"
           dest: "plan_id"
 
-        - param_name:
-            - "-j_id"
-            - "-job_id"
-          type: "str"
-          help: "任务ID"
-          default: "None"
-          dest: "job_id"
 
   - parent_cmd:
       param_name: "step_status_show"
@@ -261,9 +262,8 @@ parameters:
       func: "step_status_show"
       children_cmd:
         - param_name:
-            - "-p_id"
-            - "-plan_id"
+            - "-job_status_id"
           type: "str"
           help: "计划ID"
           default: "None"
-          dest: "plan_id"
+          dest: "job_status_id"
