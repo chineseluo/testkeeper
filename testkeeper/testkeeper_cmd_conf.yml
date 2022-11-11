@@ -201,6 +201,21 @@ parameters:
           dest: "plan_id"
 
   - parent_cmd:
+      param_name: "step_show"
+      type: "str"
+      help: "显示测试任务"
+      default: "None"
+      func: "step_show"
+      children_cmd:
+        - param_name:
+            - "-j_id"
+            - "-job_id"
+          type: "str"
+          help: "任务ID"
+          default: "None"
+          dest: "job_id"
+
+  - parent_cmd:
       param_name: "plan_status_show"
       type: "str"
       help: "显示测试任务"

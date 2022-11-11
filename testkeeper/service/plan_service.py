@@ -23,7 +23,8 @@ from testkeeper.module.sqlite_module import \
     TestPlanTable, \
     TestPlanStatusTable, \
     TestJobStatusTable, \
-    TestStepStatusTable
+    TestStepStatusTable, \
+    TestStepTable
 from testkeeper.module.execute_status_module import ExecuteStatus
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 from testkeeper.util.shell_utils import ShellClient
@@ -207,6 +208,16 @@ class PlanService(SqlInterface):
                              self.sqlSession.query(TestJobTable).filter().all()]
         logger.info(test_job_list)
         return test_job_list
+
+    def get_test_step_list(self, job_id: str = None):
+        if job_id is not None:
+            test_step_list = [test_job.__repr__() for test_job in
+                              self.sqlSession.query(TestStepTable).filter(TestStepTable.jobId == job_id).all()]
+        else:
+            test_step_list = [test_job.__repr__() for test_job in
+                              self.sqlSession.query(TestStepTable).filter().all()]
+        logger.info(test_step_list)
+        return test_step_list
 
     def get_test_job(self, job_id: str):
         test_job = self.sqlSession.query(TestJobTable).filter(TestJobTable.jobId == job_id).first()
