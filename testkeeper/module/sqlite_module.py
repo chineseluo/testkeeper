@@ -57,7 +57,7 @@ class TestPlanTable(Base):
         test_plan_table_dict = {
             "planId": self.planId,
             "projectName": self.projectName,
-            "planName": self.testPlanName,
+            "planName": self.planName,
             "createUser": self.createUser,
             "isScheduledExecution": self.isScheduledExecution,
             "cron": self.cron,
