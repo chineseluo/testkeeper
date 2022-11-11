@@ -1,1 +1,46 @@
 site_name: My Docs
+site_description: TestKeeper V0.1.x User Documention
+site_author: "成都-阿木木"
+# site_favicon need a picture path
+site_favicon: ""
+
+# Repository
+repo_name: TestKeeper
+repo_url: https://github.com/chineseluo/testkeeper
+
+# Copyright
+copyright: 'Copyright &copy; 2022 - 2023 chineseluo; 蜀ICP备2020034353号-1'
+
+
+# Configuration
+theme:
+    name: 'material'
+    language: 'zh'
+    palette:
+        primary: 'indigo'
+        accent: 'indigo'
+    font:
+        text: 'Roboto'
+        code: 'Roboto Mono'
+
+# Google Analytics
+google_analytics: ['UA-36723568-3', 'auto']
+# Markdown syntax extensions,mkdocs-plugin
+markdown_extensions:
+  - admonition
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: true
+
+nav:
+    - Introduction: index.md
+    - Installation: installation.md
+    - TestKeeper User Guide:
+          - Design: userguide/design.md
+          - Scaffold: userguide/scaffold.md # 脚手架文档
+          - Plan Load Explain: userguide/plan_load_explain.md
+          - TestKeeper Plugin: userguide/testkeeper_plugin.md
+          - Other: userguide/other.md
+    - Sponsors: sponsors.md
+    - Changelog: changelog.md
