@@ -24,7 +24,7 @@ Base = declarative_base()
 
 class TestPlanTable(Base):
     __tablename__ = "test_plan_table"
-    planId = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     projectName = Column(String(100), nullable=False)
     planName = Column(String(100), nullable=False)
     createUser = Column(String(100), nullable=True)
@@ -39,7 +39,7 @@ class TestPlanTable(Base):
 
     def __repr__(self):
         test_plan_table_dict = {
-            "planId": self.planId,
+            "planId": self.id,
             "projectName": self.projectName,
             "planName": self.planName,
             "createUser": self.createUser,
@@ -55,7 +55,7 @@ class TestPlanTable(Base):
 
     def __str__(self):
         test_plan_table_dict = {
-            "planId": self.planId,
+            "planId": self.id,
             "projectName": self.projectName,
             "planName": self.planName,
             "createUser": self.createUser,
@@ -72,8 +72,8 @@ class TestPlanTable(Base):
 
 class TestJobTable(Base):
     __tablename__ = "test_job_table"
-    jobId = Column(Integer, primary_key=True, autoincrement=True)
-    planId = Column(String(100), ForeignKey('test_plan_table.planId'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    planId = Column(String(100), ForeignKey('test_plan_table.id'))
     jobName = Column(String(100), nullable=False)
     createUser = Column(String(100), nullable=False)
     executeScriptPath = Column(String(500), nullable=False)
@@ -91,7 +91,7 @@ class TestJobTable(Base):
     def __repr__(self):
         test_job_table_dict = {
             "planId": self.planId,
-            "jobId": self.jobId,
+            "jobId": self.id,
             "jobName": self.jobName,
             "createUser": self.createUser,
             "executeScriptPath": self.executeScriptPath,
@@ -108,7 +108,7 @@ class TestJobTable(Base):
     def __str__(self):
         test_job_table_dict = {
             "planId": self.planId,
-            "jobId": self.jobId,
+            "jobId": self.id,
             "jobName": self.jobName,
             "createUser": self.createUser,
             "executeScriptPath": self.executeScriptPath,
@@ -123,8 +123,8 @@ class TestJobTable(Base):
 
 class TestStepTable(Base):
     __tablename__ = "test_step_table"
-    stepId = Column(Integer, primary_key=True, autoincrement=True)
-    jobId = Column(String(100), ForeignKey('test_job_table.jobId'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    jobId = Column(String(100), ForeignKey('test_job_table.id'))
     stepName = Column(String(500), nullable=False)
     executeScriptPath = Column(String(500), nullable=False)
     executeScriptCmd = Column(String(500), nullable=False)
@@ -134,7 +134,7 @@ class TestStepTable(Base):
 
     def __repr__(self):
         test_step_table_dict = {
-            "stepId": self.stepId,
+            "stepId": self.id,
             "jobId": self.jobId,
             "stepName": self.stepName,
             "executeScriptPath": self.executeScriptPath,
@@ -146,7 +146,7 @@ class TestStepTable(Base):
 
     def __str__(self):
         test_step_table_dict = {
-            "stepId": self.stepId,
+            "stepId": self.id,
             "jobId": self.jobId,
             "stepName": self.stepName,
             "executeScriptPath": self.executeScriptPath,
@@ -159,6 +159,7 @@ class TestStepTable(Base):
 
 class TestPlanStatusTable(Base):
     __tablename__ = "test_plan_status_table"
+    id = Column(String(100), nullable=False)
     planId = Column(String(100), nullable=False)
     planName = Column(String(100), nullable=False)
     planStatusId = Column(Integer, primary_key=True, autoincrement=True)
@@ -169,7 +170,7 @@ class TestPlanStatusTable(Base):
 
     def __str__(self):
         test_plan_status_table_dict = {
-            "planStatusId": self.planStatusId,
+            "planStatusId": self.id,
             "planId": self.planId,
             "planName": self.planName,
             "executeStatus": self.executeStatus,
@@ -180,7 +181,7 @@ class TestPlanStatusTable(Base):
 
     def __repr__(self):
         test_plan_status_table_dict = {
-            "planStatusId": self.planStatusId,
+            "planStatusId": self.id,
             "planId": self.planId,
             "planName": self.planName,
             "executeStatus": self.executeStatus,
@@ -192,12 +193,13 @@ class TestPlanStatusTable(Base):
 
 class TestJobStatusTable(Base):
     __tablename__ = "test_job_status_table"
-    jobStatusId = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     jobId = Column(String(100), nullable=False)
     jobName = Column(String(100), nullable=False)
-    planStatusId = Column(String(100), ForeignKey("test_plan_status_table.planStatusId"))
+    planStatusId = Column(String(100), ForeignKey("test_plan_status_table.id"))
     executeStatus = Column(String(100), nullable=False)
     executeMachineIp = Column(String(100), nullable=False)
+    processPid = Column(Integer, nullable=False)
     logFilePath = Column(String(100), nullable=False)
     updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
@@ -206,10 +208,11 @@ class TestJobStatusTable(Base):
 
     def __str__(self):
         test_job_status_table_dir = {
-            "jobStatusId": self.jobStatusId,
+            "jobStatusId": self.id,
             "jobId": self.jobId,
             "jobName": self.jobName,
             "planStatusId": self.planStatusId,
+            "processPid": self.processPid,
             "executeStatus": self.executeStatus,
             "executeMachineIp": self.executeMachineIp,
             "logFilePath": self.logFilePath,
@@ -220,10 +223,11 @@ class TestJobStatusTable(Base):
 
     def __repr__(self):
         test_job_status_table_dir = {
-            "jobStatusId": self.jobStatusId,
+            "jobStatusId": self.id,
             "jobId": self.jobId,
             "jobName": self.jobName,
             "planStatusId": self.planStatusId,
+            "processPid": self.processPid,
             "executeStatus": self.executeStatus,
             "executeMachineIp": self.executeMachineIp,
             "logFilePath": self.logFilePath,
@@ -235,11 +239,12 @@ class TestJobStatusTable(Base):
 
 class TestStepStatusTable(Base):
     __tablename__ = "test_step_status_table"
-    jobStatusId = Column(String(100), ForeignKey("test_job_status_table.jobStatusId"))
-    stepId = Column(String(100), nullable=False)
+    jobStatusId = Column(String(100), ForeignKey("test_job_status_table.id"))
+    id = Column(String(100), nullable=False)
     stepName = Column(String(100), nullable=False)
     stepStatusId = Column(Integer, primary_key=True, autoincrement=True)
     executeStatus = Column(String(100), nullable=False)
+    processPid = Column(Integer, nullable=False)
     updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
     testJobStatus = relationship("TestJobStatusTable", back_populates="testStepStatusList")
@@ -248,7 +253,8 @@ class TestStepStatusTable(Base):
         test_step_status_table_dir = {
             "stepStatusId": self.stepStatusId,
             "jobStatusId": self.jobStatusId,
-            "stepId": self.stepId,
+            "stepId": self.id,
+            "processPid": self.processPid,
             "stepName": self.stepName,
             "executeStatus": self.executeStatus,
             "updateTime": self.updateTime,
@@ -260,7 +266,8 @@ class TestStepStatusTable(Base):
         test_step_status_table_dir = {
             "stepStatusId": self.stepStatusId,
             "jobStatusId": self.jobStatusId,
-            "stepId": self.stepId,
+            "stepId": self.id,
+            "processPid": self.processPid,
             "stepName": self.stepName,
             "executeStatus": self.executeStatus,
             "updateTime": self.updateTime,
@@ -273,7 +280,7 @@ class TestMachineTable(Base):
     # TODO 增加一个机器资源自动采集功能
     __tablename__ = "test_machine_table"
     machineId = Column(Integer, primary_key=True, autoincrement=True)
-    jobId = Column(String(100), ForeignKey("test_job_table.jobId"))
+    jobId = Column(String(100), ForeignKey("test_job_table.id"))
     ip = Column(String(100), nullable=False)
     username = Column(String(100), nullable=False)
     password = Column(String(100), nullable=False)

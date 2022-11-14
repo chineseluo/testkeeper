@@ -23,6 +23,12 @@ plan_service = PlanService()
 
 
 def plan_show(*args, **kwargs):
+    """
+    显示所有测试计划配置
+    :param args:
+    :param kwargs:
+    :return:
+    """
     title = "PLAN CONFIG LIST SHOW ** 计划配置列表展示"
     if args[0].project_name is not None and args[0].limit is not None:
         LoggerFormat.console_pretty_table(title,
@@ -37,34 +43,82 @@ def plan_show(*args, **kwargs):
 
 
 def plan_load(*args, **kwargs):
+    """
+    从yml中加载测试计划
+    :param args:
+    :param kwargs:
+    :return:
+    """
     logger.info("test")
 
 
 def plan_update(*args, **kwargs):
+    """
+    更新测试计划配置中的字段
+    :param args:
+    :param kwargs:
+    :return:
+    """
     plan_service.update_test_plan(args[0].plan_id, args[0].name, args[0].value)
 
 
 def plan_delete(*args, **kwargs):
+    """
+    删除测试计划配置，对应计划下job和step配置数据也删除
+    :param args:
+    :param kwargs:
+    :return:
+    """
     plan_service.delete_test_plan(args[0].plan_id)
 
 
 def plan_start(*args, **kwargs):
+    """
+    执行测试计划，生成测试计划/任务/步骤状态信息
+    :param args:
+    :param kwargs:
+    :return:
+    """
     plan_service.execute_test_plan(args[0].plan_id)
 
 
 def job_add(*args, **kwargs):
+    """
+    添加测试job配置
+    :param args:
+    :param kwargs:
+    :return:
+    """
     logger.info("test")
 
 
 def job_delete(*args, **kwargs):
-    logger.info("test")
+    """
+    删除测试job配置，及对应step配置
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    plan_service.delete_test_job(args[0].job_id)
 
 
 def job_update(*args, **kwargs):
+    """
+    更新测试任务中的字段
+    :param args:
+    :param kwargs:
+    :return:
+    """
     plan_service.update_test_job(args[0].job_id, args[0].name, args[0].value)
 
 
 def job_show(*args, **kwargs):
+    """
+    查询所有测试任务配置
+    :param args:
+    :param kwargs:
+    :return:
+    """
     title = "JOB CONFIG LIST SHOW ** 任务配置列表展示"
     if args[0].plan_id is not None:
         LoggerFormat.console_pretty_table(title, plan_service.get_test_job_list(args[0].plan_id))
@@ -73,6 +127,12 @@ def job_show(*args, **kwargs):
 
 
 def step_show(*args, **kwargs):
+    """
+    查询所有测试步骤配置
+    :param args:
+    :param kwargs:
+    :return:
+    """
     title = "STEP CONFIG LIST SHOW ** 步骤配置列表展示"
     if args[0].job_id is not None:
         LoggerFormat.console_pretty_table(title, plan_service.get_test_step_list(args[0].job_id))
@@ -81,10 +141,32 @@ def step_show(*args, **kwargs):
 
 
 def step_update(*args, **kwargs):
+    """
+    更新测试步骤中的字段
+    :param args:
+    :param kwargs:
+    :return:
+    """
     plan_service.update_test_step(args[0].step_id, args[0].name, args[0].value)
 
 
+def step_delete(*args, **kwargs):
+    """
+    删除测试步骤
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    plan_service.delete_test_step(args[0].step_id)
+
+
 def plan_status_show(*args, **kwargs):
+    """
+    展示所有执行的测试计划，状态信息
+    :param args:
+    :param kwargs:
+    :return:
+    """
     title = "PLAN STATUS LIST SHOW ** 计划执行状态列表展示"
     if args[0].project_name is not None and args[0].limit is not None:
         LoggerFormat.console_pretty_table(title,
@@ -99,11 +181,53 @@ def plan_status_show(*args, **kwargs):
         LoggerFormat.console_pretty_table(title, plan_service.get_test_plan_status_list())
 
 
+def delete_plan_status(*args, **kwargs):
+    """
+    删除测试运行状态
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    plan_service.delete_test_plan_status(args[0].plan_status_id)
+
+
+def delete_job_status(*args, **kwargs):
+    """
+    删除测试任务运行状态
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    plan_service.delete_test_job_status(args[0].job_status_id)
+
+
+def delete_step_status(*args, **kwargs):
+    """
+    删除测试步骤运行状态
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    plan_service.delete_test_step_status(args[0].step_status_id)
+
+
 def plan_status_update(*args, **kwargs):
-    ...
+    """
+    更新测试计划执行状态
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    plan_service.update_test_plan_status(args[0].plan_status_id, args[0].name, args[0].value)
 
 
 def job_status_show(*args, **kwargs):
+    """
+    显示所有任务状态信息
+    :param args:
+    :param kwargs:
+    :return:
+    """
     title = "JOB EXECUTE STATUS LIST SHOW ** 任务执行状态列表展示"
     if args[0].plan_id is not None:
         LoggerFormat.console_pretty_table(title, plan_service.get_test_job_status_list(args[0].plan_id))
@@ -112,10 +236,22 @@ def job_status_show(*args, **kwargs):
 
 
 def job_status_update(*args, **kwargs):
-    ...
+    """
+    更新任务执行状态信息
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    plan_service.update_test_job_status(args[0].job_status_id, args[0].name, args[0].value)
 
 
 def step_status_show(*args, **kwargs):
+    """
+    显示所有步骤状态信息
+    :param args:
+    :param kwargs:
+    :return:
+    """
     title = "STEP EXECUTE STATUS LIST SHOW ** 步骤执行状态列表展示"
     if args[0].job_status_id is not None:
         LoggerFormat.console_pretty_table(title, plan_service.get_test_step_status_list(args[0].job_status_id))
@@ -124,7 +260,13 @@ def step_status_show(*args, **kwargs):
 
 
 def step_status_update(*args, **kwargs):
-    ...
+    """
+    更新步骤执行状态信息
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    plan_service.update_test_step_status(args[0].step_status_id, args[0].name, args[0].value)
 
 
 def init_scaffold_parser(subparsers):
