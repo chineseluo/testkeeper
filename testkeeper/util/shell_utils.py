@@ -3,7 +3,6 @@ import sys
 import subprocess
 from loguru import logger
 # 默认打印到stderr
-from sgx_scan.constants import HostInfo
 
 
 def default_print_fun(x):
