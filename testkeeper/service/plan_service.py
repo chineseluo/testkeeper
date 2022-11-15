@@ -106,7 +106,7 @@ class PlanService(SqlInterface):
         else:
             logger.info(plan_status_id)
             self.sqlSession.query(TestPlanStatusTable).filter_by(id=plan_status_id).delete()
-            self.sqlSession.query(TestJobStatusTable).filter_by(planStatusID=plan_status_id).delete()
+            self.sqlSession.query(TestJobStatusTable).filter_by(planStatusId=plan_status_id).delete()
             self.sqlSession.commit()
             logger.info(f"删除测试计划成功:{plan_status_id}")
 
@@ -116,7 +116,7 @@ class PlanService(SqlInterface):
         else:
             logger.info(job_status_id)
             self.sqlSession.query(TestJobStatusTable).filter_by(id=job_status_id).delete()
-            self.sqlSession.query(TestStepStatusTable).filter_by(jobId=job_status_id).delete()
+            self.sqlSession.query(TestStepStatusTable).filter_by(jobStatusId=job_status_id).delete()
             self.sqlSession.commit()
             logger.info(f"删除测试任务成功:{job_status_id}")
 

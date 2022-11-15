@@ -181,7 +181,7 @@ def plan_status_show(*args, **kwargs):
         LoggerFormat.console_pretty_table(title, plan_service.get_test_plan_status_list())
 
 
-def delete_plan_status(*args, **kwargs):
+def plan_status_delete(*args, **kwargs):
     """
     删除测试运行状态
     :param args:
@@ -191,7 +191,7 @@ def delete_plan_status(*args, **kwargs):
     plan_service.delete_test_plan_status(args[0].plan_status_id)
 
 
-def delete_job_status(*args, **kwargs):
+def job_status_delete(*args, **kwargs):
     """
     删除测试任务运行状态
     :param args:
@@ -201,7 +201,7 @@ def delete_job_status(*args, **kwargs):
     plan_service.delete_test_job_status(args[0].job_status_id)
 
 
-def delete_step_status(*args, **kwargs):
+def step_status_delete(*args, **kwargs):
     """
     删除测试步骤运行状态
     :param args:

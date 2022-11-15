@@ -314,7 +314,7 @@ parameters:
       func: "job_status_delete"
       children_cmd:
         - param_name:
-            - "-plan_status_id"
+            - "-job_status_id"
           type: "str"
           help: "计划ID"
           default: "None"
