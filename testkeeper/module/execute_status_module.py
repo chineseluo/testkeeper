@@ -21,3 +21,6 @@ class ExecuteStatus(Text, Enum):
     EXCEPTION = "EXCEPTION"
     RUNNING = "RUNNING"
     SKIPPED = "SKIPPED"
+    STOP = "STOP"
+    START = "START"
+    END = "END"

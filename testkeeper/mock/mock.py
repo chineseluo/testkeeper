@@ -61,7 +61,7 @@ class MockData:
                     jobName=f"job0{i}",
                     createUser="成都-阿木木",
                     executeScriptPath="/tmp",
-                    executeScriptCmd="sleep 30 && echo test",
+                    executeScriptCmd="sleep 700 && echo test",
                     executeTimeout=660,
                     runFailedIsNeedContinue=True,
                     isSkipped=False,

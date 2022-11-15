@@ -82,6 +82,40 @@ def plan_start(*args, **kwargs):
     plan_service.execute_test_plan(args[0].plan_id)
 
 
+def job_start(*args, **kwargs):
+    plan_service.start_test_job(args[0].job_id)
+
+
+def plan_stop(*args, **kwargs):
+    """
+    停止正在运行的测试计划，根据plan_status_id进行停止
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    plan_service.stop_test_plan(args[0].plan_status_id)
+
+
+def job_stop(*args, **kwargs):
+    """
+    停止正在运行的测试任务，根据job_status_id进行停止
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    plan_service.stop_test_job(args[0].job_status_id)
+
+
+def step_stop(*args, **kwargs):
+    """
+    停止正在运行的测试步骤，根据step_status_id进行停止
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    ...
+
+
 def job_add(*args, **kwargs):
     """
     添加测试job配置
@@ -269,6 +303,10 @@ def step_status_update(*args, **kwargs):
     plan_service.update_test_step_status(args[0].step_status_id, args[0].name, args[0].value)
 
 
+def get_local_machine_metric(*args, **kwargs):
+    ...
+
+
 def init_scaffold_parser(subparsers):
     testkeeper_cmd_conf = TestKeeperConf().testkeeper_client_conf
     sub_scaffold_parser_list = []
@@ -278,12 +316,14 @@ def init_scaffold_parser(subparsers):
             f"{parent_cmd['param_name']}", help=f"{parent_cmd['help']}",
         )
         sub_scaffold_parser.set_defaults(func=eval(parent_cmd['func']))
-        for children_cmd_info in parent_cmd['children_cmd']:
-            sub_scaffold_parser.add_argument(*children_cmd_info["param_name"],
-                                             type=eval(children_cmd_info["type"]), nargs="?",
-                                             help=children_cmd_info["help"], default=eval(children_cmd_info["default"]),
-                                             dest=children_cmd_info["dest"])
-        sub_scaffold_parser_list.append(sub_scaffold_parser)
+        if "children_cmd" in parent_cmd:
+            for children_cmd_info in parent_cmd['children_cmd']:
+                sub_scaffold_parser.add_argument(*children_cmd_info["param_name"],
+                                                 type=eval(children_cmd_info["type"]), nargs="?",
+                                                 help=children_cmd_info["help"],
+                                                 default=eval(children_cmd_info["default"]),
+                                                 dest=children_cmd_info["dest"])
+            sub_scaffold_parser_list.append(sub_scaffold_parser)
     return sub_scaffold_parser_list
 
 

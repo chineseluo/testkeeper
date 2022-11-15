@@ -159,10 +159,9 @@ class TestStepTable(Base):
 
 class TestPlanStatusTable(Base):
     __tablename__ = "test_plan_status_table"
-    id = Column(String(100), nullable=False)
     planId = Column(String(100), nullable=False)
     planName = Column(String(100), nullable=False)
-    planStatusId = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     executeStatus = Column(String(100), nullable=False)
     updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
