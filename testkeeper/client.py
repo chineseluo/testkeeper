@@ -106,6 +106,16 @@ def job_stop(*args, **kwargs):
     plan_service.stop_test_job(args[0].job_status_id)
 
 
+def step_start(*args, **kwargs):
+    """
+    运行测试步骤，根据step_status_id运行，运行测试步骤会生成一条job_status，以及一条plan_status数据
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    ...
+
+
 def step_stop(*args, **kwargs):
     """
     停止正在运行的测试步骤，根据step_status_id进行停止

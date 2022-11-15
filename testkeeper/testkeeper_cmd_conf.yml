@@ -441,6 +441,33 @@ parameters:
           default: "None"
           dest: "step_status_id"
   - parent_cmd:
+      param_name: "step_start"
+      type: "str"
+      help: "执行测试计划"
+      default: "None"
+      func: "step_start"
+      children_cmd:
+        - param_name:
+            - '-s_id'
+            - '-step_id'
+          type: "str"
+          help: "测试计划ID"
+          default: "None"
+          dest: "step_id"
+  - parent_cmd:
+      param_name: "step_stop"
+      type: "str"
+      help: "执行测试计划"
+      default: "None"
+      func: "step_stop"
+      children_cmd:
+        - param_name:
+            - '-step_status_id'
+          type: "str"
+          help: "测试计划ID"
+          default: "None"
+          dest: "step_status_id"
+  - parent_cmd:
       param_name: "get_local_machine_metric"
       type: "str"
       help: "获取本机资源信息"

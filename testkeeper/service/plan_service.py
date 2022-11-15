@@ -168,6 +168,10 @@ class PlanService(SqlInterface):
         test_job_table_obj = self.sqlSession.query(TestJobTable).filter(TestJobTable.id == job_id).first()
         return test_job_table_obj
 
+    def get_test_step_by_id(self, step_id: str):
+        test_job_table_obj = self.sqlSession.query(TestStepTable).filter(TestStepTable.id == step_id).first()
+        return test_job_table_obj
+
     def start_test_job(self, job_id: str):
         """
         启动测试任务，会给plan_status_table添加一条数据，区别是这个plan_status_table的数据只会关联一个job，因为只执行了一个job
@@ -184,6 +188,43 @@ class PlanService(SqlInterface):
             createTime=datetime.datetime.now()
         )
         self.execute_test_job(test_plan_status_table_obj, test_job_table_obj, test_job_table_obj.id)
+
+    def start_test_step(self, step_id: str):
+        test_step_table_obj = self.get_test_step_by_id(step_id)
+        test_job_table_obj = test_step_table_obj.testJob
+        test_plan_table_obj = test_step_table_obj.testJob.testPlan
+        test_plan_status_table_obj = TestPlanStatusTable(
+            planName=test_plan_table_obj.planName,
+            planId=test_plan_table_obj.id,
+            executeStatus=ExecuteStatus.START,
+            updateTime=datetime.datetime.now(),
+            createTime=datetime.datetime.now()
+        )
+        test_job_status_table_obj = TestJobStatusTable(
+            jobId=test_job_table_obj.id,
+            jobName=test_job_table_obj.jobName,
+            executeStatus=ExecuteStatus.START,
+            executeMachineIp="127.0.0.1",
+            logFilePath="/tmp",
+            updateTime=datetime.datetime.now(),
+            createTime=datetime.datetime.now()
+        )
+
+    def stop_test_step(self, step_status_id: str):
+        test_step_status_table_obj = self.get_step_status_table_obj(int(step_status_id))
+        test_job_status_obj = test_step_status_table_obj.testJobStatus
+        test_plan_status_obj = test_job_status_obj.testPlanStatus
+        if test_step_status_table_obj.executeStatus == ExecuteStatus.RUNNING:
+            self.shell_client.check_call(f"kill -9 {test_step_status_table_obj.processPid}")
+            test_step_status_table_obj.executeStatus = ExecuteStatus.STOP
+            test_job_status_obj.executeStatus = ExecuteStatus.STOP
+            test_plan_status_obj.executeStatus = ExecuteStatus.STOP
+            test_job_status_obj.testStepStatusList.append(test_step_status_table_obj)
+            test_plan_status_obj.testJobStatusList.append(test_job_status_obj)
+            self.sqlSession.add(test_plan_status_obj)
+            self.sqlSession.commit()
+        else:
+            logger.info(f"当前测试步骤{test_step_status_table_obj.id}，不需要停止")
 
     def execute_test_plan(self, plan_id: str):
         test_plan_status_table_obj = self.sqlSession.query(TestPlanStatusTable).filter_by(planId=plan_id).first()
@@ -296,7 +337,6 @@ class PlanService(SqlInterface):
             updateTime=datetime.datetime.now(),
             createTime=datetime.datetime.now()
         )
-
         if test_job.isSkipped:
             logger.info(f"跳过当前执行的任务{test_job.jobName}")
             test_job_status_table_obj.executeStatus = ExecuteStatus.SKIPPED
@@ -322,7 +362,6 @@ class PlanService(SqlInterface):
         test_plan_status_table_obj.testJobStatusList.append(test_job_status_table_obj)
 
     def stop_test_plan(self, plan_status_id: str):
-        # TODO 通过processPid进行进程kill
         test_plan_status_obj = self.get_plan_status_table_obj(int(plan_status_id))
         logger.info(test_plan_status_obj.__repr__())
         if test_plan_status_obj.executeStatus == ExecuteStatus.RUNNING:
@@ -351,9 +390,6 @@ class PlanService(SqlInterface):
             self.sqlSession.commit()
         else:
             logger.info(f"当前测试任务{test_job_status_obj.id}，不需要停止")
-
-    def stop_test_step(self, step_status_id: str):
-        ...
 
     def check_job_status(self, check_interval: int = 10):
         # TODO 执行任务后，开启一个异步线程，进行监听任务状态，如果任务处于运行中，修改executeStatus为running，如果任务结束，主动结束该子线程
