@@ -24,11 +24,12 @@ from testkeeper.module.sqlite_module import \
     TestPlanStatusTable, \
     TestJobStatusTable, \
     TestStepStatusTable, \
-    TestStepTable
+    TestStepTable, TestMachineTable
 from testkeeper.module.execute_status_module import ExecuteStatus
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.util.system_info import SystemInfo
+from testkeeper.builtin.test_plan_conf import TestPlan
 
 
 class PlanService(SqlInterface):
@@ -158,7 +159,57 @@ class PlanService(SqlInterface):
         self.common_update_method(TestStepStatusTable, step_status_id, name, value)
 
     def add_test_plan(self, file_path: str):
-        ...
+        test_plan = TestPlan(file_path)
+        test_plan_table_obj = TestPlanTable(
+            projectName=test_plan.projectName,
+            planName=test_plan.PlanName,
+            createUser=test_plan.createUser,
+            isScheduledExecution=test_plan.isScheduledExecution,
+            cron=test_plan.cron,
+            isConfigMessagePush=test_plan.isConfigMessagePush,
+            messagePushMethod=test_plan.messagePushMethod,
+            messagePushWebhook=test_plan.messagePushWebhook,
+            updateTime=datetime.datetime.now(),
+            createTime=datetime.datetime.now(),
+        )
+        for test_job in test_plan.TestJob:
+            test_job_table_obj = TestJobTable(
+                jobName=test_job.jobName,
+                createUser=test_job.createUser,
+                executeScriptPath=test_job.executeScriptPath,
+                executeScriptCmd=test_job.executeScriptCmd,
+                executeTimeout=test_job.executeTimeout,
+                runFailedIsNeedContinue=test_job.runFailedIsNeedContinue,
+                isSkipped=test_job.isSkipped,
+                checkInterval=test_job.checkInterval,
+                updateTime=datetime.datetime.now(),
+                createTime=datetime.datetime.now()
+            )
+            for test_machine in test_job.executeMachineIpList:
+                test_machine_table_obj = TestMachineTable(
+                    ip=test_machine.ip,
+                    username=test_machine.username,
+                    password=test_machine.password,
+                    hostName=test_machine.hostName,
+                    cpuSize=test_machine.cpuSize,
+                    memorySize=test_machine.memorySize,
+                    diskSize=test_machine.diskSize,
+                    updateTime=datetime.datetime.now(),
+                    createTime=datetime.datetime.now(),
+                )
+                test_job_table_obj.executeMachineIpList.append(test_machine_table_obj)
+            for test_step in test_job.TestStep:
+                test_step_table_obj = TestStepTable(
+                    stepName=test_step.stepName,
+                    executeScriptPath=test_step.executeScriptPath,
+                    executeScriptCmd=test_step.executeScriptCmd,
+                    updateTime=datetime.datetime.now(),
+                    createTime=datetime.datetime.now(),
+                )
+                test_job_table_obj.testSteps.append(test_step_table_obj)
+            test_plan_table_obj.testJobs.append(test_job_table_obj)
+        self.sqlSession.add(test_plan_table_obj)
+        self.sqlSession.commit()
 
     def execute_test_plan(self, plan_id: str):
         test_plan = self.sqlSession.query(TestPlanTable).filter_by(id=plan_id).first()
@@ -192,7 +243,8 @@ class PlanService(SqlInterface):
                     test_job_status_table_obj.executeStatus = ExecuteStatus.EXCEPTION
                     break
                 else:
-                    logger.info(f"任务{test_job.jobName}正在运行中，检查周期{test_job.checkInterval}s,运行状态:{process_is_status}")
+                    logger.info(
+                        f"任务{test_job.jobName}正在运行中，检查周期{test_job.checkInterval}s,运行状态:{process_is_status}")
             except Exception as e:
                 logger.info(f"任务{test_job.jobName}执行结束，结束监听")
                 break
