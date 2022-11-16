@@ -113,7 +113,7 @@ def step_start(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    ...
+    plan_service.start_test_step(args[0].step_id)
 
 
 def step_stop(*args, **kwargs):
@@ -123,7 +123,7 @@ def step_stop(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    ...
+    plan_service.stop_test_step(args[0].step_status_id)
 
 
 def job_add(*args, **kwargs):

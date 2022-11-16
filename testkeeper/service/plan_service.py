@@ -209,9 +209,11 @@ class PlanService(SqlInterface):
             updateTime=datetime.datetime.now(),
             createTime=datetime.datetime.now()
         )
+        self.execute_test_step(test_plan_status_table_obj, test_job_status_table_obj, test_step_table_obj, step_id)
 
     def stop_test_step(self, step_status_id: str):
         test_step_status_table_obj = self.get_step_status_table_obj(int(step_status_id))
+        logger.info(test_step_status_table_obj.__dict__)
         test_job_status_obj = test_step_status_table_obj.testJobStatus
         test_plan_status_obj = test_job_status_obj.testPlanStatus
         if test_step_status_table_obj.executeStatus == ExecuteStatus.RUNNING:
@@ -250,13 +252,13 @@ class PlanService(SqlInterface):
         self.sqlSession.add(test_plan_status_table_obj)
         self.sqlSession.commit()
 
-    def execute_cmd(self, test_job):
+    def execute_cmd(self, test_obj):
         logger.info("#####")
         self.execute_result = self.shell_client.run_cmd(
-            f"cd {test_job.executeScriptPath} && {test_job.executeScriptCmd}",
+            f"cd {test_obj.executeScriptPath} && {test_obj.executeScriptCmd}",
             timeout=600)
 
-    def watch_execute_cmd_process(self, test_job, test_plan_status_table_obj, test_job_status_table_obj):
+    def watch_execute_job_cmd_process(self, test_job, test_plan_status_table_obj, test_job_status_table_obj):
         time.sleep(test_job.checkInterval)
         pid = SystemInfo.get_process_pid_by_os(self.shell_client, test_job.executeScriptCmd)
         test_job_status_table_obj.processPid = pid
@@ -265,7 +267,7 @@ class PlanService(SqlInterface):
             for test_step in test_job.testSteps:
                 test_step_status_table_obj = TestStepStatusTable(
                     stepName=test_step.stepName,
-                    id=test_step.id,
+                    stepId=test_step.id,
                     executeStatus=test_job_status_table_obj.executeStatus,
                     updateTime=datetime.datetime.now(),
                     createTime=datetime.datetime.now(),
@@ -303,12 +305,75 @@ class PlanService(SqlInterface):
                 break
             time.sleep(test_job.checkInterval)
 
-    def check_execute_cmd(self, test_job, test_plan_status_table_obj, test_job_status_table_obj):
+    def watch_execute_step_cmd_process(self, test_step: TestStepTable, test_step_status_obj: TestStepStatusTable,
+                                       test_job_status_table_obj: TestJobStatusTable,
+                                       test_plan_status_table_obj: TestPlanStatusTable):
+        time.sleep(test_step.checkInterval)
+        pid = SystemInfo.get_process_pid_by_os(self.shell_client, test_step.executeScriptCmd)
+
+        # test_step.processPid = pid
+
+        def insert_status_data(execute_status: ExecuteStatus):
+            test_step_status_obj.processPid = pid
+            test_step_status_obj.executeStatus = execute_status
+            test_step_status_obj.updateTime = datetime.datetime.now()
+
+            test_job_status_table_obj.executeStatus = execute_status
+            test_job_status_table_obj.processPid = pid
+            test_job_status_table_obj.updateTime = datetime.datetime.now()
+
+            test_plan_status_table_obj.executeStatus = execute_status
+            test_plan_status_table_obj.updateTime = datetime.datetime.now()
+            logger.info(test_plan_status_table_obj.__dict__)
+            test_job_status_table_obj.testStepStatusList.append(test_step_status_obj)
+            test_plan_status_table_obj.testJobStatusList.append(test_job_status_table_obj)
+            self.sqlSession.add(test_plan_status_table_obj)
+            self.sqlSession.commit()
+
+        while True:
+            try:
+                process_is_exists, process_is_status = SystemInfo.get_process_status(test_step.executeScriptCmd, pid)
+                if process_is_exists is True and process_is_status != "running":
+                    logger.warning(f"步骤:{test_step.stepName}，运行异常，进程状态{process_is_status},运行状态:{process_is_status}")
+                    # 查询状态表，job_status_table状态是否为STOP，如果是，直接结束，如果不是写入异常状态
+                    current_step_status_table_obj = self.get_step_status_table_obj(int(test_step_status_obj.id))
+                    if current_step_status_table_obj.executeStatus == ExecuteStatus.STOP:
+                        self.execute_result.update({"ret": 0})
+                        break
+                    else:
+                        insert_status_data(ExecuteStatus.EXCEPTION)
+                    break
+                else:
+                    logger.info(f"步骤{test_step.stepName}正在运行中，检查周期{test_step.checkInterval}s,运行状态:{process_is_status}")
+                    insert_status_data(ExecuteStatus.RUNNING)
+            except Exception as e:
+                logger.error(e)
+                logger.info(f"步骤{test_step.stepName}执行结束，结束监听")
+                break
+            time.sleep(test_step.checkInterval)
+
+    def check_execute_job_cmd(self, test_job, test_plan_status_table_obj, test_job_status_table_obj):
         execute_cmd_thread = threading.Thread(target=self.execute_cmd, args=(test_job,))
         execute_cmd_thread.setDaemon(True)
-        watch_execute_cmd_process_thread = threading.Thread(target=self.watch_execute_cmd_process,
+        watch_execute_cmd_process_thread = threading.Thread(target=self.watch_execute_job_cmd_process,
                                                             args=(test_job, test_plan_status_table_obj,
                                                                   test_job_status_table_obj))
+        watch_execute_cmd_process_thread.setDaemon(True)
+        execute_cmd_thread.start()
+        watch_execute_cmd_process_thread.start()
+        watch_execute_cmd_process_thread.join()
+
+    def check_execute_step_cmd(self, test_step: TestStepTable, test_step_status_obj: TestStepStatusTable,
+                               test_job_status_table_obj: TestJobStatusTable,
+                               test_plan_status_table_obj: TestPlanStatusTable):
+        execute_cmd_thread = threading.Thread(target=self.execute_cmd, args=(test_step,))
+        execute_cmd_thread.setDaemon(True)
+        watch_execute_cmd_process_thread = threading.Thread(target=self.watch_execute_step_cmd_process, args=(
+            test_step,
+            test_step_status_obj,
+            test_job_status_table_obj,
+            test_plan_status_table_obj
+            ))
         watch_execute_cmd_process_thread.setDaemon(True)
         execute_cmd_thread.start()
         watch_execute_cmd_process_thread.start()
@@ -326,6 +391,45 @@ class PlanService(SqlInterface):
         step_status_table_obj = self.sqlSession.query(TestStepStatusTable).filter_by(id=step_status_id).first()
         return step_status_table_obj
 
+    def execute_test_step(self, test_plan_status_table_obj: TestPlanStatusTable,
+                          test_job_status_obj: TestJobStatusTable, test_step: TestStepTable, step_id: str):
+        test_step_table_obj = self.get_test_step_by_id(step_id)
+        test_step_status_table_obj = TestStepStatusTable(
+            stepName=test_step.stepName,
+            stepId=test_step.id,
+            executeStatus=test_job_status_obj.executeStatus,
+            updateTime=datetime.datetime.now(),
+            createTime=datetime.datetime.now(),
+        )
+
+        def insert_status_table(execute_status: ExecuteStatus):
+            test_step_status_table_obj.executeStatus = execute_status
+            test_job_status_obj.executeStatus = execute_status
+            test_plan_status_table_obj.executeStatus = execute_status
+            test_job_status_obj.testStepStatusList.append(test_step_status_table_obj)
+            test_plan_status_table_obj.testJobStatusList.append(test_job_status_obj)
+
+        if test_step_table_obj.isSkipped:
+            logger.info(f"跳过当前执行的步骤:{test_step_table_obj.stepName}")
+            insert_status_table(ExecuteStatus.SKIPPED)
+        else:
+            logger.info(f"正在执行步骤：{test_step_table_obj.stepName}")
+            self.check_execute_step_cmd(test_step, test_step_status_table_obj, test_job_status_obj,
+                                        test_plan_status_table_obj)
+            if test_step_table_obj.runFailedIsNeedContinue is not True and self.execute_result["ret"] != 0:
+                insert_status_table(ExecuteStatus.FAILED)
+                raise Exception(f"测试步骤{test_step_table_obj.stepName}执行失败！！！")
+            elif test_step_table_obj.runFailedIsNeedContinue is True and self.execute_result["ret"] != 0:
+                insert_status_table(ExecuteStatus.FAILED)
+                logger.warning(f"测试步骤{test_step_table_obj.stepName}执行失败，继续执行下一个任务......")
+            else:
+                current_step_status_table_obj = self.get_step_status_table_obj(test_step_table_obj.id)
+                if current_step_status_table_obj.executeStatus == ExecuteStatus.STOP:
+                    insert_status_table(ExecuteStatus.STOP)
+                else:
+                    insert_status_table(ExecuteStatus.SUCCESS)
+                logger.info(f"测试任务{test_step_table_obj.stepName}执行成功")
+
     def execute_test_job(self, test_plan_status_table_obj, test_job: TestJobTable, job_id: str):
         test_job = self.get_test_job_by_id(job_id) if test_job is None else test_job
         test_job_status_table_obj = TestJobStatusTable(
@@ -337,27 +441,29 @@ class PlanService(SqlInterface):
             updateTime=datetime.datetime.now(),
             createTime=datetime.datetime.now()
         )
+
+        def insert_status_table(execute_status: ExecuteStatus):
+            test_job_status_table_obj.executeStatus = execute_status
+            test_plan_status_table_obj.executeStatus = execute_status
+
         if test_job.isSkipped:
             logger.info(f"跳过当前执行的任务{test_job.jobName}")
             test_job_status_table_obj.executeStatus = ExecuteStatus.SKIPPED
         else:
             logger.info(f"正在执行任务：{test_job.jobName}")
-            self.check_execute_cmd(test_job, test_plan_status_table_obj, test_job_status_table_obj)
+            self.check_execute_job_cmd(test_job, test_plan_status_table_obj, test_job_status_table_obj)
             if test_job.runFailedIsNeedContinue is not True and self.execute_result["ret"] != 0:
-                test_job_status_table_obj.executeStatus = ExecuteStatus.FAILED
-                test_plan_status_table_obj.executeStatus = ExecuteStatus.FAILED
+                insert_status_table(ExecuteStatus.FAILED)
                 raise Exception(f"测试任务{test_job.jobName}执行失败！！！")
             elif test_job.runFailedIsNeedContinue is True and self.execute_result["ret"] != 0:
-                test_job_status_table_obj.executeStatus = ExecuteStatus.FAILED
-                test_plan_status_table_obj.executeStatus = ExecuteStatus.FAILED
+                insert_status_table(ExecuteStatus.FAILED)
                 logger.warning(f"测试任务{test_job.jobName}执行失败，继续执行下一个任务......")
             else:
                 current_job_status_table_obj = self.get_job_status_table_obj(test_job_status_table_obj.id)
                 if current_job_status_table_obj.executeStatus == ExecuteStatus.STOP:
-                    test_plan_status_table_obj.executeStatus = ExecuteStatus.STOP
+                    insert_status_table(ExecuteStatus.STOP)
                 else:
-                    test_job_status_table_obj.executeStatus = ExecuteStatus.SUCCESS
-                    test_plan_status_table_obj.executeStatus = ExecuteStatus.SUCCESS
+                    insert_status_table(ExecuteStatus.SUCCESS)
                 logger.info(f"测试任务{test_job.jobName}执行成功")
         test_plan_status_table_obj.testJobStatusList.append(test_job_status_table_obj)
 

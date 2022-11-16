@@ -83,7 +83,10 @@ class MockData:
                     test_step_table_obj = TestStepTable(
                         stepName=f"step0{step_index}",
                         executeScriptPath="/tmp",
-                        executeScriptCmd=f"echo test{step_index}",
+                        executeScriptCmd=f"sleep 700 && echo test{step_index}",
+                        runFailedIsNeedContinue=True,
+                        isSkipped=False,
+                        checkInterval=10,
                         updateTime=datetime.datetime.now(),
                         createTime=datetime.datetime.now()
                     )
