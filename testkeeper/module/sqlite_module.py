@@ -114,6 +114,7 @@ class TestJobTable(Base):
             "executeScriptPath": self.executeScriptPath,
             "executeScriptCmd": self.executeScriptCmd,
             "isSkipped": self.isSkipped,
+            "checkInterval": self.checkInterval,
             "runFailedIsNeedContinue": self.runFailedIsNeedContinue,
             "updateTime": str(self.updateTime),
             "createTime": str(self.createTime)
@@ -128,6 +129,9 @@ class TestStepTable(Base):
     stepName = Column(String(500), nullable=False)
     executeScriptPath = Column(String(500), nullable=False)
     executeScriptCmd = Column(String(500), nullable=False)
+    runFailedIsNeedContinue = Column(BOOLEAN, nullable=False)
+    isSkipped = Column(BOOLEAN, nullable=False)
+    checkInterval = Column(Integer, nullable=False, default=10)
     updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
     testJob = relationship("TestJobTable", back_populates="testSteps")
@@ -139,6 +143,9 @@ class TestStepTable(Base):
             "stepName": self.stepName,
             "executeScriptPath": self.executeScriptPath,
             "executeScriptCmd": self.executeScriptCmd,
+            "isSkipped": self.isSkipped,
+            "checkInterval": self.checkInterval,
+            "runFailedIsNeedContinue": self.runFailedIsNeedContinue,
             "updateTime": str(self.updateTime),
             "createTime": str(self.createTime)
         }
@@ -151,6 +158,9 @@ class TestStepTable(Base):
             "stepName": self.stepName,
             "executeScriptPath": self.executeScriptPath,
             "executeScriptCmd": self.executeScriptCmd,
+            "isSkipped": self.isSkipped,
+            "checkInterval": self.checkInterval,
+            "runFailedIsNeedContinue": self.runFailedIsNeedContinue,
             "updateTime": str(self.updateTime),
             "createTime": str(self.createTime)
         }
@@ -159,10 +169,9 @@ class TestStepTable(Base):
 
 class TestPlanStatusTable(Base):
     __tablename__ = "test_plan_status_table"
-    id = Column(String(100), nullable=False)
     planId = Column(String(100), nullable=False)
     planName = Column(String(100), nullable=False)
-    planStatusId = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     executeStatus = Column(String(100), nullable=False)
     updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
@@ -240,9 +249,9 @@ class TestJobStatusTable(Base):
 class TestStepStatusTable(Base):
     __tablename__ = "test_step_status_table"
     jobStatusId = Column(String(100), ForeignKey("test_job_status_table.id"))
-    id = Column(String(100), nullable=False)
+    stepId = Column(String(100), nullable=False)
     stepName = Column(String(100), nullable=False)
-    stepStatusId = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     executeStatus = Column(String(100), nullable=False)
     processPid = Column(Integer, nullable=False)
     updateTime = Column(TIMESTAMP, nullable=False)
@@ -251,9 +260,9 @@ class TestStepStatusTable(Base):
 
     def __str__(self):
         test_step_status_table_dir = {
-            "stepStatusId": self.stepStatusId,
+            "stepStatusId": self.id,
             "jobStatusId": self.jobStatusId,
-            "stepId": self.id,
+            "stepId": self.stepId,
             "processPid": self.processPid,
             "stepName": self.stepName,
             "executeStatus": self.executeStatus,
@@ -264,9 +273,9 @@ class TestStepStatusTable(Base):
 
     def __repr__(self):
         test_step_status_table_dir = {
-            "stepStatusId": self.stepStatusId,
+            "stepStatusId": self.id,
             "jobStatusId": self.jobStatusId,
-            "stepId": self.id,
+            "stepId": self.stepId,
             "processPid": self.processPid,
             "stepName": self.stepName,
             "executeStatus": self.executeStatus,

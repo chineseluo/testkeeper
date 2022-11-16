@@ -65,6 +65,7 @@ class SystemInfo:
 
     @staticmethod
     def get_process_pid_by_os(shell_client: ShellClient, process_key: str):
+        process_info = shell_client.check_output(f'ps -ef|grep "{process_key}"')
         pid = shell_client.check_output(f'ps -ef|grep "{process_key}" | grep -v grep | awk' + " '{print $2}'").strip()
         return int(pid)
 

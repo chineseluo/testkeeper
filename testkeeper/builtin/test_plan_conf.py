@@ -34,6 +34,9 @@ class TestStep(BaseModel):
     stepName: str
     executeScriptPath: str
     executeScriptCmd: str
+    runFailedIsNeedContinue: bool
+    isSkipped: bool
+    checkInterval: int = 10
 
 
 class TestJob(BaseModel):

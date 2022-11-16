@@ -65,7 +65,19 @@ parameters:
           help: "待修改的值"
           default: "None"
           dest: "value"
-
+  - parent_cmd:
+      param_name: "plan_stop"
+      type: "str"
+      help: "更新测试计划配置"
+      default: "None"
+      func: "plan_stop"
+      children_cmd:
+        - param_name:
+            - '-plan_status_id'
+          type: "str"
+          help: "测试计划ID"
+          default: "None"
+          dest: "plan_status_id"
 
 
   - parent_cmd:
@@ -137,7 +149,33 @@ parameters:
           help: "测试计划ID"
           default: "None"
           dest: "job_id"
-
+  - parent_cmd:
+      param_name: "job_start"
+      type: "str"
+      help: "删除测试计划"
+      default: "None"
+      func: "job_start"
+      children_cmd:
+        - param_name:
+            - '-j_id'
+            - '-job_id'
+          type: "str"
+          help: "测试计划ID"
+          default: "None"
+          dest: "job_id"
+  - parent_cmd:
+      param_name: "job_stop"
+      type: "str"
+      help: "删除测试计划"
+      default: "None"
+      func: "job_stop"
+      children_cmd:
+        - param_name:
+            - '-job_status_id'
+          type: "str"
+          help: "测试计划ID"
+          default: "None"
+          dest: "job_status_id"
 
   - parent_cmd:
       param_name: "job_update"
@@ -314,7 +352,7 @@ parameters:
       func: "job_status_delete"
       children_cmd:
         - param_name:
-            - "-plan_status_id"
+            - "-job_status_id"
           type: "str"
           help: "计划ID"
           default: "None"
@@ -402,3 +440,36 @@ parameters:
           help: "计划ID"
           default: "None"
           dest: "step_status_id"
+  - parent_cmd:
+      param_name: "step_start"
+      type: "str"
+      help: "执行测试计划"
+      default: "None"
+      func: "step_start"
+      children_cmd:
+        - param_name:
+            - '-s_id'
+            - '-step_id'
+          type: "str"
+          help: "测试计划ID"
+          default: "None"
+          dest: "step_id"
+  - parent_cmd:
+      param_name: "step_stop"
+      type: "str"
+      help: "执行测试计划"
+      default: "None"
+      func: "step_stop"
+      children_cmd:
+        - param_name:
+            - '-step_status_id'
+          type: "str"
+          help: "测试计划ID"
+          default: "None"
+          dest: "step_status_id"
+  - parent_cmd:
+      param_name: "get_local_machine_metric"
+      type: "str"
+      help: "获取本机资源信息"
+      default: "None"
+      func: "get_local_machine_metric"
