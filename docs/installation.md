@@ -1,6 +1,6 @@
 # 安装
 
-OpenSourceTest使用python开发，它支持在Python3.8+版本和大多数操作系统。
+TestKeeper使用python开发，它支持在Python3.8+版本和大多数操作系统。
 
 ## 安装
 
