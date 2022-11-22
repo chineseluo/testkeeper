@@ -27,6 +27,11 @@
 ### 支持web ui方式 - v0.2.0 版本支持（计划中）
 - 支持web ui进行计划/任务/步骤的管理，更加灵活的去进行任务编排，可视化页面更加友好
 
+## **代码贡献者**
+
+**每一个对代码贡献的开源人士，都值得被大力赞赏，花费自己的休息时间，提交具有价值的代码，为社区的繁荣做出贡献**
+- **xmliuxing 流星**
+
 ## **打赏支持**
 
 **TestKeeper由来自中国的成都-阿木木在空闲时间维护。虽然我致力于TestKeeper，因为我热爱这个项目，但是如果可能的话，希望可以得到一杯咖啡的打赏支持，您的打赏是我最大的支持。我会将打赏的胖友名单放入赞助者列表中，用以表示感谢。**
@@ -37,8 +42,11 @@
 
 ​	**成为打赏者[become a sponsor](/docs/sponsors.md)**
 
+​	**成为代码贡献者者[become a sponsor](/docs/sponsors.md)**
+
+
 ​	**联系作者：[成都-阿木木](mailto:848257135@qq.com)**
 
 
 
-[opensourcetest]: https://github.com/chineseluo/opensourcetest
+[TestKeeper]: https://github.com/chineseluo/testkeeper

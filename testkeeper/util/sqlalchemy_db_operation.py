@@ -30,7 +30,6 @@ class SQLalchemyDbOperation:
             self.sqlalchemy_engine = None
         # 初始化数据库连接
         db_full_path = os.path.join(self.db_path, self.db_name)
-        logger.info(f'数据库路径为：{db_full_path}')
         self.sqlalchemy_engine = create_engine(
             f'sqlite:///{db_full_path}', echo=True,
             connect_args={'check_same_thread': False})

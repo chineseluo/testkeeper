@@ -474,6 +474,10 @@ class PlanService(SqlInterface):
             for test_job_status_obj in test_plan_status_obj.testJobStatusList:
                 if test_job_status_obj.executeStatus == ExecuteStatus.RUNNING:
                     self.shell_client.check_call(f"kill -9 {test_job_status_obj.processPid}")
+                    self.execute_result["ret"] = 0
+                    for test_step_status_obj in test_job_status_obj.testStepStatusList:
+                        test_step_status_obj.executeStatus = ExecuteStatus.STOP
+                        # test_job_status_obj.testStepStatusList.append(test_step_status_obj)
                     test_job_status_obj.executeStatus = ExecuteStatus.STOP
                     test_plan_status_obj.executeStatus = ExecuteStatus.STOP
                     test_plan_status_obj.testJobStatusList.append(test_job_status_obj)
@@ -544,7 +548,7 @@ class PlanService(SqlInterface):
         if job_status_id is not None:
             test_step_status_list = [test_job.__repr__() for test_job in
                                      self.sqlSession.query(TestStepStatusTable).filter(
-                                         TestJobStatusTable.id == job_status_id).all()]
+                                         TestStepStatusTable.jobStatusId == job_status_id).all()]
         else:
             test_step_status_list = [test_job.__repr__() for test_job in
                                      self.sqlSession.query(TestStepStatusTable).filter().all()]
