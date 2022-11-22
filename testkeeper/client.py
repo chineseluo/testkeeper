@@ -49,7 +49,7 @@ def plan_load(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    logger.info("test")
+    plan_service.add_test_plan(args[0].file)
 
 
 def plan_update(*args, **kwargs):

@@ -22,6 +22,10 @@ class TestKeeperFileNotFountException(TestKeeperException):
     ...
 
 
+class TestKeeperFileTypeException(TestKeeperException):
+    ...
+
+
 class TestKeeperCheckerException(TestKeeperException):
     ...
 

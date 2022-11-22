@@ -193,3 +193,9 @@ class TestCmd(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
+
+    def test_plan_add(self):
+        sys.argv = ["Tk", "plan_load", "-file", "test_plan_templates.yml"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        self.assertEqual(cm.exception.code, 0)
