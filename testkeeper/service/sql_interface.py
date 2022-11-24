@@ -21,8 +21,9 @@ class SqlInterface:
     db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),
                            "db")
     db_name = "testkeeper.db"
-
-    sqlSession = SQLalchemyDbOperation(db_path, db_name).use_connect()
+    sql_alchemy = SQLalchemyDbOperation(db_path, db_name)
+    sqlSession = sql_alchemy.use_connect()
+    mul_session = SQLalchemyDbOperation(db_path, db_name).use_connect_by_mul_thread()
 
 
 if __name__ == '__main__':

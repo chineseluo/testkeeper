@@ -61,3 +61,9 @@ class TestCmd(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
+
+    def test_show_testkeeper_machine_info(self):
+        sys.argv = ["Tk", "show_testkeeper_machine_info"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        self.assertEqual(cm.exception.code, 0)

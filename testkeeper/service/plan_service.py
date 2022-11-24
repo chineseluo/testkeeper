@@ -243,6 +243,9 @@ class PlanService(SqlInterface):
         )
         self.execute_test_job(test_plan_status_table_obj, test_job_table_obj, test_job_table_obj.id)
 
+    def show_testkeeper_machine_info(self):
+        return SystemInfo.get_local_metric()
+
     def start_test_step(self, step_id: str):
         test_step_table_obj = self.get_test_step_by_id(step_id)
         test_job_table_obj = test_step_table_obj.testJob
@@ -284,27 +287,29 @@ class PlanService(SqlInterface):
 
     def execute_test_plan(self, plan_id: str):
         test_plan_status_table_obj = self.sqlSession.query(TestPlanStatusTable).filter_by(planId=plan_id).first()
-        if test_plan_status_table_obj.executeStatus in [ExecuteStatus.RUNNING, ExecuteStatus.START]:
-            logger.error("当前测试计划有正在运行的计划，待上一个计划执行完在执行......")
+
+        if test_plan_status_table_obj is not None and test_plan_status_table_obj.executeStatus in [ExecuteStatus.RUNNING, ExecuteStatus.START]:
+            logger.error(f"当前测试计划{plan_id},有正在运行的计划，待上一个计划执行完在执行......")
             return
         else:
+            test_plan = self.sqlSession.query(TestPlanTable).filter_by(id=plan_id).first()
+
             logger.info(
-                f"当前测试计划没有正在运行的计划，开始执行测试计划:{test_plan_status_table_obj.planName}，测试计划id:{test_plan_status_table_obj.id}")
+                f"当前测试计划没有正在运行的计划，开始执行，测试项目:{test_plan.projectName},测试计划:{test_plan.planName}，测试计划id:{test_plan.id}")
 
-        test_plan = self.sqlSession.query(TestPlanTable).filter_by(id=plan_id).first()
-        test_job_list = self.sqlSession.query(TestJobTable).filter_by(id=plan_id).all()
-        test_plan_status_table_obj = TestPlanStatusTable(
-            planName=test_plan.planName,
-            planId=test_plan.id,
-            executeStatus=ExecuteStatus.START,
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now()
-        )
+            test_job_list = self.sqlSession.query(TestJobTable).filter_by(id=plan_id).all()
+            test_plan_status_table_obj = TestPlanStatusTable(
+                planName=test_plan.planName,
+                planId=test_plan.id,
+                executeStatus=ExecuteStatus.START,
+                updateTime=datetime.datetime.now(),
+                createTime=datetime.datetime.now()
+            )
 
-        for test_job in test_job_list:
-            self.execute_test_job(test_plan_status_table_obj, test_job, test_job.id)
-        self.sqlSession.add(test_plan_status_table_obj)
-        self.sqlSession.commit()
+            for test_job in test_job_list:
+                self.execute_test_job(test_plan_status_table_obj, test_job, test_job.id)
+            self.sqlSession.add(test_plan_status_table_obj)
+            self.sqlSession.commit()
 
     def execute_cmd(self, test_obj):
         logger.info("#####")
@@ -428,7 +433,7 @@ class PlanService(SqlInterface):
             test_step_status_obj,
             test_job_status_table_obj,
             test_plan_status_table_obj
-            ))
+        ))
         watch_execute_cmd_process_thread.setDaemon(True)
         execute_cmd_thread.start()
         watch_execute_cmd_process_thread.start()

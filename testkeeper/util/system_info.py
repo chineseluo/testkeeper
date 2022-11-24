@@ -21,7 +21,7 @@ class SystemInfo:
 
     @staticmethod
     def get_cpu_count():
-        return psutil.cpu_count()
+        return {"cpu_count": psutil.cpu_count()}
 
     @staticmethod
     def get_memory_info():
@@ -32,7 +32,7 @@ class SystemInfo:
         total = str(round(psutil.virtual_memory().total / (1024.0 * 1024.0 * 1024.0), 2))
         used = str(round(psutil.virtual_memory().used / (1024.0 * 1024.0 * 1024.0), 2))
         free = str(round(psutil.virtual_memory().free / (1024.0 * 1024.0 * 1024.0), 2))
-        return total, used, free
+        return {"memory_total": total, "memory_used": used, "memory_free": free}
 
     @staticmethod
     def get_disk_info():
@@ -40,7 +40,7 @@ class SystemInfo:
         total = str(round(disk_info.total / (1024.0 * 1024.0 * 1024.0), 2))
         used = str(round(disk_info.used / (1024.0 * 1024.0 * 1024.0), 2))
         free = str(round(disk_info.free / (1024.0 * 1024.0 * 1024.0), 2))
-        return total, used, free
+        return {"disk_total": total, "disk_used": used, "disk_free": free}
 
     @staticmethod
     def get_current_sys_user_info():
@@ -76,10 +76,16 @@ class SystemInfo:
             p = psutil.Process(pid)
             print("pid-%d,pname-%s" % (pid, p.name()))
 
+    @staticmethod
+    def get_local_metric():
+        local_machine_dict = {}
+        local_machine_dict.update(SystemInfo.get_cpu_count())
+        local_machine_dict.update(SystemInfo.get_total_memory())
+        local_machine_dict.update(SystemInfo.get_disk_info())
+        return local_machine_dict
+
 
 if __name__ == '__main__':
-    logger.info(SystemInfo.get_cpu_count())
-    logger.info(SystemInfo.get_disk_info())
+    logger.info(SystemInfo.get_local_metric())
 
-    logger.info(SystemInfo.test_sys())
     # logger.info(SystemInfo.get_process_status("echo test"))

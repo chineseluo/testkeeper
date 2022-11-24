@@ -57,7 +57,6 @@ class LoggerFormat:
                 filed_names.append(item)
                 content_list.append(content[item])
             pt.field_names = filed_names
-            pt.add_rows(content_list)
+            pt.add_row(content_list)
         pt.set_style(DEFAULT)
-
         logger.info(f"\n{pt}")

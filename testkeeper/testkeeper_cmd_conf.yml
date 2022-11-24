@@ -3,7 +3,7 @@ parameters:
   - parent_cmd:
       param_name: "plan_load"
       type: "str"
-      help: "加载测试计划"
+      help: "从配置文件中加载测试计划，支持yaml/json格式"
       default: "None"
       func: "plan_load"
       children_cmd:
@@ -15,10 +15,11 @@ parameters:
           help: "测试文件名称，支持yaml/json格式"
           default: "None"
           dest: "file"
+
   - parent_cmd:
       param_name: "plan_show"
       type: "str"
-      help: "查询测试计划列表，展示配置信息"
+      help: "查询测试计划列表，展示测试计划的配置信息"
       default: "None"
       func: "plan_show"
       children_cmd:
@@ -55,7 +56,7 @@ parameters:
             - '-n'
             - '-name'
           type: "str"
-          help: "更新字段"
+          help: "需要更新的字段"
           default: "None"
           dest: "name"
         - param_name:
@@ -68,22 +69,21 @@ parameters:
   - parent_cmd:
       param_name: "plan_stop"
       type: "str"
-      help: "更新测试计划配置"
+      help: "停止正在运行的测试计划"
       default: "None"
       func: "plan_stop"
       children_cmd:
         - param_name:
             - '-plan_status_id'
           type: "str"
-          help: "测试计划ID"
+          help: "测试计划状态ID，执行TK plan_status_show命令获取测试计划状态ID"
           default: "None"
           dest: "plan_status_id"
-
 
   - parent_cmd:
       param_name: "plan_delete"
       type: "str"
-      help: "删除测试计划配置"
+      help: "删除测试计划配置，会同步删除测试计划下的测试任务/测试步骤"
       default: "None"
       func: "plan_delete"
       children_cmd:
@@ -97,7 +97,7 @@ parameters:
   - parent_cmd:
       param_name: "plan_start"
       type: "str"
-      help: "执行测试计划"
+      help: "执行测试计划（如果该计划有正在运行的，处于RUNNING状态的测试计划状态的数据，会退出执行当前的测试计划，需要手动停止上一个正在运行的测试计划才行），会生成测试计划状态/测试任务状态/测试步骤状态"
       default: "None"
       func: "plan_start"
       children_cmd:
@@ -113,10 +113,9 @@ parameters:
   - parent_cmd:
       param_name: "job_add"
       type: "str"
-      help: "测试计划"
+      help: "在对应测试计划下添加测试任务配置"
       default: "None"
       func: "job_add"
-
       children_cmd:
         - param_name:
             - "-p"
@@ -125,20 +124,18 @@ parameters:
           help: "项目名称"
           default: "None"
           dest: "project_name"
-
         - param_name:
             - "-p_id"
             - "-plan_id"
           type: "str"
-          help: "计划ID"
+          help: "测试计划ID"
           default: "None"
           dest: "plan_id"
-
 
   - parent_cmd:
       param_name: "job_delete"
       type: "str"
-      help: "删除测试计划"
+      help: "删除对应测试计划下的测试任务配置"
       default: "None"
       func: "job_delete"
       children_cmd:
@@ -146,13 +143,13 @@ parameters:
             - '-j_id'
             - '-job_id'
           type: "str"
-          help: "测试计划ID"
+          help: "测试任务ID"
           default: "None"
           dest: "job_id"
   - parent_cmd:
       param_name: "job_start"
       type: "str"
-      help: "删除测试计划"
+      help: "执行测试任务（如果该任务有正在运行的，处于RUNNING状态的测试任务状态的数据，会退出执行当前的测试任务，需要手动停止上一个正在运行的测试任务才行），会生成测试计划状态/测试任务状态/测试步骤状态"
       default: "None"
       func: "job_start"
       children_cmd:
@@ -160,27 +157,27 @@ parameters:
             - '-j_id'
             - '-job_id'
           type: "str"
-          help: "测试计划ID"
+          help: "测试任务ID"
           default: "None"
           dest: "job_id"
   - parent_cmd:
       param_name: "job_stop"
       type: "str"
-      help: "删除测试计划"
+      help: "停止正在运行的测试任务"
       default: "None"
       func: "job_stop"
       children_cmd:
         - param_name:
             - '-job_status_id'
           type: "str"
-          help: "测试计划ID"
+          help: "测试任务状态ID"
           default: "None"
           dest: "job_status_id"
 
   - parent_cmd:
       param_name: "job_update"
       type: "str"
-      help: "更新测试任务"
+      help: "更新测试任务配置"
       default: "None"
       func: "job_update"
       children_cmd:
@@ -188,17 +185,16 @@ parameters:
             - "-j_id"
             - "-job_id"
           type: "str"
-          help: "任务ID"
+          help: "任务配置ID"
           default: "None"
           dest: "job_id"
         - param_name:
             - '-n'
             - '-name'
           type: "str"
-          help: "测试计划的字段"
+          help: "需要更新的字段"
           default: "None"
           dest: "name"
-
         - param_name:
             - '-v'
             - '-value'
@@ -210,7 +206,7 @@ parameters:
   - parent_cmd:
       param_name: "job_show"
       type: "str"
-      help: "显示测试任务"
+      help: "显示测试计划下的任务配置"
       default: "None"
       func: "job_show"
       children_cmd:
@@ -225,7 +221,7 @@ parameters:
   - parent_cmd:
       param_name: "step_show"
       type: "str"
-      help: "显示测试任务"
+      help: "显示测试任务下的步骤配置"
       default: "None"
       func: "step_show"
       children_cmd:
@@ -254,10 +250,9 @@ parameters:
             - '-n'
             - '-name'
           type: "str"
-          help: "测试计划的字段"
+          help: "需要更新的字段"
           default: "None"
           dest: "name"
-
         - param_name:
             - '-v'
             - '-value'
@@ -269,7 +264,7 @@ parameters:
   - parent_cmd:
       param_name: "plan_status_show"
       type: "str"
-      help: "显示测试任务"
+      help: "显示测试任务执行状态"
       default: "None"
       func: "plan_status_show"
       children_cmd:
@@ -280,7 +275,6 @@ parameters:
           help: "项目名称"
           default: "None"
           dest: "project_name"
-
         - param_name:
             - '-l'
             - '-limit'
@@ -289,28 +283,26 @@ parameters:
           default: "None"
           dest: "limit"
 
-
   - parent_cmd:
       param_name: "plan_status_update"
       type: "str"
-      help: "修改测试计划状态"
+      help: "修改测试任务执行状态"
       default: "None"
       func: "plan_status_update"
       children_cmd:
         - param_name:
             - "-plan_status_id"
           type: "str"
-          help: "计划ID"
+          help: "测试计划状态ID"
           default: "None"
           dest: "plan_status_id"
         - param_name:
             - '-n'
             - '-name'
           type: "str"
-          help: "测试计划的字段"
+          help: "需要更新的字段"
           default: "None"
           dest: "name"
-
         - param_name:
             - '-v'
             - '-value'
@@ -328,26 +320,26 @@ parameters:
         - param_name:
             - "-plan_status_id"
           type: "str"
-          help: "计划ID"
+          help: "测试计划状态ID"
           default: "None"
           dest: "plan_status_id"
   - parent_cmd:
       param_name: "job_status_show"
       type: "str"
-      help: "显示测试任务"
+      help: "显示测试计划状态下的测试任务状态"
       default: "None"
       func: "job_status_show"
       children_cmd:
         - param_name:
             - "-plan_status_id"
           type: "str"
-          help: "计划ID"
+          help: "测试计划状态ID"
           default: "None"
           dest: "plan_id"
   - parent_cmd:
       param_name: "job_status_delete"
       type: "str"
-      help: "显示测试任务"
+      help: "删除测试任务状态"
       default: "None"
       func: "job_status_delete"
       children_cmd:
@@ -361,24 +353,23 @@ parameters:
   - parent_cmd:
       param_name: "job_status_update"
       type: "str"
-      help: "显示测试任务"
+      help: "更新测试任务状态"
       default: "None"
       func: "job_status_update"
       children_cmd:
         - param_name:
             - "-job_status_id"
           type: "str"
-          help: "计划ID"
+          help: "任务状态ID"
           default: "None"
           dest: "job_status_id"
         - param_name:
             - '-n'
             - '-name'
           type: "str"
-          help: "测试计划的字段"
+          help: "需要更新的字段"
           default: "None"
           dest: "name"
-
         - param_name:
             - '-v'
             - '-value'
@@ -396,7 +387,7 @@ parameters:
         - param_name:
             - "-job_status_id"
           type: "str"
-          help: "计划ID"
+          help: "任务状态ID"
           default: "None"
           dest: "job_status_id"
   - parent_cmd:
@@ -409,14 +400,14 @@ parameters:
         - param_name:
             - "-step_status_id"
           type: "str"
-          help: "计划ID"
+          help: "测试步骤状态ID"
           default: "None"
           dest: "step_status_id"
         - param_name:
             - '-n'
             - '-name'
           type: "str"
-          help: "测试计划的字段"
+          help: "需要更新的字段"
           default: "None"
           dest: "name"
         - param_name:
@@ -430,20 +421,20 @@ parameters:
   - parent_cmd:
       param_name: "step_status_delete"
       type: "str"
-      help: "显示测试任务"
+      help: "删除测试步骤状态"
       default: "None"
       func: "step_status_delete"
       children_cmd:
         - param_name:
             - "-step_status_id"
           type: "str"
-          help: "计划ID"
+          help: "测试步骤状态ID"
           default: "None"
           dest: "step_status_id"
   - parent_cmd:
       param_name: "step_start"
       type: "str"
-      help: "执行测试计划"
+      help: "执行测试步骤"
       default: "None"
       func: "step_start"
       children_cmd:
@@ -451,25 +442,26 @@ parameters:
             - '-s_id'
             - '-step_id'
           type: "str"
-          help: "测试计划ID"
+          help: "测试步骤ID"
           default: "None"
           dest: "step_id"
   - parent_cmd:
       param_name: "step_stop"
       type: "str"
-      help: "执行测试计划"
+      help: "停止正在运行的测试步骤"
       default: "None"
       func: "step_stop"
       children_cmd:
         - param_name:
             - '-step_status_id'
           type: "str"
-          help: "测试计划ID"
+          help: "测试步骤状态ID"
           default: "None"
           dest: "step_status_id"
+
   - parent_cmd:
-      param_name: "get_local_machine_metric"
+      param_name: "show_testkeeper_machine_info"
       type: "str"
-      help: "获取本机资源信息"
+      help: "获取testkeeper部署环境的机器资源信息"
       default: "None"
-      func: "get_local_machine_metric"
+      func: "show_testkeeper_machine_info"

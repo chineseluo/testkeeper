@@ -14,6 +14,8 @@
 import json
 import os
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import event
+from loguru import logger
 from sqlalchemy import Column, String, Integer, DateTime, Text, Table, ForeignKey, BOOLEAN
 from sqlalchemy.dialects.sqlite import *
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
@@ -90,8 +92,8 @@ class TestJobTable(Base):
 
     def __repr__(self):
         test_job_table_dict = {
-            "planId": self.planId,
             "jobId": self.id,
+            "planId": self.planId,
             "jobName": self.jobName,
             "createUser": self.createUser,
             "executeScriptPath": self.executeScriptPath,
@@ -107,8 +109,8 @@ class TestJobTable(Base):
 
     def __str__(self):
         test_job_table_dict = {
-            "planId": self.planId,
             "jobId": self.id,
+            "planId": self.planId,
             "jobName": self.jobName,
             "createUser": self.createUser,
             "executeScriptPath": self.executeScriptPath,
@@ -342,6 +344,20 @@ class User(Base):
     email = Column(String(100), nullable=True)
     updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
+
+
+# @event.listens_for(TestPlanTable, 'after_insert', raw=True)
+# @event.listens_for(TestPlanTable, 'after_update', raw=True)
+# @event.listens_for(TestPlanTable, 'after_delete', raw=True)
+# def watcher_plan_table_cron_change(mapper, connection, target):
+#     logger.info(mapper)
+#     logger.info(connection)
+#     logger.info(target.dict['cron'])
+#     logger.info(target.dict['isConfigMessagePush'])
+#     logger.info(dir(target))
+#     for item in target.__dict__:
+#         logger.info(item)
+#     logger.info("数据发生变更")
 
 
 if __name__ == '__main__':

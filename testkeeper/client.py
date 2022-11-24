@@ -313,8 +313,9 @@ def step_status_update(*args, **kwargs):
     plan_service.update_test_step_status(args[0].step_status_id, args[0].name, args[0].value)
 
 
-def get_local_machine_metric(*args, **kwargs):
-    ...
+def show_testkeeper_machine_info(*args, **kwargs):
+    title = "TESTKEEPER INSTALL MACHINE INFO ** TestKeeper安装机器资源信息展示"
+    LoggerFormat.console_pretty_table(title, plan_service.show_testkeeper_machine_info())
 
 
 def init_scaffold_parser(subparsers):

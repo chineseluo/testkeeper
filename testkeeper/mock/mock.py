@@ -49,7 +49,7 @@ class MockData:
                 planName=f"测试计划{plan_index}",
                 createUser="成都-阿木木",
                 isScheduledExecution=True,
-                cron="2 3 4 5 6",
+                cron="2 3 4 9 6",
                 isConfigMessagePush=True,
                 messagePushMethod="企业微信",
                 messagePushWebhook="www.baidu.com",
@@ -58,10 +58,10 @@ class MockData:
             )
             for i in range(1, job_count):
                 test_job_table_obj = TestJobTable(
-                    jobName=f"job0{i}",
+                    jobName=f"job000{i}",
                     createUser="成都-阿木木",
                     executeScriptPath="/tmp",
-                    executeScriptCmd="sleep 700 && echo test",
+                    executeScriptCmd="sleep 30 && echo test",
                     executeTimeout=660,
                     runFailedIsNeedContinue=True,
                     isSkipped=False,
