@@ -5,8 +5,8 @@
 ------------------------------------
 @Project : testkeeper
 @Time    : 17:36
-@Auth    : luozhongwen
-@Email   : luozhongwen@sensorsdata.cn
+@Auth    : 成都-阿木木
+@Email   : 848257135@qq.com
 @File    : job_status_service.py
 @IDE     : PyCharm
 ------------------------------------
