@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 
-class TestMachine(BaseModel):
+class TestMachineConfig(BaseModel):
     """
     测试机器
     """
@@ -27,7 +27,7 @@ class TestMachine(BaseModel):
     diskSize: str = None
 
 
-class TestStep(BaseModel):
+class TestStepConfig(BaseModel):
     """
     测试步骤
     """
@@ -39,7 +39,7 @@ class TestStep(BaseModel):
     checkInterval: int = 10
 
 
-class TestJob(BaseModel):
+class TestJobConfig(BaseModel):
     """
     测试任务
     """
@@ -51,11 +51,11 @@ class TestJob(BaseModel):
     runFailedIsNeedContinue: bool
     isSkipped: bool
     checkInterval: int
-    executeMachineIpList: List[TestMachine]
-    TestStep: List[TestStep]
+    executeMachineIpList: List[TestMachineConfig]
+    TestStep: List[TestStepConfig]
 
 
-class TestPlan(BaseModel):
+class TestPlanConfig(BaseModel):
     """
     测试计划
     """
@@ -68,7 +68,7 @@ class TestPlan(BaseModel):
     isConfigMessagePush: bool
     messagePushMethod: str
     messagePushWebhook: str
-    TestJob: List[TestJob]
+    TestJob: List[TestJobConfig]
 
     def __init__(self, path: str):
         file_suffix = path.split(".")[-1]
