@@ -53,7 +53,7 @@ class TaskScheduler:
             self._scheduler.add_job(id=str(test_plan["planId"]),
                                     name=f'{test_plan["projectName"]}_{test_plan["planName"]}_scheduler_task_{test_plan["planId"]}',
                                     func=plan_service.execute_test_plan, trigger="interval",
-                                    seconds=10, replace_existing=True, timezone='Asia/Shanghai',
+                                    seconds=30, replace_existing=True, timezone='Asia/Shanghai',
                                     args=[test_plan["planId"]])
 
     def update_time_job(self):

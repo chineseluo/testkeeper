@@ -23,7 +23,7 @@ class SqlInterface:
     db_name = "testkeeper.db"
     sql_alchemy = SQLalchemyDbOperation(db_path, db_name)
     sqlSession = sql_alchemy.use_connect()
-    mul_session = SQLalchemyDbOperation(db_path, db_name).use_connect_by_mul_thread()
+    mul_session = sql_alchemy.use_connect_by_mul_thread()
 
 
 if __name__ == '__main__':

@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 import os
 import json
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from loguru import logger
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
 from testkeeper.service.plan_service import PlanService
 from testkeeper.module.sqlite_module import TestJobTable, TestPlanTable
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="./templates/static", template_folder="./templates")
 plan_service = PlanService()
 
 
@@ -20,9 +20,10 @@ class Config(object):
 app.config.from_object(Config)
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def hello_world(path):
+    return render_template("index.html")
 
 
 @app.route("/job/update/")
@@ -78,4 +79,4 @@ def delete_test_plan():
 
 if __name__ == '__main__':
     # app.config['JSON_AS_ASCII'] = False
-    app.run()
+    app.run(debug=True)

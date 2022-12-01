@@ -58,10 +58,10 @@ class MockData:
             )
             for i in range(1, job_count):
                 test_job_table_obj = TestJobTable(
-                    jobName=f"job000{i}",
+                    jobName=f"job001{i}",
                     createUser="成都-阿木木",
                     executeScriptPath="/tmp",
-                    executeScriptCmd="sleep 30 && echo test",
+                    executeScriptCmd="sleep 20 && echo gggg",
                     executeTimeout=660,
                     runFailedIsNeedContinue=True,
                     isSkipped=False,

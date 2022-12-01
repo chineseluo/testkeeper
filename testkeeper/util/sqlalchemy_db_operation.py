@@ -14,7 +14,7 @@
 import os
 from loguru import logger
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.pool import SingletonThreadPool
 
@@ -33,9 +33,9 @@ class SQLalchemyDbOperation:
         db_full_path = os.path.join(self.db_path, self.db_name)
         self.sqlalchemy_engine = create_engine(
             f'sqlite:///{db_full_path}', echo=True,
-            connect_args={'check_same_thread': False}, poolclass=SingletonThreadPool)
+            connect_args={'check_same_thread': False}, poolclass=SingletonThreadPool, future=True)
         # 创建DbSession
-        DBSession = sessionmaker(bind=self.sqlalchemy_engine)
+        DBSession = scoped_session(sessionmaker(bind=self.sqlalchemy_engine))
 
         self.sqlalchemy_db_session = DBSession()
 
@@ -49,14 +49,17 @@ class SQLalchemyDbOperation:
 
         self.sqlalchemy_engine = create_engine(
             f'sqlite:///{db_full_path}', echo=True,
-            connect_args={'check_same_thread': False})
-        DBSession = sessionmaker(bind=self.sqlalchemy_engine)
+            connect_args={'check_same_thread': False}, poolclass=SingletonThreadPool, future=True)
+        DBSession = scoped_session(sessionmaker(bind=self.sqlalchemy_engine))
         return DBSession()
 
     def create_table(self):
         self.__connect()
         Base = declarative_base()
         Base.metadata.create_all(self.sqlalchemy_engine)
+
+    def remove_session(self):
+        self.use_connect().remove()
 
     def __del__(self):
         if self.sqlalchemy_db_session:

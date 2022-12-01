@@ -12,6 +12,7 @@
 ------------------------------------
 """
 import json
+import os
 import time
 import datetime
 from loguru import logger
@@ -30,6 +31,7 @@ from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.util.system_info import SystemInfo
 from testkeeper.builtin.test_plan_conf import TestPlan
+from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
 
 
 class PlanService(SqlInterface):
@@ -40,35 +42,35 @@ class PlanService(SqlInterface):
     def get_test_plan_list(self, project_name: str = None, limit: int = 3):
         if project_name is not None and limit is not None:
             test_plan_list = [test_plan.__repr__() for test_plan in
-                              self.sqlSession.query(TestPlanTable).filter(
+                              self.mul_session.query(TestPlanTable).filter(
                                   TestPlanTable.projectName == project_name).limit(limit).all()]
         elif project_name is None and limit is not None:
             test_plan_list = [test_plan.__repr__() for test_plan in
-                              self.sqlSession.query(TestPlanTable).filter().limit(limit).all()]
+                              self.mul_session.query(TestPlanTable).filter().limit(limit).all()]
         elif project_name is not None and limit is None:
             test_plan_list = [test_plan.__repr__() for test_plan in
-                              self.sqlSession.query(TestPlanTable).filter(
+                              self.mul_session.query(TestPlanTable).filter(
                                   TestPlanTable.projectName == project_name).limit(limit).all()]
         else:
             test_plan_list = [test_plan.__repr__() for test_plan in
-                              self.sqlSession.query(TestPlanTable).filter().limit(limit).all()]
+                              self.mul_session.query(TestPlanTable).filter().limit(limit).all()]
         return test_plan_list
 
     def get_test_plan_status_list(self, project_name: str = None, limit: int = 3):
         if project_name is not None and limit is not None:
             test_plan_status_list = [test_plan.__repr__() for test_plan in
-                                     self.sqlSession.query(TestPlanStatusTable).filter(
+                                     self.mul_session.query(TestPlanStatusTable).filter(
                                          TestPlanTable.projectName == project_name).limit(limit).all()]
         elif project_name is None and limit is not None:
             test_plan_status_list = [test_plan.__repr__() for test_plan in
-                                     self.sqlSession.query(TestPlanStatusTable).filter().limit(limit).all()]
+                                     self.mul_session.query(TestPlanStatusTable).filter().limit(limit).all()]
         elif project_name is not None and limit is None:
             test_plan_status_list = [test_plan.__repr__() for test_plan in
-                                     self.sqlSession.query(TestPlanStatusTable).filter(
+                                     self.mul_session.query(TestPlanStatusTable).filter(
                                          TestPlanTable.projectName == project_name).limit(limit).all()]
         else:
             test_plan_status_list = [test_plan.__repr__() for test_plan in
-                                     self.sqlSession.query(TestPlanStatusTable).filter().limit(limit).all()]
+                                     self.mul_session.query(TestPlanStatusTable).filter().limit(limit).all()]
         return test_plan_status_list
 
     def delete_test_plan(self, plan_id: str):
@@ -76,10 +78,10 @@ class PlanService(SqlInterface):
             logger.warning("plan_id不能为空！")
         else:
             logger.info(plan_id)
-            logger.info(self.sqlSession.query(TestPlanTable).filter(TestPlanTable.id == plan_id).first())
-            self.sqlSession.query(TestPlanTable).filter_by(id=plan_id).delete()
-            self.sqlSession.query(TestJobTable).filter_by(planId=plan_id).delete()
-            self.sqlSession.commit()
+            logger.info(self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == plan_id).first())
+            self.mul_session.query(TestPlanTable).filter_by(id=plan_id).delete()
+            self.mul_session.query(TestJobTable).filter_by(planId=plan_id).delete()
+            self.mul_session.commit()
             logger.info(f"删除测试计划成功:{plan_id}")
 
     def delete_test_job(self, job_id: str):
@@ -87,9 +89,9 @@ class PlanService(SqlInterface):
             logger.warning("job_id不能为空！")
         else:
             logger.info(job_id)
-            self.sqlSession.query(TestJobTable).filter_by(id=job_id).delete()
-            self.sqlSession.query(TestStepTable).filter_by(jobId=job_id).delete()
-            self.sqlSession.commit()
+            self.mul_session.query(TestJobTable).filter_by(id=job_id).delete()
+            self.mul_session.query(TestStepTable).filter_by(jobId=job_id).delete()
+            self.mul_session.commit()
             logger.info(f"删除测试任务成功:{job_id}")
 
     def delete_test_step(self, step_id: str):
@@ -97,8 +99,8 @@ class PlanService(SqlInterface):
             logger.warning("step_id不能为空！")
         else:
             logger.info(step_id)
-            self.sqlSession.query(TestStepTable).filter_by(id=step_id).delete()
-            self.sqlSession.commit()
+            self.mul_session.query(TestStepTable).filter_by(id=step_id).delete()
+            self.mul_session.commit()
             logger.info(f"删除测试步骤成功:{step_id}")
 
     def delete_test_plan_status(self, plan_status_id: str):
@@ -106,9 +108,9 @@ class PlanService(SqlInterface):
             logger.warning("plan_id不能为空！")
         else:
             logger.info(plan_status_id)
-            self.sqlSession.query(TestPlanStatusTable).filter_by(id=plan_status_id).delete()
-            self.sqlSession.query(TestJobStatusTable).filter_by(planStatusId=plan_status_id).delete()
-            self.sqlSession.commit()
+            self.mul_session.query(TestPlanStatusTable).filter_by(id=plan_status_id).delete()
+            self.mul_session.query(TestJobStatusTable).filter_by(planStatusId=plan_status_id).delete()
+            self.mul_session.commit()
             logger.info(f"删除测试计划成功:{plan_status_id}")
 
     def delete_test_job_status(self, job_status_id: str):
@@ -116,9 +118,9 @@ class PlanService(SqlInterface):
             logger.warning("job_id不能为空！")
         else:
             logger.info(job_status_id)
-            self.sqlSession.query(TestJobStatusTable).filter_by(id=job_status_id).delete()
-            self.sqlSession.query(TestStepStatusTable).filter_by(jobStatusId=job_status_id).delete()
-            self.sqlSession.commit()
+            self.mul_session.query(TestJobStatusTable).filter_by(id=job_status_id).delete()
+            self.mul_session.query(TestStepStatusTable).filter_by(jobStatusId=job_status_id).delete()
+            self.mul_session.commit()
             logger.info(f"删除测试任务成功:{job_status_id}")
 
     def delete_test_step_status(self, step_status_id: str):
@@ -126,8 +128,8 @@ class PlanService(SqlInterface):
             logger.warning("step_status_id不能为空！")
         else:
             logger.info(step_status_id)
-            self.sqlSession.query(TestStepStatusTable).filter_by(id=step_status_id).delete()
-            self.sqlSession.commit()
+            self.mul_session.query(TestStepStatusTable).filter_by(id=step_status_id).delete()
+            self.mul_session.commit()
             logger.info(f"删除测试步骤成功:{step_status_id}")
 
     def update_test_plan(self, plan_id: str, name: str, value: str):
@@ -137,12 +139,12 @@ class PlanService(SqlInterface):
         self.common_update_method(TestJobTable, job_id, name, value)
 
     def common_update_method(self, table_obj, update_id: str, name: str, value: str):
-        table_obj_instance = self.sqlSession.query(table_obj).filter_by(id=update_id).first()
+        table_obj_instance = self.mul_session.query(table_obj).filter_by(id=update_id).first()
         logger.info(table_obj_instance.__repr__())
         if name in table_obj_instance.__dict__:
             table_obj_instance.__setattr__(name, value)
             table_obj_instance.updateTime = datetime.datetime.now()
-            self.sqlSession.commit()
+            self.mul_session.commit()
         else:
             raise Exception(f"修改的key:{name} 不存在")
 
@@ -211,19 +213,19 @@ class PlanService(SqlInterface):
                 )
                 test_job_table_obj.testSteps.append(test_step_table_obj)
             test_plan_table_obj.testJobs.append(test_job_table_obj)
-        self.sqlSession.add(test_plan_table_obj)
-        self.sqlSession.commit()
+        self.mul_session.add(test_plan_table_obj)
+        self.mul_session.commit()
 
     def get_test_plan_by_id(self, plan_id: str):
-        test_plan_table_obj = self.sqlSession.query(TestPlanTable).filter(TestPlanTable.id == plan_id).first()
+        test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == plan_id).first()
         return test_plan_table_obj
 
     def get_test_job_by_id(self, job_id: str):
-        test_job_table_obj = self.sqlSession.query(TestJobTable).filter(TestJobTable.id == job_id).first()
+        test_job_table_obj = self.mul_session.query(TestJobTable).filter(TestJobTable.id == job_id).first()
         return test_job_table_obj
 
     def get_test_step_by_id(self, step_id: str):
-        test_job_table_obj = self.sqlSession.query(TestStepTable).filter(TestStepTable.id == step_id).first()
+        test_job_table_obj = self.mul_session.query(TestStepTable).filter(TestStepTable.id == step_id).first()
         return test_job_table_obj
 
     def start_test_job(self, job_id: str):
@@ -280,24 +282,25 @@ class PlanService(SqlInterface):
             test_plan_status_obj.executeStatus = ExecuteStatus.STOP
             test_job_status_obj.testStepStatusList.append(test_step_status_table_obj)
             test_plan_status_obj.testJobStatusList.append(test_job_status_obj)
-            self.sqlSession.add(test_plan_status_obj)
-            self.sqlSession.commit()
+            self.mul_session.add(test_plan_status_obj)
+            self.mul_session.commit()
         else:
             logger.info(f"当前测试步骤{test_step_status_table_obj.id}，不需要停止")
 
     def execute_test_plan(self, plan_id: str):
-        test_plan_status_table_obj = self.sqlSession.query(TestPlanStatusTable).filter_by(planId=plan_id).first()
+        test_plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(planId=plan_id).first()
 
-        if test_plan_status_table_obj is not None and test_plan_status_table_obj.executeStatus in [ExecuteStatus.RUNNING, ExecuteStatus.START]:
+        if test_plan_status_table_obj is not None and test_plan_status_table_obj.executeStatus in [
+            ExecuteStatus.RUNNING, ExecuteStatus.START]:
             logger.error(f"当前测试计划{plan_id},有正在运行的计划，待上一个计划执行完在执行......")
             return
         else:
-            test_plan = self.sqlSession.query(TestPlanTable).filter_by(id=plan_id).first()
+            test_plan = self.mul_session.query(TestPlanTable).filter_by(id=plan_id).first()
 
             logger.info(
                 f"当前测试计划没有正在运行的计划，开始执行，测试项目:{test_plan.projectName},测试计划:{test_plan.planName}，测试计划id:{test_plan.id}")
 
-            test_job_list = self.sqlSession.query(TestJobTable).filter_by(id=plan_id).all()
+            test_job_list = self.mul_session.query(TestJobTable).filter_by(id=plan_id).all()
             test_plan_status_table_obj = TestPlanStatusTable(
                 planName=test_plan.planName,
                 planId=test_plan.id,
@@ -305,11 +308,11 @@ class PlanService(SqlInterface):
                 updateTime=datetime.datetime.now(),
                 createTime=datetime.datetime.now()
             )
-
+            logger.info(test_plan_status_table_obj.__repr__())
             for test_job in test_job_list:
                 self.execute_test_job(test_plan_status_table_obj, test_job, test_job.id)
-            self.sqlSession.add(test_plan_status_table_obj)
-            self.sqlSession.commit()
+            self.mul_session.add(test_plan_status_table_obj)
+            self.mul_session.commit()
 
     def execute_cmd(self, test_obj):
         logger.info("#####")
@@ -336,19 +339,28 @@ class PlanService(SqlInterface):
             test_plan_status_table_obj.executeStatus = execute_status
             test_job_status_table_obj.executeStatus = execute_status
             test_plan_status_table_obj.testJobStatusList.append(test_job_status_table_obj)
-            self.sqlSession.add(test_plan_status_table_obj)
-            self.sqlSession.commit()
+            new_db_session = SQLalchemyDbOperation(self.db_path,self.db_name).use_connect()
+            new_db_session.add(test_plan_status_table_obj)
+            new_db_session.commit()
+            # new_db_session.close()
 
         while True:
             try:
                 process_is_exists, process_is_status = SystemInfo.get_process_status(test_job.executeScriptCmd, pid)
                 test_job_status_table_obj.updateTime = datetime.datetime.now()
                 test_plan_status_table_obj.updateTime = datetime.datetime.now()
+                logger.info(process_is_exists)
+                logger.info(process_is_status)
                 if process_is_exists is True and process_is_status != "running":
                     logger.warning(f"任务:{test_job.jobName}，运行异常，进程状态{process_is_status},运行状态:{process_is_status}")
                     # 查询状态表，job_status_table状态是否为STOP，如果是，直接结束，如果不是写入异常状态
-                    current_job_status_table_obj = self.sqlSession.query(TestJobStatusTable).filter_by(
-                        id=test_job_status_table_obj.id).first()
+                    try:
+                        current_job_status_table_obj = self.mul_session.query(TestJobStatusTable).filter_by(
+                            id=test_job_status_table_obj.id).first()
+                    except Exception as e:
+                        logger.info(e)
+                        raise e
+
                     if current_job_status_table_obj.executeStatus == ExecuteStatus.STOP:
                         self.execute_result.update({"ret": 0})
                         break
@@ -359,8 +371,8 @@ class PlanService(SqlInterface):
                     logger.info(
                         f"任务{test_job.jobName}正在运行中，检查周期{test_job.checkInterval}s,运行状态:{process_is_status}")
                     insert_status_data(ExecuteStatus.RUNNING)
-                    self.sqlSession.commit()
             except Exception as e:
+                logger.info(e)
                 logger.info(f"任务{test_job.jobName}执行结束，结束监听")
                 break
             time.sleep(test_job.checkInterval)
@@ -387,8 +399,8 @@ class PlanService(SqlInterface):
             logger.info(test_plan_status_table_obj.__dict__)
             test_job_status_table_obj.testStepStatusList.append(test_step_status_obj)
             test_plan_status_table_obj.testJobStatusList.append(test_job_status_table_obj)
-            self.sqlSession.add(test_plan_status_table_obj)
-            self.sqlSession.commit()
+            self.mul_session.add(test_plan_status_table_obj)
+            self.mul_session.commit()
 
         while True:
             try:
@@ -440,15 +452,15 @@ class PlanService(SqlInterface):
         watch_execute_cmd_process_thread.join()
 
     def get_plan_status_table_obj(self, plan_status_id: int) -> TestPlanStatusTable:
-        plan_status_table_obj = self.sqlSession.query(TestPlanStatusTable).filter_by(id=plan_status_id).first()
+        plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(id=plan_status_id).first()
         return plan_status_table_obj
 
     def get_job_status_table_obj(self, job_status_id: int) -> TestJobStatusTable:
-        job_status_table_obj = self.sqlSession.query(TestJobStatusTable).filter_by(id=job_status_id).first()
+        job_status_table_obj = self.mul_session.query(TestJobStatusTable).filter_by(id=job_status_id).first()
         return job_status_table_obj
 
     def get_step_status_table_obj(self, step_status_id: int) -> TestStepStatusTable:
-        step_status_table_obj = self.sqlSession.query(TestStepStatusTable).filter_by(id=step_status_id).first()
+        step_status_table_obj = self.mul_session.query(TestStepStatusTable).filter_by(id=step_status_id).first()
         return step_status_table_obj
 
     def execute_test_step(self, test_plan_status_table_obj: TestPlanStatusTable,
@@ -512,6 +524,7 @@ class PlanService(SqlInterface):
         else:
             logger.info(f"正在执行任务：{test_job.jobName}")
             self.check_execute_job_cmd(test_job, test_plan_status_table_obj, test_job_status_table_obj)
+
             if test_job.runFailedIsNeedContinue is not True and self.execute_result["ret"] != 0:
                 insert_status_table(ExecuteStatus.FAILED)
                 raise Exception(f"测试任务{test_job.jobName}执行失败！！！")
@@ -541,8 +554,8 @@ class PlanService(SqlInterface):
                     test_job_status_obj.executeStatus = ExecuteStatus.STOP
                     test_plan_status_obj.executeStatus = ExecuteStatus.STOP
                     test_plan_status_obj.testJobStatusList.append(test_job_status_obj)
-                    self.sqlSession.add(test_plan_status_obj)
-                    self.sqlSession.commit()
+                    self.mul_session.add(test_plan_status_obj)
+                    self.mul_session.commit()
                 else:
                     logger.info(f"当前测试任务{test_job_status_obj.id}，不需要停止")
         else:
@@ -556,8 +569,8 @@ class PlanService(SqlInterface):
             test_job_status_obj.executeStatus = ExecuteStatus.STOP
             test_plan_status_obj.executeStatus = ExecuteStatus.STOP
             test_plan_status_obj.testJobStatusList.append(test_job_status_obj)
-            self.sqlSession.add(test_plan_status_obj)
-            self.sqlSession.commit()
+            self.mul_session.add(test_plan_status_obj)
+            self.mul_session.commit()
         else:
             logger.info(f"当前测试任务{test_job_status_obj.id}，不需要停止")
 
@@ -576,41 +589,47 @@ class PlanService(SqlInterface):
     def get_test_job_list(self, plan_id: str = None):
         if plan_id is not None:
             test_job_list = [test_job.__repr__() for test_job in
-                             self.sqlSession.query(TestJobTable).filter(TestJobTable.planId == plan_id).all()]
+                             self.mul_session.query(TestJobTable).filter(TestJobTable.planId == plan_id).all()]
         else:
             test_job_list = [test_job.__repr__() for test_job in
-                             self.sqlSession.query(TestJobTable).filter().all()]
+                             self.mul_session.query(TestJobTable).filter().all()]
         logger.info(test_job_list)
         return test_job_list
 
     def get_test_step_list(self, job_id: str = None):
         if job_id is not None:
             test_step_list = [test_job.__repr__() for test_job in
-                              self.sqlSession.query(TestStepTable).filter(TestStepTable.jobId == job_id).all()]
+                              self.mul_session.query(TestStepTable).filter(TestStepTable.jobId == job_id).all()]
         else:
             test_step_list = [test_job.__repr__() for test_job in
-                              self.sqlSession.query(TestStepTable).filter().all()]
+                              self.mul_session.query(TestStepTable).filter().all()]
         logger.info(test_step_list)
         return test_step_list
 
     def get_test_job_status_list(self, plan_status_id: str = None):
         if plan_status_id is not None:
             test_job_status_list = [test_job.__repr__() for test_job in
-                                    self.sqlSession.query(TestJobStatusTable).filter(
+                                    self.mul_session.query(TestJobStatusTable).filter(
                                         TestJobStatusTable.id == plan_status_id).all()]
         else:
             test_job_status_list = [test_job.__repr__() for test_job in
-                                    self.sqlSession.query(TestJobStatusTable).filter().all()]
+                                    self.mul_session.query(TestJobStatusTable).filter().all()]
         logger.info(test_job_status_list)
         return test_job_status_list
 
     def get_test_step_status_list(self, job_status_id: str = None):
         if job_status_id is not None:
             test_step_status_list = [test_job.__repr__() for test_job in
-                                     self.sqlSession.query(TestStepStatusTable).filter(
+                                     self.mul_session.query(TestStepStatusTable).filter(
                                          TestStepStatusTable.jobStatusId == job_status_id).all()]
         else:
             test_step_status_list = [test_job.__repr__() for test_job in
-                                     self.sqlSession.query(TestStepStatusTable).filter().all()]
+                                     self.mul_session.query(TestStepStatusTable).filter().all()]
         logger.info(test_step_status_list)
         return test_step_status_list
+
+
+if __name__ == '__main__':
+    db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),
+                           "db")
+    logger.info(db_path)
