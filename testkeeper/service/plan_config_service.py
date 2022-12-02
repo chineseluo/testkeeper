@@ -11,17 +11,13 @@
 @IDE     : PyCharm
 ------------------------------------
 """
-from loguru import logger
 import datetime
 from testkeeper.interface.sql_interface import SqlInterface
 
-from testkeeper.builtin.test_plan_conf import TestPlanConfig, TestJobConfig, TestStepConfig, TestMachineConfig
+from testkeeper.module.test_plan_conf import TestPlanConfig, TestJobConfig, TestStepConfig, TestMachineConfig
 from testkeeper.module.sqlite_module import \
     TestJobTable, \
     TestPlanTable, \
-    TestPlanStatusTable, \
-    TestJobStatusTable, \
-    TestStepStatusTable, \
     TestStepTable, TestMachineTable
 
 

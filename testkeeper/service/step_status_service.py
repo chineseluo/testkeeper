@@ -14,7 +14,7 @@
 from loguru import logger
 import datetime
 from testkeeper.module.execute_status_module import ExecuteStatus
-from testkeeper.interface import sql_interface
+from testkeeper.interface.sql_interface import SqlInterface
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.module.sqlite_module import \
     TestJobTable, \
@@ -25,7 +25,7 @@ from testkeeper.module.sqlite_module import \
     TestStepTable, TestMachineTable
 
 
-class StepStatusService(sql_interface):
+class StepStatusService(SqlInterface):
     def __init__(self):
         self.shell_client = ShellClient()
         self.execute_result = {}

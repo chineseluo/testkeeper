@@ -27,9 +27,8 @@ from testkeeper.module.sqlite_module import \
 from testkeeper.module.execute_status_module import ExecuteStatus
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.util.system_info import SystemInfo
-from testkeeper.builtin.test_plan_conf import TestPlanConfig, TestJobConfig, TestStepConfig, TestMachineConfig
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
-from testkeeper.service.job_service import JobService
+from testkeeper.service.job_service import JobService as Job
 from testkeeper.service.step_service import StepService
 from testkeeper.service.plan_status_service import PlanStatusService
 from testkeeper.service.job_status_service import JobStatusService
@@ -40,7 +39,7 @@ class PlanService(SqlInterface):
     def __init__(self):
         self.shell_client = ShellClient()
         self.execute_result = {}
-        self.job_service = JobService()
+        self.job_service = Job()
         self.step_service = StepService()
         self.plan_status_service = PlanStatusService()
         self.job_status_service = JobStatusService()
@@ -93,7 +92,7 @@ class PlanService(SqlInterface):
         self.execute_test_job(test_plan_status_table_obj, test_job_table_obj, test_job_table_obj.id)
 
     def start_test_step(self, step_id: str):
-        test_step_table_obj = self.job_service.get_test_step_by_id(step_id)
+        test_step_table_obj = self.step_service.get_test_step_by_id(step_id)
         test_job_table_obj = test_step_table_obj.testJob
         test_plan_table_obj = test_step_table_obj.testJob.testPlan
         test_plan_status_table_obj = self.plan_status_service.generate_test_plan_status_table_obj(test_plan_table_obj,
@@ -283,7 +282,7 @@ class PlanService(SqlInterface):
 
     def execute_test_step(self, test_plan_status_table_obj: TestPlanStatusTable,
                           test_job_status_obj: TestJobStatusTable, test_step: TestStepTable, step_id: str):
-        test_step_table_obj = self.job_service.get_test_step_by_id(step_id)
+        test_step_table_obj = self.step_service.get_test_step_by_id(step_id)
         test_step_status_table_obj = self.step_status_service.generate_test_step_status_table_obj(test_step, test_job_status_obj.executeStatus,"")
 
         def insert_status_table(execute_status: ExecuteStatus):
