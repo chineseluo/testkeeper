@@ -13,6 +13,7 @@
 """
 from loguru import logger
 import datetime
+from testkeeper.module.execute_status_module import ExecuteStatus
 from testkeeper.interface import sql_interface
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.module.sqlite_module import \
@@ -51,3 +52,16 @@ class StepStatusService(sql_interface):
                                      self.mul_session.query(TestStepStatusTable).filter().all()]
         logger.info(test_step_status_list)
         return test_step_status_list
+
+    def generate_test_step_status_table_obj(self, test_step: TestStepTable,
+                                            execute_status: ExecuteStatus, pid: str) -> TestStepStatusTable:
+        now_time = datetime.datetime.now()
+        test_step_status_table_obj = TestStepStatusTable(
+            stepName=test_step.stepName,
+            stepId=test_step.id,
+            executeStatus=execute_status,
+            updateTime=now_time,
+            createTime=now_time,
+            processPid=pid
+        )
+        return test_step_status_table_obj

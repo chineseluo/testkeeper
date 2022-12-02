@@ -14,6 +14,7 @@
 from loguru import logger
 import datetime
 from testkeeper.interface import sql_interface
+from testkeeper.module.execute_status_module import ExecuteStatus
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.module.sqlite_module import \
     TestJobTable, \
@@ -29,16 +30,6 @@ class JobService(sql_interface):
     def __init__(self):
         self.shell_client = ShellClient()
         self.execute_result = {}
-
-    def common_update_method(self, table_obj, update_id: str, name: str, value: str):
-        table_obj_instance = self.mul_session.query(table_obj).filter_by(id=update_id).first()
-        logger.info(table_obj_instance.__repr__())
-        if name in table_obj_instance.__dict__:
-            table_obj_instance.__setattr__(name, value)
-            table_obj_instance.updateTime = datetime.datetime.now()
-            self.mul_session.commit()
-        else:
-            raise Exception(f"修改的key:{name} 不存在")
 
     def delete_test_job(self, job_id: str):
         if job_id is None:
@@ -66,3 +57,4 @@ class JobService(sql_interface):
                              self.mul_session.query(TestJobTable).filter().all()]
         logger.info(test_job_list)
         return test_job_list
+

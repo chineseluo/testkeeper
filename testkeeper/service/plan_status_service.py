@@ -14,6 +14,7 @@
 from loguru import logger
 import datetime
 from testkeeper.interface import sql_interface
+from testkeeper.module.execute_status_module import ExecuteStatus
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.module.sqlite_module import \
     TestJobTable, \
@@ -58,3 +59,17 @@ class PlanStatusService(sql_interface):
             test_plan_status_list = [test_plan.__repr__() for test_plan in
                                      self.mul_session.query(TestPlanStatusTable).filter().limit(limit).all()]
         return test_plan_status_list
+
+    def generate_test_plan_status_table_obj(self, test_plan: TestPlanTable,
+                                            execute_status: ExecuteStatus) -> TestPlanStatusTable:
+        now_time = datetime.datetime.now()
+        test_plan_status_table_obj = TestPlanStatusTable(
+            planName=test_plan.planName,
+            planId=test_plan.id,
+            executeStatus=execute_status,
+            updateTime=now_time,
+            createTime=now_time
+        )
+        return test_plan_status_table_obj
+
+

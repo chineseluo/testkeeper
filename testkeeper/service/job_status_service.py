@@ -14,6 +14,7 @@
 from loguru import logger
 import datetime
 from testkeeper.interface import sql_interface
+from testkeeper.module.execute_status_module import ExecuteStatus
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.module.sqlite_module import \
     TestJobTable, \
@@ -56,3 +57,16 @@ class JobStatusService(sql_interface):
             self.mul_session.query(TestStepStatusTable).filter_by(jobStatusId=job_status_id).delete()
             self.mul_session.commit()
             logger.info(f"删除测试任务成功:{job_status_id}")
+
+    def generate_test_job_status_table_obj(self, test_job: TestJobTable, execute_status: ExecuteStatus):
+        now_time = datetime.datetime.now()
+        test_job_status_table_obj = TestJobStatusTable(
+            jobId=test_job.id,
+            jobName=test_job.jobName,
+            executeStatus=execute_status,
+            executeMachineIp="127.0.0.1",
+            logFilePath="/tmp",
+            updateTime=now_time,
+            createTime=now_time
+        )
+        return test_job_status_table_obj

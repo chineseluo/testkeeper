@@ -36,6 +36,7 @@ class SqlInterface:
         else:
             raise Exception(f"修改的key:{name} 不存在")
 
+
 if __name__ == '__main__':
     db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))), "testkeeper",
                            "db")

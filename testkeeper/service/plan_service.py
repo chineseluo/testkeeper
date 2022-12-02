@@ -40,6 +40,11 @@ class PlanService(SqlInterface):
     def __init__(self):
         self.shell_client = ShellClient()
         self.execute_result = {}
+        self.job_service = JobService()
+        self.step_service = StepService()
+        self.plan_status_service = PlanStatusService()
+        self.job_status_service = JobStatusService()
+        self.step_status_service = StepStatusService()
 
     def get_test_plan_list(self, project_name: str = None, limit: int = 3):
         if project_name is not None and limit is not None:
@@ -62,9 +67,8 @@ class PlanService(SqlInterface):
         if plan_id is None:
             logger.warning("plan_id不能为空！")
         else:
-            logger.info(plan_id)
-            logger.info(self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == plan_id).first())
-            self.mul_session.query(TestPlanTable).filter_by(id=plan_id).delete()
+            logger.info(self.get_test_plan_by_id(plan_id))
+            self.get_test_plan_by_id(plan_id).delete()
             self.mul_session.query(TestJobTable).filter_by(planId=plan_id).delete()
             self.mul_session.commit()
             logger.info(f"删除测试计划成功:{plan_id}")
@@ -72,79 +76,7 @@ class PlanService(SqlInterface):
     def update_test_plan(self, plan_id: str, name: str, value: str):
         self.common_update_method(TestPlanTable, plan_id, name, value)
 
-    def generate_test_plan_table_obj_by_plan_config(self, test_plan: TestPlanConfig):
-        test_plan_table_obj = TestPlanTable(
-            projectName=test_plan.projectName,
-            planName=test_plan.PlanName,
-            createUser=test_plan.createUser,
-            isScheduledExecution=test_plan.isScheduledExecution,
-            cron=test_plan.cron,
-            isConfigMessagePush=test_plan.isConfigMessagePush,
-            messagePushMethod=test_plan.messagePushMethod,
-            messagePushWebhook=test_plan.messagePushWebhook,
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now(),
-        )
-        return test_plan_table_obj
-
-    def generate_test_job_table_obj_by_plan_config(self, test_job: TestJobConfig):
-        test_job_table_obj = TestJobTable(
-            jobName=test_job.jobName,
-            createUser=test_job.createUser,
-            executeScriptPath=test_job.executeScriptPath,
-            executeScriptCmd=test_job.executeScriptCmd,
-            executeTimeout=test_job.executeTimeout,
-            runFailedIsNeedContinue=test_job.runFailedIsNeedContinue,
-            isSkipped=test_job.isSkipped,
-            checkInterval=test_job.checkInterval,
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now()
-        )
-        return test_job_table_obj
-
-    def generate_test_step_table_obj_by_plan_config(self, test_step: TestStepConfig, test_job: TestJobConfig):
-        test_step_table_obj = TestStepTable(
-            stepName=test_step.stepName,
-            executeScriptPath=test_step.executeScriptPath,
-            executeScriptCmd=test_step.executeScriptCmd,
-            runFailedIsNeedContinue=test_step.runFailedIsNeedContinue,
-            isSkipped=test_job.isSkipped,
-            checkInterval=test_job.checkInterval,
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now(),
-        )
-        return test_step_table_obj
-
-    def generate_test_machine_table_obj_by_plan_config(self, test_machine: TestMachineConfig):
-        test_machine_table_obj = TestMachineTable(
-            ip=test_machine.ip,
-            username=test_machine.username,
-            password=test_machine.password,
-            hostName=test_machine.hostName,
-            cpuSize=test_machine.cpuSize,
-            memorySize=test_machine.memorySize,
-            diskSize=test_machine.diskSize,
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now(),
-        )
-        return test_machine_table_obj
-
-    def add_test_plan(self, file_path: str):
-        test_plan = TestPlanConfig(file_path)
-        test_plan_table_obj = self.generate_test_plan_table_obj_by_plan_config(test_plan)
-        for test_job in test_plan.TestJob:
-            test_job_table_obj = self.generate_test_job_table_obj_by_plan_config(test_job)
-            for test_machine in test_job.executeMachineIpList:
-                test_machine_table_obj = self.generate_test_machine_table_obj_by_plan_config(test_machine)
-                test_job_table_obj.executeMachineIpList.append(test_machine_table_obj)
-            for test_step in test_job.TestStep:
-                test_step_table_obj = self.generate_test_step_table_obj_by_plan_config(test_step, test_job)
-                test_job_table_obj.testSteps.append(test_step_table_obj)
-            test_plan_table_obj.testJobs.append(test_job_table_obj)
-        self.mul_session.add(test_plan_table_obj)
-        self.mul_session.commit()
-
-    def get_test_plan_by_id(self, plan_id: str):
+    def get_test_plan_by_id(self, plan_id: str) -> TestPlanTable:
         test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == plan_id).first()
         return test_plan_table_obj
 
@@ -154,37 +86,20 @@ class PlanService(SqlInterface):
         :param job_id:
         :return:
         """
-        test_job_table_obj = self.get_test_job_by_id(job_id)
+        test_job_table_obj = self.job_service.get_test_job_by_id(job_id)
         test_plan_table_obj = test_job_table_obj.testPlan
-        test_plan_status_table_obj = TestPlanStatusTable(
-            planName=test_plan_table_obj.planName,
-            planId=test_plan_table_obj.id,
-            executeStatus=ExecuteStatus.START,
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now()
-        )
+        test_plan_status_table_obj = self.plan_status_service.generate_test_plan_status_table_obj(test_plan_table_obj,
+                                                                                                  ExecuteStatus.START)
         self.execute_test_job(test_plan_status_table_obj, test_job_table_obj, test_job_table_obj.id)
 
     def start_test_step(self, step_id: str):
-        test_step_table_obj = self.get_test_step_by_id(step_id)
+        test_step_table_obj = self.job_service.get_test_step_by_id(step_id)
         test_job_table_obj = test_step_table_obj.testJob
         test_plan_table_obj = test_step_table_obj.testJob.testPlan
-        test_plan_status_table_obj = TestPlanStatusTable(
-            planName=test_plan_table_obj.planName,
-            planId=test_plan_table_obj.id,
-            executeStatus=ExecuteStatus.START,
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now()
-        )
-        test_job_status_table_obj = TestJobStatusTable(
-            jobId=test_job_table_obj.id,
-            jobName=test_job_table_obj.jobName,
-            executeStatus=ExecuteStatus.START,
-            executeMachineIp="127.0.0.1",
-            logFilePath="/tmp",
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now()
-        )
+        test_plan_status_table_obj = self.plan_status_service.generate_test_plan_status_table_obj(test_plan_table_obj,
+                                                                                                  ExecuteStatus.START)
+        test_job_status_table_obj = self.job_status_service.generate_test_job_status_table_obj(test_job_table_obj,
+                                                                                               ExecuteStatus.START)
         self.execute_test_step(test_plan_status_table_obj, test_job_status_table_obj, test_step_table_obj, step_id)
 
     def stop_test_step(self, step_status_id: str):
@@ -218,13 +133,8 @@ class PlanService(SqlInterface):
                 f"当前测试计划没有正在运行的计划，开始执行，测试项目:{test_plan.projectName},测试计划:{test_plan.planName}，测试计划id:{test_plan.id}")
 
             test_job_list = self.mul_session.query(TestJobTable).filter_by(id=plan_id).all()
-            test_plan_status_table_obj = TestPlanStatusTable(
-                planName=test_plan.planName,
-                planId=test_plan.id,
-                executeStatus=ExecuteStatus.START,
-                updateTime=datetime.datetime.now(),
-                createTime=datetime.datetime.now()
-            )
+            test_plan_status_table_obj = self.plan_status_service.generate_test_plan_status_table_obj(test_plan,
+                                                                                                      ExecuteStatus.START)
             logger.info(test_plan_status_table_obj.__repr__())
             for test_job in test_job_list:
                 self.execute_test_job(test_plan_status_table_obj, test_job, test_job.id)
@@ -244,14 +154,9 @@ class PlanService(SqlInterface):
 
         def insert_status_data(execute_status: ExecuteStatus):
             for test_step in test_job.testSteps:
-                test_step_status_table_obj = TestStepStatusTable(
-                    stepName=test_step.stepName,
-                    stepId=test_step.id,
-                    executeStatus=test_job_status_table_obj.executeStatus,
-                    updateTime=datetime.datetime.now(),
-                    createTime=datetime.datetime.now(),
-                    processPid=pid
-                )
+                test_step_status_table_obj = self.step_status_service.generate_test_step_status_table_obj(test_step,
+                                                                                                          test_job_status_table_obj.executeStatus,
+                                                                                                          pid)
                 test_job_status_table_obj.testStepStatusList.append(test_step_status_table_obj)
             test_plan_status_table_obj.executeStatus = execute_status
             test_job_status_table_obj.executeStatus = execute_status
@@ -378,14 +283,8 @@ class PlanService(SqlInterface):
 
     def execute_test_step(self, test_plan_status_table_obj: TestPlanStatusTable,
                           test_job_status_obj: TestJobStatusTable, test_step: TestStepTable, step_id: str):
-        test_step_table_obj = self.get_test_step_by_id(step_id)
-        test_step_status_table_obj = TestStepStatusTable(
-            stepName=test_step.stepName,
-            stepId=test_step.id,
-            executeStatus=test_job_status_obj.executeStatus,
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now(),
-        )
+        test_step_table_obj = self.job_service.get_test_step_by_id(step_id)
+        test_step_status_table_obj = self.step_status_service.generate_test_step_status_table_obj(test_step, test_job_status_obj.executeStatus,"")
 
         def insert_status_table(execute_status: ExecuteStatus):
             test_step_status_table_obj.executeStatus = execute_status
@@ -416,16 +315,8 @@ class PlanService(SqlInterface):
                 logger.info(f"测试任务{test_step_table_obj.stepName}执行成功")
 
     def execute_test_job(self, test_plan_status_table_obj, test_job: TestJobTable, job_id: str):
-        test_job = self.get_test_job_by_id(job_id) if test_job is None else test_job
-        test_job_status_table_obj = TestJobStatusTable(
-            jobId=test_job.id,
-            jobName=test_job.jobName,
-            executeStatus=ExecuteStatus.START,
-            executeMachineIp="127.0.0.1",
-            logFilePath="/tmp",
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now()
-        )
+        test_job = self.job_service.get_test_job_by_id(job_id) if test_job is None else test_job
+        test_job_status_table_obj = self.job_status_service.generate_test_job_status_table_obj(test_job, ExecuteStatus.START)
 
         def insert_status_table(execute_status: ExecuteStatus):
             test_job_status_table_obj.executeStatus = execute_status
@@ -445,7 +336,8 @@ class PlanService(SqlInterface):
                 insert_status_table(ExecuteStatus.FAILED)
                 logger.warning(f"测试任务{test_job.jobName}执行失败，继续执行下一个任务......")
             else:
-                current_job_status_table_obj = self.get_job_status_table_obj(test_job_status_table_obj.id)
+                current_job_status_table_obj = self.job_status_service.get_job_status_table_obj(
+                    test_job_status_table_obj.id)
                 if current_job_status_table_obj.executeStatus == ExecuteStatus.STOP:
                     insert_status_table(ExecuteStatus.STOP)
                 else:
@@ -475,7 +367,7 @@ class PlanService(SqlInterface):
             logger.error(f"测试计划:{plan_status_id}状态为非RUNNING，不能进行STOP操作!!!")
 
     def stop_test_job(self, job_status_id: str):
-        test_job_status_obj = self.get_job_status_table_obj(int(job_status_id))
+        test_job_status_obj = self.job_status_service.get_job_status_table_obj(int(job_status_id))
         test_plan_status_obj = test_job_status_obj.testPlanStatus
         if test_job_status_obj.executeStatus == ExecuteStatus.RUNNING:
             self.shell_client.check_call(f"kill -9 {test_job_status_obj.processPid}")
