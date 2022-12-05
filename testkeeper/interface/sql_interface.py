@@ -14,8 +14,17 @@
 import os
 from loguru import logger
 import datetime
+from testkeeper.util.shell_utils import ShellClient
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
 from sqlalchemy.orm import sessionmaker
+from testkeeper.service.job_service import JobService
+from testkeeper.module.sqlite_module import \
+    TestJobTable, \
+    TestPlanTable, \
+    TestPlanStatusTable, \
+    TestJobStatusTable, \
+    TestStepStatusTable, \
+    TestStepTable, TestMachineTable
 
 
 class SqlInterface:
@@ -25,6 +34,8 @@ class SqlInterface:
     sql_alchemy = SQLalchemyDbOperation(db_path, db_name)
     sqlSession = sql_alchemy.use_connect()
     mul_session = sql_alchemy.use_connect_by_mul_thread()
+    execute_result = {}
+    shell_client = ShellClient()
 
     def common_update_method(self, table_obj, update_id: str, name: str, value: str):
         table_obj_instance = self.mul_session.query(table_obj).filter_by(id=update_id).first()
@@ -35,6 +46,11 @@ class SqlInterface:
             self.mul_session.commit()
         else:
             raise Exception(f"修改的key:{name} 不存在")
+
+    def execute_cmd(self, test_obj: TestJobTable):
+        self.execute_result = self.shell_client.run_cmd(
+            f"cd {test_obj.executeScriptPath} && {test_obj.executeScriptCmd}",
+            timeout=600)
 
 
 if __name__ == '__main__':

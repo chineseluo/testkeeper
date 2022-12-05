@@ -65,3 +65,7 @@ class StepStatusService(SqlInterface):
             processPid=pid
         )
         return test_step_status_table_obj
+
+    def get_step_status_table_obj(self, step_status_id: int) -> TestStepStatusTable:
+        step_status_table_obj = self.mul_session.query(TestStepStatusTable).filter_by(id=step_status_id).first()
+        return step_status_table_obj

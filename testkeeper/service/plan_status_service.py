@@ -72,4 +72,6 @@ class PlanStatusService(SqlInterface):
         )
         return test_plan_status_table_obj
 
-
+    def get_plan_status_table_obj(self, plan_status_id: int) -> TestPlanStatusTable:
+        plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(id=plan_status_id).first()
+        return plan_status_table_obj
