@@ -13,6 +13,7 @@
 """
 import os
 from loguru import logger
+import datetime
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
 from sqlalchemy.orm import sessionmaker
 
@@ -24,6 +25,16 @@ class SqlInterface:
     sql_alchemy = SQLalchemyDbOperation(db_path, db_name)
     sqlSession = sql_alchemy.use_connect()
     mul_session = sql_alchemy.use_connect_by_mul_thread()
+
+    def common_update_method(self, table_obj, update_id: str, name: str, value: str):
+        table_obj_instance = self.mul_session.query(table_obj).filter_by(id=update_id).first()
+        logger.info(table_obj_instance.__repr__())
+        if name in table_obj_instance.__dict__:
+            table_obj_instance.__setattr__(name, value)
+            table_obj_instance.updateTime = datetime.datetime.now()
+            self.mul_session.commit()
+        else:
+            raise Exception(f"修改的key:{name} 不存在")
 
 
 if __name__ == '__main__':
