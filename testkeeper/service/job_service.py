@@ -98,6 +98,9 @@ class JobService(SqlInterface):
         def insert_status_table(execute_status: ExecuteStatus):
             test_job_status_table_obj.executeStatus = execute_status
             test_plan_status_table_obj.executeStatus = execute_status
+            test_plan_status_table_obj.testJobStatusList.append(test_job_status_table_obj)
+            self.mul_session.add(test_plan_status_table_obj)
+            self.mul_session.commit()
 
         if test_job.isSkipped:
             logger.info(f"跳过当前执行的任务{test_job.jobName}")
@@ -120,7 +123,7 @@ class JobService(SqlInterface):
                 else:
                     insert_status_table(ExecuteStatus.SUCCESS)
                 logger.info(f"测试任务{test_job.jobName}执行成功")
-        test_plan_status_table_obj.testJobStatusList.append(test_job_status_table_obj)
+
 
     def check_execute_job_cmd(self, test_job, test_plan_status_table_obj, test_job_status_table_obj):
         execute_cmd_thread = threading.Thread(target=self.execute_cmd, args=(test_job,))

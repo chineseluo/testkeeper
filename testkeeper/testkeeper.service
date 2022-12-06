@@ -1,0 +1,1 @@
+# 用于编写systemd service文件，启动testkeeper时候加载进去，使用守护进程监听服务状态

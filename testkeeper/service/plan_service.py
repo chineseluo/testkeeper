@@ -94,11 +94,9 @@ class PlanService(SqlInterface):
             test_job_list = self.mul_session.query(TestJobTable).filter_by(id=plan_id).all()
             test_plan_status_table_obj = self.plan_status_service.generate_test_plan_status_table_obj(test_plan,
                                                                                                       ExecuteStatus.START)
-            logger.info(test_plan_status_table_obj.__repr__())
+
             for test_job in test_job_list:
                 self.job_service.execute_test_job(test_plan_status_table_obj, test_job, test_job.id)
-            self.mul_session.add(test_plan_status_table_obj)
-            self.mul_session.commit()
 
     def stop_test_plan(self, plan_status_id: str):
         test_plan_status_obj = self.plan_status_service.get_plan_status_table_obj(int(plan_status_id))

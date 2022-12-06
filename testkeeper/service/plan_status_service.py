@@ -70,6 +70,8 @@ class PlanStatusService(SqlInterface):
             updateTime=now_time,
             createTime=now_time
         )
+        self.mul_session.add(test_plan_status_table_obj)
+        self.mul_session.commit()
         return test_plan_status_table_obj
 
     def get_plan_status_table_obj(self, plan_status_id: int) -> TestPlanStatusTable:
