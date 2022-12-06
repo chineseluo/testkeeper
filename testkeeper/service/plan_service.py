@@ -81,14 +81,13 @@ class PlanService(SqlInterface):
 
     def execute_test_plan(self, plan_id: str):
         test_plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(planId=plan_id).first()
-
+        # 检查是否有正在运行的任务，任务状态是否是running或者start，如果有，需要等待上一个任务完成，或者，修改上一个任务的状态
         if test_plan_status_table_obj is not None and test_plan_status_table_obj.executeStatus in [
             ExecuteStatus.RUNNING, ExecuteStatus.START]:
             logger.error(f"当前测试计划{plan_id},有正在运行的计划，待上一个计划执行完在执行......")
             return
         else:
             test_plan = self.mul_session.query(TestPlanTable).filter_by(id=plan_id).first()
-
             logger.info(
                 f"当前测试计划没有正在运行的计划，开始执行，测试项目:{test_plan.projectName},测试计划:{test_plan.planName}，测试计划id:{test_plan.id}")
 

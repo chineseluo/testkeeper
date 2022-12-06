@@ -16,8 +16,6 @@ from loguru import logger
 import datetime
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
-from sqlalchemy.orm import sessionmaker
-from testkeeper.service.job_service import JobService
 from testkeeper.module.sqlite_module import \
     TestJobTable, \
     TestPlanTable, \

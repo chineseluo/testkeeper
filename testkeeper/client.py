@@ -98,7 +98,7 @@ def plan_start(*args, **kwargs):
 
 
 def job_start(*args, **kwargs):
-    plan_service.start_test_job(args[0].job_id)
+    job_service.start_test_job(args[0].job_id)
 
 
 def plan_stop(*args, **kwargs):
@@ -118,7 +118,7 @@ def job_stop(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    plan_service.stop_test_job(args[0].job_status_id)
+    job_service.stop_test_job(args[0].job_status_id)
 
 
 def step_start(*args, **kwargs):
@@ -128,7 +128,7 @@ def step_start(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    plan_service.start_test_step(args[0].step_id)
+    step_service.start_test_step(args[0].step_id)
 
 
 def step_stop(*args, **kwargs):
@@ -138,7 +138,7 @@ def step_stop(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    plan_service.stop_test_step(args[0].step_status_id)
+    step_service.stop_test_step(args[0].step_status_id)
 
 
 def job_add(*args, **kwargs):
@@ -229,15 +229,15 @@ def plan_status_show(*args, **kwargs):
     title = "PLAN STATUS LIST SHOW ** 计划执行状态列表展示"
     if args[0].project_name is not None and args[0].limit is not None:
         LoggerFormat.console_pretty_table(title,
-                                          step_status_service.get_test_plan_status_list(args[0].project_name,
+                                          plan_status_service.get_test_plan_status_list(args[0].project_name,
                                                                                  int(args[0].limit)))
     elif args[0].project_name is None and args[0].limit is not None:
-        LoggerFormat.console_pretty_table(title, step_status_service.get_test_plan_status_list(limit=args[0].limit))
+        LoggerFormat.console_pretty_table(title, plan_status_service.get_test_plan_status_list(limit=args[0].limit))
     elif args[0].project_name is not None and args[0].limit is None:
         LoggerFormat.console_pretty_table(title,
-                                          step_status_service.get_test_plan_status_list(project_name=args[0].project_name))
+                                          plan_status_service.get_test_plan_status_list(project_name=args[0].project_name))
     else:
-        LoggerFormat.console_pretty_table(title, step_status_service.get_test_plan_status_list())
+        LoggerFormat.console_pretty_table(title, plan_status_service.get_test_plan_status_list())
 
 
 def plan_status_delete(*args, **kwargs):
