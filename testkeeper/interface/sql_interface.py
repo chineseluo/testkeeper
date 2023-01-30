@@ -26,14 +26,19 @@ from testkeeper.module.sqlite_module import \
 
 
 class SqlInterface:
-    db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),
-                           "db")
-    db_name = "testkeeper.db"
-    sql_alchemy = SQLalchemyDbOperation(db_path, db_name)
-    sqlSession = sql_alchemy.use_connect()
-    mul_session = sql_alchemy.use_connect_by_mul_thread()
-    execute_result = {}
-    shell_client = ShellClient()
+
+    def __init__(self):
+        self.db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),
+                               "db")
+        self.db_name = "testkeeper.db"
+        sql_alchemy = SQLalchemyDbOperation(self.db_path, self.db_name)
+        # self.sqlSession = sql_alchemy.use_connect()
+
+        self.execute_result = {}
+        self.shell_client = ShellClient()
+        self.mul_session = sql_alchemy.db_session()
+        # logger.info(self.mul_session.hash_key)
+
 
     def common_update_method(self, table_obj, update_id: str, name: str, value: str):
         table_obj_instance = self.mul_session.query(table_obj).filter_by(id=update_id).first()
@@ -46,8 +51,12 @@ class SqlInterface:
             raise Exception(f"修改的key:{name} 不存在")
 
     def execute_cmd(self, test_obj: TestJobTable):
+        # self.execute_result = self.shell_client.run_cmd(
+        #     f"cd {test_obj.executeScriptPath} && nohup {test_obj.executeScriptCmd} > {test_obj.jobName}.out 2>&1 &",
+        #     timeout=600)
+
         self.execute_result = self.shell_client.run_cmd(
-            f"cd {test_obj.executeScriptPath} && {test_obj.executeScriptCmd}",
+            f"cd {test_obj.executeScriptPath} &&  echo 测试计划_id_{test_obj.testPlan.id}_测试任务id_{test_obj.id} &&  {test_obj.executeScriptCmd}",
             timeout=600)
 
 

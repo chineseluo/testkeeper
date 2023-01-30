@@ -45,7 +45,7 @@ class MockData:
     def insertTestJobTableData(self, plan_count: int, job_count: int, step_count: int, machine_count: int):
         for plan_index in range(1, plan_count):
             test_plan_table_obj = TestPlanTable(
-                projectName=f"测试项目{plan_index}",
+                projectName=f"测试项目2{plan_index}",
                 planName=f"测试计划{plan_index}",
                 createUser="成都-阿木木",
                 isScheduledExecution=True,
@@ -58,10 +58,10 @@ class MockData:
             )
             for i in range(1, job_count):
                 test_job_table_obj = TestJobTable(
-                    jobName=f"job001{i}",
+                    jobName=f"job002{i}",
                     createUser="成都-阿木木",
                     executeScriptPath="/tmp",
-                    executeScriptCmd="sleep 20 && echo gggg",
+                    executeScriptCmd=f"sleep 20 && echo gggg{i}",
                     executeTimeout=660,
                     runFailedIsNeedContinue=True,
                     isSkipped=False,
@@ -100,4 +100,4 @@ if __name__ == '__main__':
     db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))), "db")
     db_name = "testkeeper.db"
     md = MockData(db_path, db_name)
-    md.insertTestJobTableData(2, 2, 2, 2)
+    md.insertTestJobTableData(2, 3, 3, 2)

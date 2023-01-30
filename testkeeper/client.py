@@ -23,6 +23,8 @@ from testkeeper.service.job_status_service import JobStatusService
 from testkeeper.service.step_service import StepService
 from testkeeper.service.step_status_service import StepStatusService
 from testkeeper.service.plan_config_service import PlanConfigService
+from testkeeper.service.job_center import JobCenter
+
 from testkeeper.service.machine_service import MachineService
 from testkeeper.util.logger_operation import LoggerFormat
 
@@ -34,7 +36,7 @@ step_service = StepService()
 step_status_service = StepStatusService()
 plan_config_service = PlanConfigService()
 machine_service = MachineService()
-
+job_center = JobCenter()
 
 def plan_show(*args, **kwargs):
     """
@@ -94,11 +96,11 @@ def plan_start(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    plan_service.execute_test_plan(args[0].plan_id)
+    job_center.execute_test_plan(args[0].plan_id)
 
 
 def job_start(*args, **kwargs):
-    job_service.start_test_job(args[0].job_id)
+    job_center.start_test_job(args[0].job_id)
 
 
 def plan_stop(*args, **kwargs):
@@ -108,7 +110,7 @@ def plan_stop(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    plan_service.stop_test_plan(args[0].plan_status_id)
+    job_center.stop_test_plan(args[0].plan_status_id)
 
 
 def job_stop(*args, **kwargs):
@@ -118,7 +120,7 @@ def job_stop(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    job_service.stop_test_job(args[0].job_status_id)
+    job_center.stop_test_job(args[0].job_status_id)
 
 
 def step_start(*args, **kwargs):

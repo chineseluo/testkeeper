@@ -26,8 +26,6 @@ from testkeeper.module.sqlite_module import \
     TestStepTable, TestMachineTable
 from testkeeper.module.execute_status_module import ExecuteStatus
 from testkeeper.util.shell_utils import ShellClient
-from testkeeper.util.system_info import SystemInfo
-from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
 from testkeeper.service.job_service import JobService
 from testkeeper.service.step_service import StepService
 from testkeeper.service.plan_status_service import PlanStatusService
@@ -37,6 +35,7 @@ from testkeeper.service.step_status_service import StepStatusService
 
 class PlanService(SqlInterface):
     def __init__(self):
+        super().__init__()
         self.shell_client = ShellClient()
         self.execute_result = {}
         self.job_service = JobService()
@@ -79,45 +78,9 @@ class PlanService(SqlInterface):
         test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == plan_id).first()
         return test_plan_table_obj
 
-    def execute_test_plan(self, plan_id: str):
-        test_plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(planId=plan_id).first()
-        # 检查是否有正在运行的任务，任务状态是否是running或者start，如果有，需要等待上一个任务完成，或者，修改上一个任务的状态
-        if test_plan_status_table_obj is not None and test_plan_status_table_obj.executeStatus in [
-            ExecuteStatus.RUNNING, ExecuteStatus.START]:
-            logger.error(f"当前测试计划{plan_id},有正在运行的计划，待上一个计划执行完在执行......")
-            return
-        else:
-            test_plan = self.mul_session.query(TestPlanTable).filter_by(id=plan_id).first()
-            logger.info(
-                f"当前测试计划没有正在运行的计划，开始执行，测试项目:{test_plan.projectName},测试计划:{test_plan.planName}，测试计划id:{test_plan.id}")
-
-            test_job_list = self.mul_session.query(TestJobTable).filter_by(id=plan_id).all()
-            test_plan_status_table_obj = self.plan_status_service.generate_test_plan_status_table_obj(test_plan,
-                                                                                                      ExecuteStatus.START)
-
-            for test_job in test_job_list:
-                self.job_service.execute_test_job(test_plan_status_table_obj, test_job, test_job.id)
-
-    def stop_test_plan(self, plan_status_id: str):
-        test_plan_status_obj = self.plan_status_service.get_plan_status_table_obj(int(plan_status_id))
-        logger.info(test_plan_status_obj.__repr__())
-        if test_plan_status_obj.executeStatus == ExecuteStatus.RUNNING:
-            for test_job_status_obj in test_plan_status_obj.testJobStatusList:
-                if test_job_status_obj.executeStatus == ExecuteStatus.RUNNING:
-                    self.shell_client.check_call(f"kill -9 {test_job_status_obj.processPid}")
-                    self.execute_result["ret"] = 0
-                    for test_step_status_obj in test_job_status_obj.testStepStatusList:
-                        test_step_status_obj.executeStatus = ExecuteStatus.STOP
-                        # test_job_status_obj.testStepStatusList.append(test_step_status_obj)
-                    test_job_status_obj.executeStatus = ExecuteStatus.STOP
-                    test_plan_status_obj.executeStatus = ExecuteStatus.STOP
-                    test_plan_status_obj.testJobStatusList.append(test_job_status_obj)
-                    self.mul_session.add(test_plan_status_obj)
-                    self.mul_session.commit()
-                else:
-                    logger.info(f"当前测试任务{test_job_status_obj.id}，不需要停止")
-        else:
-            logger.error(f"测试计划:{plan_status_id}状态为非RUNNING，不能进行STOP操作!!!")
+    def get_test_job_list_by_plan_id(self, plan_id: str) -> list:
+        test_job_list = self.mul_session.query(TestJobTable).filter_by(planId=plan_id).all()
+        return test_job_list
 
 
 if __name__ == '__main__':

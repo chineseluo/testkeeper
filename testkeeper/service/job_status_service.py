@@ -27,6 +27,7 @@ from testkeeper.module.sqlite_module import \
 
 class JobStatusService(SqlInterface):
     def __init__(self):
+        super().__init__()
         self.shell_client = ShellClient()
         self.execute_result = {}
 

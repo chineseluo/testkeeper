@@ -12,6 +12,7 @@
 ------------------------------------
 """
 import os
+
 from loguru import logger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -23,20 +24,15 @@ class SQLalchemyDbOperation:
     def __init__(self, db_path, db_name):
         self.sqlalchemy_engine = None
         self.sqlalchemy_db_session = None
-        self.db_path = db_path
-        self.db_name = db_name
+        self.db_full_path = os.path.join(db_path, db_name)
+        self.sqlalchemy_engine = create_engine(
+            f'sqlite:///{self.db_full_path}', echo=True,
+            connect_args={'check_same_thread': False}, poolclass=SingletonThreadPool, future=True)
+        self.db_session = sessionmaker(bind=self.sqlalchemy_engine)
 
     def __connect(self):
-        if self.sqlalchemy_engine:
-            self.sqlalchemy_engine = None
-        # 初始化数据库连接
-        db_full_path = os.path.join(self.db_path, self.db_name)
-        self.sqlalchemy_engine = create_engine(
-            f'sqlite:///{db_full_path}', echo=True,
-            connect_args={'check_same_thread': False}, poolclass=SingletonThreadPool, future=True)
         # 创建DbSession
-        DBSession = scoped_session(sessionmaker(bind=self.sqlalchemy_engine))
-
+        DBSession = sessionmaker(bind=self.sqlalchemy_engine)
         self.sqlalchemy_db_session = DBSession()
 
     def use_connect(self):
@@ -45,11 +41,6 @@ class SQLalchemyDbOperation:
         return self.sqlalchemy_db_session
 
     def use_connect_by_mul_thread(self):
-        db_full_path = os.path.join(self.db_path, self.db_name)
-
-        self.sqlalchemy_engine = create_engine(
-            f'sqlite:///{db_full_path}', echo=True,
-            connect_args={'check_same_thread': False}, poolclass=SingletonThreadPool, future=True)
         DBSession = scoped_session(sessionmaker(bind=self.sqlalchemy_engine))
         return DBSession()
 

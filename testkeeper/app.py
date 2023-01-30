@@ -9,6 +9,7 @@ from testkeeper.service.plan_service import PlanService
 from testkeeper.module.sqlite_module import TestJobTable, TestPlanTable
 
 app = Flask(__name__, static_folder="./templates/static", template_folder="./templates")
+
 plan_service = PlanService()
 
 

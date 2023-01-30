@@ -34,6 +34,7 @@ from testkeeper.module.sqlite_module import \
 
 class StepService(SqlInterface):
     def __init__(self):
+        super().__init__()
         self.shell_client = ShellClient()
         self.execute_result = {}
         self.step_status_service = StepStatusService()

@@ -7,3 +7,4 @@ site.zip
 testkeeper/.idea
 .dist
 testkeeperweb/node_modules
+.idea

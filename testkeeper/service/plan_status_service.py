@@ -27,8 +27,10 @@ from testkeeper.module.sqlite_module import \
 
 class PlanStatusService(SqlInterface):
     def __init__(self):
+        super().__init__()
         self.shell_client = ShellClient()
         self.execute_result = {}
+        logger.info(self.mul_session.hash_key)
 
     def update_test_plan_status(self, plan_status_id, name: str, value: str):
         self.common_update_method(TestPlanStatusTable, plan_status_id, name, value)
@@ -71,9 +73,13 @@ class PlanStatusService(SqlInterface):
             createTime=now_time
         )
         self.mul_session.add(test_plan_status_table_obj)
-        self.mul_session.commit()
+        # self.mul_session.commit()
         return test_plan_status_table_obj
 
     def get_plan_status_table_obj(self, plan_status_id: int) -> TestPlanStatusTable:
         plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(id=plan_status_id).first()
+        return plan_status_table_obj
+
+    def get_plan_status_table_obj_by_plan_id(self, plan_id: str) -> TestPlanStatusTable:
+        plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(planId=plan_id).first()
         return plan_status_table_obj
