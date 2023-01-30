@@ -39,7 +39,6 @@ class SqlInterface:
         self.mul_session = sql_alchemy.db_session()
         # logger.info(self.mul_session.hash_key)
 
-
     def common_update_method(self, table_obj, update_id: str, name: str, value: str):
         table_obj_instance = self.mul_session.query(table_obj).filter_by(id=update_id).first()
         logger.info(table_obj_instance.__repr__())
