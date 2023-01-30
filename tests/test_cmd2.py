@@ -43,7 +43,7 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_job_status_show(self):
-        sys.argv = ["Tk", "job_status_show", "-plan_status_id", "1"]
+        sys.argv = ["Tk", "job_status_show", "-plan_status_id", "3"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)

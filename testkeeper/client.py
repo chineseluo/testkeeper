@@ -47,6 +47,12 @@ def plan_show(*args, **kwargs):
     """
     logger.info("*args")
     title = "PLAN CONFIG LIST SHOW ** 计划配置列表展示"
+    try:
+        limit = int(args[0].limit)
+    except Exception as e:
+        logger.error("limit参数类型传递错误，应当是int类型的数字")
+        logger.error(e)
+        return
     if args[0].project_name is not None and args[0].limit is not None:
         LoggerFormat.console_pretty_table(title,
                                           plan_service.get_test_plan_list(args[0].project_name, int(args[0].limit)))

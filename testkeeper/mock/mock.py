@@ -15,6 +15,7 @@ import hashlib
 import time
 import os
 import datetime
+from loguru import logger
 from typing import Text
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
 from testkeeper.module.sqlite_module import TestJobTable, TestPlanTable, TestStepTable, TestMachineTable
@@ -44,6 +45,7 @@ class MockData:
 
     def insertTestJobTableData(self, plan_count: int, job_count: int, step_count: int, machine_count: int):
         for plan_index in range(1, plan_count):
+            logger.info(f"#######{plan_index}")
             test_plan_table_obj = TestPlanTable(
                 projectName=f"测试项目2{plan_index}",
                 planName=f"测试计划{plan_index}",
