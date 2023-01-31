@@ -26,7 +26,7 @@ class SQLalchemyDbOperation:
         self.sqlalchemy_db_session = None
         self.db_full_path = os.path.join(db_path, db_name)
         self.sqlalchemy_engine = create_engine(
-            f'sqlite:///{self.db_full_path}', echo=True,
+            f'sqlite:///{self.db_full_path}', echo=False,
             connect_args={'check_same_thread': False}, poolclass=SingletonThreadPool, future=True)
         self.db_session = sessionmaker(bind=self.sqlalchemy_engine)
 

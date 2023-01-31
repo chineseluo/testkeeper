@@ -21,6 +21,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.gevent import GeventScheduler
 from testkeeper.service.plan_service import PlanService
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
+from testkeeper.service.job_center import JobCenter
 
 
 class TaskScheduler:
@@ -43,18 +44,15 @@ class TaskScheduler:
 
     def add_time_job(self):
         test_plan_list = self._plan_service.get_test_plan_list(limit=1000)
-        # self._scheduler.add_job(id="1", name="1", func=self.test_say, trigger="interval",
-        #                         seconds=10, replace_existing=True, timezone='Asia/Shanghai')
-        # self._scheduler.add_job(id="2", name="2", func=self.test_say, trigger="interval",
-        #                         seconds=10, replace_existing=True, timezone='Asia/Shanghai')
         for test_plan in test_plan_list:
             logger.info(test_plan)
-            plan_service = PlanService()
+            job_center = JobCenter()
+            loop = asyncio.new_event_loop()
             self._scheduler.add_job(id=str(test_plan["planId"]),
                                     name=f'{test_plan["projectName"]}_{test_plan["planName"]}_scheduler_task_{test_plan["planId"]}',
-                                    func=plan_service.execute_test_plan, trigger="interval",
+                                    func=job_center.execute_test_plan, trigger="interval",
                                     seconds=30, replace_existing=True, timezone='Asia/Shanghai',
-                                    args=[test_plan["planId"]])
+                                    args=[loop, test_plan["planId"]])
 
     def update_time_job(self):
         ...

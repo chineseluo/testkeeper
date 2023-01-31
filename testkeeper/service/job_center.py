@@ -39,11 +39,12 @@ class JobCenter:
         self.step_status_service = StepStatusService()
         self.job_service = JobService()
         self.plan_service = PlanService()
-        self.loop = asyncio.get_event_loop()
+        # self.loop = asyncio.get_event_loop()
+        # self.loop = asyncio.set_event_loop(asyncio.new_event_loop())
         self.shell_client = ShellClient()
         self.execute_result = {}
 
-    def execute_test_job(self, test_plan_status_table_obj, test_job: TestJobTable, job_id: str):
+    def execute_test_job(self, loop, test_plan_status_table_obj, test_job: TestJobTable, job_id: str):
         logger.info(self.plan_status_service.mul_session.hash_key)
 
         test_job = self.job_service.get_test_job_by_id(job_id) if test_job is None else test_job
@@ -68,7 +69,7 @@ class JobCenter:
             test_job_status_table_obj.executeStatus = ExecuteStatus.SKIPPED
         else:
             logger.info(f"正在执行任务：{test_job.jobName}")
-            self.check_execute_job_cmd_by_async(test_job, test_plan_status_table_obj, test_job_status_table_obj)
+            self.check_execute_job_cmd_by_async(loop, test_job, test_plan_status_table_obj, test_job_status_table_obj)
             logger.info(f'ret:{self.execute_result["ret"]}')
             if test_job.runFailedIsNeedContinue is not True and self.execute_result["ret"] != 0:
                 insert_status_table(ExecuteStatus.FAILED)
@@ -154,15 +155,16 @@ class JobCenter:
                 return
             await asyncio.sleep(test_job.checkInterval)
 
-    def check_execute_job_cmd_by_async(self, test_job, test_plan_status_table_obj, test_job_status_table_obj):
-        tasks = [asyncio.ensure_future(self.execute_cmd_by_async(test_job)),
+    def check_execute_job_cmd_by_async(self, loop, test_job, test_plan_status_table_obj, test_job_status_table_obj):
+        asyncio.set_event_loop(loop)
+        tasks = [asyncio.ensure_future(self.execute_cmd_by_async(loop, test_job)),
                  asyncio.ensure_future(
                      self.watch_execute_cmd_by_async(test_job, test_plan_status_table_obj, test_job_status_table_obj))]
-        self.loop.run_until_complete(asyncio.wait(tasks))
+        loop.run_until_complete(asyncio.wait(tasks))
 
-    async def execute_cmd_by_async(self, test_job):
+    async def execute_cmd_by_async(self,loop, test_job):
         logger.info("开始执行命令")
-        await self.loop.run_in_executor(None, functools.partial(self.shell_client.run_cmd,
+        await loop.run_in_executor(None, functools.partial(self.shell_client.run_cmd,
                                                                 cmd=f"cd {test_job.executeScriptPath} &&  echo 测试计划_id_{test_job.testPlan.id}_测试任务id_{test_job.id} &&  {test_job.executeScriptCmd}",
                                                                 timeout=600))
 
@@ -192,7 +194,8 @@ class JobCenter:
         else:
             logger.info(f"当前测试任务{test_job_status_obj.id}，不需要停止")
 
-    def execute_test_plan(self, plan_id: str):
+    def execute_test_plan(self, loop, plan_id: str):
+        loop = asyncio.new_event_loop() if loop is None else loop
         test_plan_status_table_obj = self.plan_status_service.get_plan_status_table_obj_by_plan_id(plan_id)
         # 检查是否有正在运行的任务，任务状态是否是running或者start，如果有，需要等待上一个任务完成，或者，修改上一个任务的状态
         if test_plan_status_table_obj is not None and test_plan_status_table_obj.executeStatus in [
@@ -201,13 +204,14 @@ class JobCenter:
             return
         else:
             test_plan = self.plan_service.get_test_plan_by_id(plan_id)
+            logger.info(test_plan.__repr__())
             logger.info(
                 f"当前测试计划没有正在运行的计划，开始执行，测试项目:{test_plan.projectName},测试计划:{test_plan.planName}，测试计划id:{test_plan.id}")
 
             test_plan_status_table_obj = self.plan_status_service.generate_test_plan_status_table_obj(test_plan,
                                                                                                       ExecuteStatus.START)
             for test_job in self.plan_service.get_test_job_list_by_plan_id(plan_id):
-                self.execute_test_job(test_plan_status_table_obj, test_job, test_job.id)
+                self.execute_test_job(loop, test_plan_status_table_obj, test_job, test_job.id)
 
     def stop_test_plan(self, plan_status_id: str):
         test_plan_status_obj = self.plan_status_service.get_plan_status_table_obj(int(plan_status_id))

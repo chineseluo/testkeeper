@@ -47,7 +47,7 @@ class MockData:
         for plan_index in range(1, plan_count):
             logger.info(f"#######{plan_index}")
             test_plan_table_obj = TestPlanTable(
-                projectName=f"测试项目2{plan_index}",
+                projectName=f"测试项目3{plan_index}",
                 planName=f"测试计划{plan_index}",
                 createUser="成都-阿木木",
                 isScheduledExecution=True,
@@ -60,7 +60,7 @@ class MockData:
             )
             for i in range(1, job_count):
                 test_job_table_obj = TestJobTable(
-                    jobName=f"job002{i}",
+                    jobName=f"job003{i}",
                     createUser="成都-阿木木",
                     executeScriptPath="/tmp",
                     executeScriptCmd=f"sleep 20 && echo gggg{i}",

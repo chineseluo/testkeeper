@@ -74,11 +74,11 @@ class PlanService(SqlInterface):
         self.common_update_method(TestPlanTable, plan_id, name, value)
 
     def get_test_plan_by_id(self, plan_id: str) -> TestPlanTable:
-        test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == plan_id)
+        test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == plan_id).first()
         return test_plan_table_obj
 
     def get_test_job_list_by_plan_id(self, plan_id: str) -> list:
-        test_job_list = self.mul_session.query(TestJobTable).filter_by(planId=plan_id).all()
+        test_job_list = self.mul_session.query(TestJobTable).filter_by(planId=plan_id)
         return test_job_list
 
 
