@@ -20,6 +20,15 @@ from testkeeper.client import entry
 
 @ddt
 class TestCmd(unittest.TestCase):
+    def test_tk_run(self):
+        basedir = os.path.dirname(os.path.abspath(__file__))
+        if basedir not in sys.path:
+            sys.path.insert(1, basedir)
+        sys.argv = ["Tk", "run"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        self.assertEqual(cm.exception.code, 0)
+
     def test_show_version(self):
         sys.argv = ["Tk", "-V"]
         with self.assertRaises(SystemExit) as cm:

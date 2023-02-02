@@ -1,4 +1,20 @@
 parameters:
+  - parent_cmd:
+      param_name: "run"
+      type: "str"
+      help: "启动TestKeeper的web服务及相应定时任务"
+      default: "None"
+      func: "run"
+      children_cmd:
+        - param_name:
+            - '-p'
+            - '-port'
+            - '--port'
+          type: "str"
+          help: "端口"
+          default: "5000"
+          dest: "port"
+
   # 计划操作命令
   - parent_cmd:
       param_name: "plan_load"

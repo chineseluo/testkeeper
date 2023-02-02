@@ -24,10 +24,10 @@ from testkeeper.service.step_service import StepService
 from testkeeper.service.step_status_service import StepStatusService
 from testkeeper.service.plan_config_service import PlanConfigService
 from testkeeper.service.job_center import JobCenter
-
+from testkeeper.app import app
 from testkeeper.service.machine_service import MachineService
 from testkeeper.util.logger_operation import LoggerFormat
-
+from testkeeper.util.shell_utils import ShellClient
 plan_service = PlanService()
 plan_status_service = PlanStatusService()
 job_service = JobService()
@@ -37,6 +37,13 @@ step_status_service = StepStatusService()
 plan_config_service = PlanConfigService()
 machine_service = MachineService()
 job_center = JobCenter()
+
+
+def run(*args, **kwargs):
+    shell_client = ShellClient()
+    cmd = "source ~/.bash_profile && cd ../testkeeper && flask run"
+    shell_client.run_cmd(cmd)
+
 
 def plan_show(*args, **kwargs):
     """
@@ -238,12 +245,13 @@ def plan_status_show(*args, **kwargs):
     if args[0].project_name is not None and args[0].limit is not None:
         LoggerFormat.console_pretty_table(title,
                                           plan_status_service.get_test_plan_status_list(args[0].project_name,
-                                                                                 int(args[0].limit)))
+                                                                                        int(args[0].limit)))
     elif args[0].project_name is None and args[0].limit is not None:
         LoggerFormat.console_pretty_table(title, plan_status_service.get_test_plan_status_list(limit=args[0].limit))
     elif args[0].project_name is not None and args[0].limit is None:
         LoggerFormat.console_pretty_table(title,
-                                          plan_status_service.get_test_plan_status_list(project_name=args[0].project_name))
+                                          plan_status_service.get_test_plan_status_list(
+                                              project_name=args[0].project_name))
     else:
         LoggerFormat.console_pretty_table(title, plan_status_service.get_test_plan_status_list())
 

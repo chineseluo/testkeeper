@@ -2,13 +2,29 @@
 # -*- coding: utf-8 -*-
 import os
 import json
+import threading
 from flask import Flask, jsonify, render_template
 from loguru import logger
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
 from testkeeper.service.plan_service import PlanService
 from testkeeper.module.sqlite_module import TestJobTable, TestPlanTable
+from testkeeper.builtin.task_scheduler import TaskScheduler
 
-app = Flask(__name__, static_folder="./templates/static", template_folder="./templates")
+
+class FlaskApp(Flask):
+    def __init__(self, *args, **kwargs):
+        super(FlaskApp, self).__init__(*args, **kwargs)
+        self._run_task_scheduler()
+
+    @staticmethod
+    def _run_task_scheduler():
+        ts = TaskScheduler()
+        task_scheduler_thread = threading.Thread(target=ts.start_execute_time_job, args=())
+        task_scheduler_thread.setDaemon(True)
+        task_scheduler_thread.start()
+
+
+app = FlaskApp(__name__, static_folder="./templates/static", template_folder="./templates")
 
 plan_service = PlanService()
 
@@ -79,5 +95,4 @@ def delete_test_plan():
 
 
 if __name__ == '__main__':
-    # app.config['JSON_AS_ASCII'] = False
-    app.run(debug=True)
+    app.run(debug=True, threaded=True)
