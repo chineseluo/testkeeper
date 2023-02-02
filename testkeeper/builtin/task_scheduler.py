@@ -43,7 +43,8 @@ class TaskScheduler:
         logger.info("test****")
 
     def add_time_job(self):
-        test_plan_list = self._plan_service.get_test_plan_list(limit=1000)
+        self._plan_service.limit = 1000
+        test_plan_list = self._plan_service.get_test_plan_list()
         for test_plan in test_plan_list:
             logger.info(test_plan)
             job_center = JobCenter()

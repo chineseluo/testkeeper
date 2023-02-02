@@ -38,7 +38,9 @@ class TestPlanConfigCmd(unittest.TestCase):
         # 清理mock数据
         logger.info("开始清理sqlite mock测试数据......")
         plan_service = PlanService()
-        plan_list = plan_service.get_test_plan_list("测试项目21", 100)
+        plan_service.limit = 100
+        plan_service.project_name = "测试项目21"
+        plan_list = plan_service.get_test_plan_list()
         for plan in plan_list:
             sys.argv = ["Tk", "plan_delete", "-plan_id", str(plan['planId'])]
             with self.assertRaises(SystemExit) as cm:
@@ -56,7 +58,9 @@ class TestPlanConfigCmd(unittest.TestCase):
     def test_show_test_plan_config_by_project_name(self):
         # 测试 TK plan_show -project_name xxx
         plan_service = PlanService()
-        project_name = plan_service.get_test_plan_list("测试项目21", 100)[0]["projectName"]
+        plan_service.limit = 100
+        plan_service.project_name = "测试项目21"
+        project_name = plan_service.get_test_plan_list()[0]["projectName"]
         sys.argv = ["Tk", "plan_show", "-project_name", str(project_name)]
         with self.assertRaises(SystemExit) as cm:
             entry()

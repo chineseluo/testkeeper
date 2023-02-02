@@ -28,6 +28,7 @@ from testkeeper.app import app
 from testkeeper.service.machine_service import MachineService
 from testkeeper.util.logger_operation import LoggerFormat
 from testkeeper.util.shell_utils import ShellClient
+
 plan_service = PlanService()
 plan_status_service = PlanStatusService()
 job_service = JobService()
@@ -54,22 +55,9 @@ def plan_show(*args, **kwargs):
     """
     logger.info("*args")
     title = "PLAN CONFIG LIST SHOW ** 计划配置列表展示"
-    try:
-        limit = int(args[0].limit)
-    except Exception as e:
-        logger.error("limit参数类型传递错误，应当是int类型的数字")
-        logger.error(e)
-        return
-    if args[0].project_name is not None and args[0].limit is not None:
-        LoggerFormat.console_pretty_table(title,
-                                          plan_service.get_test_plan_list(args[0].project_name, int(args[0].limit)))
-    elif args[0].project_name is None and args[0].limit is not None:
-        LoggerFormat.console_pretty_table(title, plan_service.get_test_plan_list(limit=args[0].limit))
-    elif args[0].project_name is not None and args[0].limit is None:
-        LoggerFormat.console_pretty_table(title,
-                                          plan_service.get_test_plan_list(project_name=args[0].project_name))
-    else:
-        LoggerFormat.console_pretty_table(title, plan_service.get_test_plan_list())
+    plan_service.project_name = args[0].project_name
+    plan_service.limit = args[0].limit
+    LoggerFormat.console_pretty_table(title, plan_service.get_test_plan_list())
 
 
 def plan_load(*args, **kwargs):

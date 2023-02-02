@@ -31,6 +31,8 @@ from testkeeper.service.step_service import StepService
 from testkeeper.service.plan_status_service import PlanStatusService
 from testkeeper.service.job_status_service import JobStatusService
 from testkeeper.service.step_status_service import StepStatusService
+from testkeeper.exception.exception import *
+from typing import Text
 
 
 class PlanService(SqlInterface):
@@ -43,22 +45,54 @@ class PlanService(SqlInterface):
         self.plan_status_service = PlanStatusService()
         self.job_status_service = JobStatusService()
         self.step_status_service = StepStatusService()
+        self.__limit = 3
+        self.__project_name = None
+        self.__plan_id = None
 
-    def get_test_plan_list(self, project_name: str = None, limit: int = 3):
-        if project_name is not None and limit is not None:
+    @property
+    def limit(self):
+        return self.__limit
+
+    @limit.setter
+    def limit(self, limit):
+        if limit is None:
+            self.__limit = self.__limit
+        else:
+            if not isinstance(limit, int):
+                raise TestKeeperArgvCheckException(f"参数limit:{limit}，类型错误，应当为int or None类型！")
+            self.__limit = limit
+
+    @property
+    def project_name(self):
+        return self.__project_name
+
+    @project_name.setter
+    def project_name(self, project_name):
+        if project_name is None:
+            self.__project_name = self.__project_name
+        else:
+            if not isinstance(project_name, Text):
+                raise TestKeeperArgvCheckException(f"参数project_name:{project_name}，类型错误，应当为str类型！")
+            self.__project_name = project_name
+
+    @property
+    def plan_id(self):
+        return self.__plan_id
+
+    @plan_id.setter
+    def plan_id(self, plan_id):
+        if plan_id is None:
+            raise TestKeeperArgvCheckException(f"参数planId:{plan_id},类型错误，应当为str类型！")
+
+    def get_test_plan_list(self):
+        if self.__project_name is not None:
             test_plan_list = [test_plan.__repr__() for test_plan in
                               self.mul_session.query(TestPlanTable).filter(
-                                  TestPlanTable.projectName == project_name).limit(limit).all()]
-        elif project_name is None and limit is not None:
-            test_plan_list = [test_plan.__repr__() for test_plan in
-                              self.mul_session.query(TestPlanTable).filter().limit(limit).all()]
-        elif project_name is not None and limit is None:
-            test_plan_list = [test_plan.__repr__() for test_plan in
-                              self.mul_session.query(TestPlanTable).filter(
-                                  TestPlanTable.projectName == project_name).limit(limit).all()]
+                                  TestPlanTable.projectName == self.__project_name).limit(self.__limit).all()]
+
         else:
             test_plan_list = [test_plan.__repr__() for test_plan in
-                              self.mul_session.query(TestPlanTable).filter().limit(limit).all()]
+                              self.mul_session.query(TestPlanTable).filter().limit(self.__limit).all()]
         return test_plan_list
 
     def delete_test_plan(self, plan_id: str):

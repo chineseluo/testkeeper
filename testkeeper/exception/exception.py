@@ -32,3 +32,7 @@ class TestKeeperCheckerException(TestKeeperException):
 
 class TestKeeperApiException(TestKeeperException):
     ...
+
+
+class TestKeeperArgvCheckException(TestKeeperException):
+    ...
