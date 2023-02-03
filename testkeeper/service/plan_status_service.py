@@ -89,7 +89,7 @@ class PlanStatusService(SqlInterface):
                 self.__plan_id = int(plan_id)
             except Exception as e:
                 logger.error(e)
-                raise TestKeeperArgvCheckException(f"参数planId:{plan_id},类型错误，应当为str类型！")
+                raise TestKeeperArgvCheckException(f"参数planId:{plan_id},类型错误，应当为int类型！")
 
     def update_test_plan_status(self, name: str, value: str):
         self.common_update_method(TestPlanStatusTable, self.__plan_status_id, name, value)
