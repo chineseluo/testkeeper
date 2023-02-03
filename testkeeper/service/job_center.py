@@ -221,9 +221,6 @@ class JobCenter:
                 if test_job_status_obj.executeStatus == ExecuteStatus.RUNNING:
                     self.shell_client.check_call(f"kill -9 {test_job_status_obj.processPid}")
                     self.execute_result["ret"] = 0
-                    for test_step_status_obj in test_job_status_obj.testStepStatusList:
-                        test_step_status_obj.executeStatus = ExecuteStatus.STOP
-                        # test_job_status_obj.testStepStatusList.append(test_step_status_obj)
                     test_job_status_obj.executeStatus = ExecuteStatus.STOP
                     test_plan_status_obj.executeStatus = ExecuteStatus.STOP
                     test_plan_status_obj.testJobStatusList.append(test_job_status_obj)
