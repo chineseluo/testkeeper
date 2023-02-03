@@ -23,6 +23,7 @@ from testkeeper.module.sqlite_module import \
     TestJobStatusTable, \
     TestStepStatusTable, \
     TestStepTable, TestMachineTable
+from testkeeper.exception.exception import *
 
 
 class PlanStatusService(SqlInterface):
@@ -30,36 +31,81 @@ class PlanStatusService(SqlInterface):
         super().__init__()
         self.shell_client = ShellClient()
         self.execute_result = {}
+        self.__plan_status_id = None
+        self.__project_name = None
+        self.__limit = 3
+        self.__plan_id = None
         logger.info(self.mul_session.hash_key)
 
-    def update_test_plan_status(self, plan_status_id, name: str, value: str):
-        self.common_update_method(TestPlanStatusTable, plan_status_id, name, value)
+    @property
+    def limit(self):
+        return self.__limit
 
-    def delete_test_plan_status(self, plan_status_id: str):
+    @limit.setter
+    def limit(self, limit):
+        if limit is None:
+            self.__limit = self.__limit
+        else:
+            if not isinstance(limit, int):
+                raise TestKeeperArgvCheckException(f"参数limit:{limit}，类型错误，应当为int类型！")
+            self.__limit = limit
+
+    @property
+    def project_name(self):
+        return self.__project_name
+
+    @project_name.setter
+    def project_name(self, project_name):
+        if project_name is None:
+            self.__project_name = self.__project_name
+        else:
+            if not isinstance(project_name, Text):
+                raise TestKeeperArgvCheckException(f"参数project_name:{project_name}，类型错误，应当为str类型！")
+            self.__project_name = project_name
+
+    @property
+    def plan_status_id(self):
+        return self.__plan_status_id
+
+    @plan_status_id.setter
+    def plan_status_id(self, plan_status_id):
         if plan_status_id is None:
-            logger.warning("plan_id不能为空！")
+            raise TestKeeperArgvCheckException(f"参数plan_status_id:{plan_status_id},不能为None！")
         else:
-            logger.info(plan_status_id)
-            self.mul_session.query(TestPlanStatusTable).filter_by(id=plan_status_id).delete()
-            self.mul_session.query(TestJobStatusTable).filter_by(planStatusId=plan_status_id).delete()
-            self.mul_session.commit()
-            logger.info(f"删除测试计划成功:{plan_status_id}")
+            if not isinstance(plan_status_id, int):
+                raise TestKeeperArgvCheckException(f"参数plan_status_id:{plan_status_id},类型错误，应当为int类型！")
+            self.__plan_status_id = plan_status_id
 
-    def get_test_plan_status_list(self, project_name: str = None, limit: int = 3):
-        if project_name is not None and limit is not None:
+    @property
+    def plan_id(self):
+        return self.__plan_id
+
+    @plan_id.setter
+    def plan_id(self, plan_id):
+        if plan_id is None:
+            raise TestKeeperArgvCheckException(f"参数planId:{plan_id},不能为None！")
+        else:
+            if not isinstance(plan_id, Text):
+                raise TestKeeperArgvCheckException(f"参数planId:{plan_id},类型错误，应当为str类型！")
+            self.__plan_id = plan_id
+
+    def update_test_plan_status(self, name: str, value: str):
+        self.common_update_method(TestPlanStatusTable, self.__plan_status_id, name, value)
+
+    def delete_test_plan_status(self):
+        self.mul_session.query(TestPlanStatusTable).filter_by(id=self.__plan_status_id).delete()
+        self.mul_session.query(TestJobStatusTable).filter_by(planStatusId=self.__plan_status_id).delete()
+        self.mul_session.commit()
+        logger.info(f"删除测试计划状态成功:{self.__plan_status_id}")
+
+    def get_test_plan_status_list(self):
+        if self.__project_name is not None:
             test_plan_status_list = [test_plan.__repr__() for test_plan in
                                      self.mul_session.query(TestPlanStatusTable).filter(
-                                         TestPlanTable.projectName == project_name).limit(limit).all()]
-        elif project_name is None and limit is not None:
-            test_plan_status_list = [test_plan.__repr__() for test_plan in
-                                     self.mul_session.query(TestPlanStatusTable).filter().limit(limit).all()]
-        elif project_name is not None and limit is None:
-            test_plan_status_list = [test_plan.__repr__() for test_plan in
-                                     self.mul_session.query(TestPlanStatusTable).filter(
-                                         TestPlanTable.projectName == project_name).limit(limit).all()]
+                                         TestPlanTable.projectName == self.__project_name).limit(self.__limit).all()]
         else:
             test_plan_status_list = [test_plan.__repr__() for test_plan in
-                                     self.mul_session.query(TestPlanStatusTable).filter().limit(limit).all()]
+                                     self.mul_session.query(TestPlanStatusTable).filter().limit(self.__limit).all()]
         return test_plan_status_list
 
     def generate_test_plan_status_table_obj(self, test_plan: TestPlanTable,
@@ -76,10 +122,10 @@ class PlanStatusService(SqlInterface):
         # self.mul_session.commit()
         return test_plan_status_table_obj
 
-    def get_plan_status_table_obj(self, plan_status_id: int) -> TestPlanStatusTable:
-        plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(id=plan_status_id).first()
+    def get_plan_status_table_obj(self) -> TestPlanStatusTable:
+        plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(id=self.__plan_status_id).first()
         return plan_status_table_obj
 
-    def get_plan_status_table_obj_by_plan_id(self, plan_id: str) -> TestPlanStatusTable:
-        plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(planId=plan_id).first()
+    def get_plan_status_table_obj_by_plan_id(self) -> TestPlanStatusTable:
+        plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(planId=self.__plan_id).first()
         return plan_status_table_obj

@@ -12,10 +12,7 @@
 ------------------------------------
 """
 import os
-import time
-import datetime
 from loguru import logger
-import threading
 from testkeeper.interface.sql_interface import SqlInterface
 from testkeeper.module.sqlite_module import \
     TestJobTable, \
@@ -24,7 +21,6 @@ from testkeeper.module.sqlite_module import \
     TestJobStatusTable, \
     TestStepStatusTable, \
     TestStepTable, TestMachineTable
-from testkeeper.module.execute_status_module import ExecuteStatus
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.service.job_service import JobService
 from testkeeper.service.step_service import StepService
@@ -59,7 +55,7 @@ class PlanService(SqlInterface):
             self.__limit = self.__limit
         else:
             if not isinstance(limit, int):
-                raise TestKeeperArgvCheckException(f"参数limit:{limit}，类型错误，应当为int or None类型！")
+                raise TestKeeperArgvCheckException(f"参数limit:{limit}，类型错误，应当为int类型！")
             self.__limit = limit
 
     @property
@@ -82,7 +78,11 @@ class PlanService(SqlInterface):
     @plan_id.setter
     def plan_id(self, plan_id):
         if plan_id is None:
-            raise TestKeeperArgvCheckException(f"参数planId:{plan_id},类型错误，应当为str类型！")
+            raise TestKeeperArgvCheckException(f"参数planId:{plan_id},不能为None！")
+        else:
+            if not isinstance(plan_id, Text):
+                raise TestKeeperArgvCheckException(f"参数planId:{plan_id},类型错误，应当为str类型！")
+            self.__plan_id = plan_id
 
     def get_test_plan_list(self):
         if self.__project_name is not None:
@@ -95,24 +95,21 @@ class PlanService(SqlInterface):
                               self.mul_session.query(TestPlanTable).filter().limit(self.__limit).all()]
         return test_plan_list
 
-    def delete_test_plan(self, plan_id: str):
-        if plan_id is None:
-            logger.warning("plan_id不能为空！")
-        else:
-            self.get_test_plan_by_id(plan_id).delete()
-            self.mul_session.query(TestJobTable).filter_by(planId=plan_id).delete()
-            self.mul_session.commit()
-            logger.info(f"删除测试计划成功:{plan_id}")
+    def delete_test_plan(self):
+        self.get_test_plan_by_id().delete()
+        self.mul_session.query(TestJobTable).filter_by(planId=self.__plan_id).delete()
+        self.mul_session.commit()
+        logger.info(f"删除测试计划成功:{self.__plan_id}")
 
-    def update_test_plan(self, plan_id: str, name: str, value: str):
-        self.common_update_method(TestPlanTable, plan_id, name, value)
+    def update_test_plan(self, name: str, value: str):
+        self.common_update_method(TestPlanTable, self.__plan_id, name, value)
 
-    def get_test_plan_by_id(self, plan_id: str) -> TestPlanTable:
-        test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == plan_id).first()
+    def get_test_plan_by_id(self) -> TestPlanTable:
+        test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == self.__plan_id).first()
         return test_plan_table_obj
 
-    def get_test_job_list_by_plan_id(self, plan_id: str) -> list:
-        test_job_list = self.mul_session.query(TestJobTable).filter_by(planId=plan_id)
+    def get_test_job_list_by_plan_id(self) -> list:
+        test_job_list = self.mul_session.query(TestJobTable).filter_by(planId=self.__plan_id)
         return test_job_list
 
 

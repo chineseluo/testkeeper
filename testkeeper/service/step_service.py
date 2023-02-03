@@ -30,6 +30,7 @@ from testkeeper.module.sqlite_module import \
     TestJobStatusTable, \
     TestStepStatusTable, \
     TestStepTable, TestMachineTable
+from testkeeper.exception.exception import *
 
 
 class StepService(SqlInterface):
@@ -40,15 +41,39 @@ class StepService(SqlInterface):
         self.step_status_service = StepStatusService()
         self.plan_status_service = PlanStatusService()
         self.job_status_service = JobStatusService()
+        self.__step_id = None
+        self.__job_id = None
+
+    @property
+    def step_id(self):
+        return self.__step_id
+
+    @step_id.setter
+    def step_id(self, step_id):
+        if step_id is None:
+            raise TestKeeperArgvCheckException(f"参数step_id:{step_id},不能为None！")
+        else:
+            if not isinstance(step_id, int):
+                raise TestKeeperArgvCheckException(f"参数step_id:{step_id},类型错误，应当为int类型！")
+            self.__step_id = step_id
+
+
+    @property
+    def job_id(self):
+        return self.__job_id
+
+    @job_id.setter
+    def job_id(self, job_id):
+        if job_id is None:
+            raise TestKeeperArgvCheckException(f"参数job_id:{job_id}，不能为None！")
+        if not isinstance(job_id, int):
+            raise TestKeeperArgvCheckException(f"参数job_id:{job_id}，类型错误，应当为int类型！")
+        self.__job_id = job_id
 
     def delete_test_step(self, step_id: str):
-        if step_id is None:
-            logger.warning("step_id不能为空！")
-        else:
-            logger.info(step_id)
-            self.mul_session.query(TestStepTable).filter_by(id=step_id).delete()
-            self.mul_session.commit()
-            logger.info(f"删除测试步骤成功:{step_id}")
+        self.mul_session.query(TestStepTable).filter_by(id=step_id).delete()
+        self.mul_session.commit()
+        logger.info(f"删除测试步骤成功:{step_id}")
 
     def update_test_step(self, step_id: str, name: str, value: str):
         self.common_update_method(TestStepTable, step_id, name, value)

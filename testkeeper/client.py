@@ -77,7 +77,8 @@ def plan_update(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    plan_service.update_test_plan(args[0].plan_id, args[0].name, args[0].value)
+    plan_service.plan_id = args[0].plan_id
+    plan_service.update_test_plan(args[0].name, args[0].value)
 
 
 def plan_delete(*args, **kwargs):
@@ -87,7 +88,8 @@ def plan_delete(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    plan_service.delete_test_plan(args[0].plan_id)
+    plan_service.plan_id = args[0].plan_id
+    plan_service.delete_test_plan()
 
 
 def plan_start(*args, **kwargs):
@@ -161,7 +163,8 @@ def job_delete(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    job_service.delete_test_job(args[0].job_id)
+    job_service.job_id = args[0].job_id
+    job_service.delete_test_job()
 
 
 def job_update(*args, **kwargs):
@@ -171,7 +174,8 @@ def job_update(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    job_service.update_test_job(args[0].job_id, args[0].name, args[0].value)
+    job_service.job_id = args[0].job_id
+    job_service.update_test_job(args[0].name, args[0].value)
 
 
 def job_show(*args, **kwargs):
@@ -182,10 +186,8 @@ def job_show(*args, **kwargs):
     :return:
     """
     title = "JOB CONFIG LIST SHOW ** 任务配置列表展示"
-    if args[0].plan_id is not None:
-        LoggerFormat.console_pretty_table(title, job_service.get_test_job_list(args[0].plan_id))
-    else:
-        LoggerFormat.console_pretty_table(title, job_service.get_test_job_list())
+    job_service.plan_id = args[0].plan_id
+    LoggerFormat.console_pretty_table(title, job_service.get_test_job_list())
 
 
 def step_show(*args, **kwargs):
@@ -230,18 +232,9 @@ def plan_status_show(*args, **kwargs):
     :return:
     """
     title = "PLAN STATUS LIST SHOW ** 计划执行状态列表展示"
-    if args[0].project_name is not None and args[0].limit is not None:
-        LoggerFormat.console_pretty_table(title,
-                                          plan_status_service.get_test_plan_status_list(args[0].project_name,
-                                                                                        int(args[0].limit)))
-    elif args[0].project_name is None and args[0].limit is not None:
-        LoggerFormat.console_pretty_table(title, plan_status_service.get_test_plan_status_list(limit=args[0].limit))
-    elif args[0].project_name is not None and args[0].limit is None:
-        LoggerFormat.console_pretty_table(title,
-                                          plan_status_service.get_test_plan_status_list(
-                                              project_name=args[0].project_name))
-    else:
-        LoggerFormat.console_pretty_table(title, plan_status_service.get_test_plan_status_list())
+    plan_status_service.project_name = args[0].project_name
+    plan_status_service.limit = int(args[0].limit)
+    LoggerFormat.console_pretty_table(title, plan_status_service.get_test_plan_status_list())
 
 
 def plan_status_delete(*args, **kwargs):
@@ -251,7 +244,8 @@ def plan_status_delete(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    plan_status_service.delete_test_plan_status(args[0].plan_status_id)
+    plan_status_service.plan_status_id = args[0].plan_status_id
+    plan_status_service.delete_test_plan_status()
 
 
 def job_status_delete(*args, **kwargs):
@@ -261,7 +255,8 @@ def job_status_delete(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    job_status_service.delete_test_job_status(args[0].job_status_id)
+    job_status_service.job_status_id = args[0].job_status_id
+    job_status_service.delete_test_job_status()
 
 
 def step_status_delete(*args, **kwargs):
@@ -281,7 +276,8 @@ def plan_status_update(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    plan_status_service.update_test_plan_status(args[0].plan_status_id, args[0].name, args[0].value)
+    plan_status_service.plan_status_id = args[0].plan_status_id
+    plan_status_service.update_test_plan_status(args[0].name, args[0].value)
 
 
 def job_status_show(*args, **kwargs):
@@ -292,10 +288,8 @@ def job_status_show(*args, **kwargs):
     :return:
     """
     title = "JOB EXECUTE STATUS LIST SHOW ** 任务执行状态列表展示"
-    if args[0].plan_id is not None:
-        LoggerFormat.console_pretty_table(title, job_status_service.get_test_job_status_list(args[0].plan_id))
-    else:
-        LoggerFormat.console_pretty_table(title, job_status_service.get_test_job_status_list())
+    job_status_service.plan_status_id = args[0].plan_id
+    LoggerFormat.console_pretty_table(title, job_status_service.get_test_job_status_list())
 
 
 def job_status_update(*args, **kwargs):
@@ -305,7 +299,8 @@ def job_status_update(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    job_status_service.update_test_job_status(args[0].job_status_id, args[0].name, args[0].value)
+    job_status_service.job_status_id = args[0].job_status_id
+    job_status_service.update_test_job_status(args[0].name, args[0].value)
 
 
 def step_status_show(*args, **kwargs):

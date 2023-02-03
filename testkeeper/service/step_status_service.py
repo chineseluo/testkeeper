@@ -23,6 +23,7 @@ from testkeeper.module.sqlite_module import \
     TestJobStatusTable, \
     TestStepStatusTable, \
     TestStepTable, TestMachineTable
+from testkeeper.exception.exception import *
 
 
 class StepStatusService(SqlInterface):
@@ -30,6 +31,32 @@ class StepStatusService(SqlInterface):
         super().__init__()
         self.shell_client = ShellClient()
         self.execute_result = {}
+        self.__step_status_id = None
+        self.__job_status_id = None
+
+    @property
+    def step_status_id(self):
+        return self.__step_status_id
+
+    @step_status_id.setter
+    def step_status_id(self, step_status_id):
+        if step_status_id is None:
+            raise TestKeeperArgvCheckException(f"参数step_status_id:{step_status_id}，不能为None！")
+        if not isinstance(step_status_id, int):
+            raise TestKeeperArgvCheckException(f"参数step_status_id:{step_status_id}，类型错误，应当为int类型！")
+        self.__step_status_id = step_status_id
+
+    @property
+    def job_status_id(self):
+        return self.__job_status_id
+
+    @job_status_id.setter
+    def job_status_id(self, job_status_id):
+        if job_status_id is None:
+            raise TestKeeperArgvCheckException(f"参数job_status_id:{job_status_id}，不能为None！")
+        if not isinstance(job_status_id, int):
+            raise TestKeeperArgvCheckException(f"参数job_status_id:{job_status_id}，类型错误，应当为int类型！")
+        self.__job_status_id = job_status_id
 
     def update_test_step_status(self, step_status_id: str, name: str, value: str):
         self.common_update_method(TestStepStatusTable, step_status_id, name, value)
