@@ -37,9 +37,11 @@ class JobService(SqlInterface):
     def job_id(self, job_id):
         if job_id is None:
             raise TestKeeperArgvCheckException(f"参数job_id:{job_id}，不能为None！")
-        if not isinstance(job_id, int):
+        try:
+            self.__job_id = int(job_id)
+        except Exception as e:
+            logger.error(e)
             raise TestKeeperArgvCheckException(f"参数job_id:{job_id}，类型错误，应当为int类型！")
-        self.__job_id = job_id
 
     @property
     def plan_id(self):
@@ -50,13 +52,14 @@ class JobService(SqlInterface):
         if plan_id is None:
             self.__plan_id = None
         else:
-            if not isinstance(plan_id, int):
+            try:
+                self.__plan_id = int(plan_id)
+            except Exception as e:
+                logger.error(e)
                 raise TestKeeperArgvCheckException(f"参数plan_id:{plan_id}，类型错误，应当为int类型！")
-            self.__plan_id = plan_id
 
     def delete_test_job(self):
         self.mul_session.query(TestJobTable).filter_by(id=self.__job_id).delete()
-        self.mul_session.query(TestStepTable).filter_by(jobId=self.__job_id).delete()
         self.mul_session.commit()
         logger.info(f"删除测试任务成功:{self.__job_id}")
 

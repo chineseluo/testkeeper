@@ -54,9 +54,11 @@ class JobStatusService(SqlInterface):
         if plan_status_id is None:
             self.__plan_status_id = None
         else:
-            if not isinstance(plan_status_id, int):
+            try:
+                self.__plan_status_id = int(plan_status_id)
+            except Exception as e:
+                logger.error(e)
                 raise TestKeeperArgvCheckException(f"参数plan_status_id:{plan_status_id}，类型错误，应当为int类型！")
-            self.__plan_status_id = plan_status_id
 
     def get_job_status_table_obj(self) -> TestJobStatusTable:
         job_status_table_obj = self.mul_session.query(TestJobStatusTable).filter_by(id=self.__job_status_id).first()

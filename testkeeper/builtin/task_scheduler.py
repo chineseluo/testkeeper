@@ -38,10 +38,6 @@ class TaskScheduler:
         self._scheduler = BlockingScheduler()
         self._plan_service = PlanService()
 
-    def test_say(self):
-        time.sleep(10)
-        logger.info("test****")
-
     def add_time_job(self):
         self._plan_service.limit = 1000
         test_plan_list = self._plan_service.get_test_plan_list()

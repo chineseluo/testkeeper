@@ -47,11 +47,13 @@ class PlanService(SqlInterface):
     @limit.setter
     def limit(self, limit):
         if limit is None:
-            self.__limit = self.__limit
+            self.__limit = 3
         else:
-            if not isinstance(limit, int):
-                raise TestKeeperArgvCheckException(f"参数limit:{limit}，类型错误，应当为int类型！")
-            self.__limit = limit
+            try:
+                self.__limit = int(limit)
+            except Exception as e:
+                logger.error(e)
+                raise TestKeeperArgvCheckException(f"参数limit:{limit}，类型错误，应当为int类型字符串！")
 
     @property
     def project_name(self):
@@ -98,9 +100,10 @@ class PlanService(SqlInterface):
 
     def update_test_plan(self, name: str, value: str):
         self.common_update_method(TestPlanTable, self.__plan_id, name, value)
+        logger.info(f"更新测试计划成功:{self.__plan_id}")
 
     def get_test_plan_by_id(self) -> TestPlanTable:
-        test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == self.__plan_id).first()
+        test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == self.__plan_id)
         return test_plan_table_obj
 
     def get_test_job_list_by_plan_id(self) -> list:

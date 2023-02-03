@@ -173,7 +173,7 @@ def plan_status_show(*args, **kwargs):
     """
     title = "PLAN STATUS LIST SHOW ** 计划执行状态列表展示"
     plan_status_service.project_name = args[0].project_name
-    plan_status_service.limit = int(args[0].limit)
+    plan_status_service.limit = args[0].limit
     LoggerFormat.console_pretty_table(title, plan_status_service.get_test_plan_status_list())
 
 

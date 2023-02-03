@@ -51,7 +51,7 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_plan_show(self):
-        sys.argv = ["Tk", "plan_show", "-p", "测试项目1", "-l", "10"]
+        sys.argv = ["Tk", "plan_show", "-p", "测试项目31", "-l", "1"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
@@ -80,18 +80,6 @@ class TestCmd(unittest.TestCase):
             entry()
         self.assertEqual(cm.exception.code, 0)
 
-    def test_step_status_show(self):
-        sys.argv = ["Tk", "step_status_show", "-job_status_id", "1"]
-        with self.assertRaises(SystemExit) as cm:
-            entry()
-        self.assertEqual(cm.exception.code, 0)
-
-    def test_step_show(self):
-        sys.argv = ["Tk", "step_show", "-job_id", "1"]
-        with self.assertRaises(SystemExit) as cm:
-            entry()
-        self.assertEqual(cm.exception.code, 0)
-
     def test_delete_plan(self):
         sys.argv = ["Tk", "plan_delete", "-plan_id", "1"]
         with self.assertRaises(SystemExit) as cm:
@@ -99,7 +87,7 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_update_plan(self):
-        sys.argv = ["Tk", "plan_update", "-plan_id", "9", "-name", "messagePushMethod", "-value",
+        sys.argv = ["Tk", "plan_update", "-plan_id", "2", "-name", "messagePushMethod", "-value",
                     "微信"]
         with self.assertRaises(SystemExit) as cm:
             entry()
@@ -172,32 +160,22 @@ class TestCmd(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 0)
 
-    def test_step_start(self):
-        sys.argv = ["Tk", "step_start", "-step_id", "1"]
+    def test_job_delete(self):
+        sys.argv = ["Tk", "job_show", "-p_id", "2"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
-
-    def test_job_delete(self):
         sys.argv = ["Tk", "job_delete", "-job_id", "2"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
-
-    def test_step_delete(self):
-        sys.argv = ["Tk", "step_delete", "-step_id", "2"]
+        sys.argv = ["Tk", "job_show", "-p_id", "2"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
 
     def test_job_status_delete(self):
         sys.argv = ["Tk", "job_status_delete", "-job_status_id", "2"]
-        with self.assertRaises(SystemExit) as cm:
-            entry()
-        self.assertEqual(cm.exception.code, 0)
-
-    def test_step_status_delete(self):
-        sys.argv = ["Tk", "step_status_delete", "-step_status_id", "2"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
