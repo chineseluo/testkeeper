@@ -188,7 +188,9 @@ class JobCenter:
             logger.info(f"当前测试任务{test_job_status_obj.id}，不需要停止")
 
     def execute_test_plan(self, plan_id: str, loop=None):
+        logger.info(plan_id)
         self.plan_status_service.plan_id = plan_id
+
         test_plan_status_table_obj = self.plan_status_service.get_plan_status_table_obj_by_plan_id()
         # 检查是否有正在运行的任务，任务状态是否是running或者start，如果有，需要等待上一个任务完成，或者，修改上一个任务的状态
         if test_plan_status_table_obj is not None and test_plan_status_table_obj.executeStatus in [
@@ -202,15 +204,14 @@ class JobCenter:
 
             test_plan_status_table_obj = self.plan_status_service.generate_test_plan_status_table_obj(test_plan,
                                                                                                       ExecuteStatus.START)
-            self.plan_service.plan_id = plan_id
             test_job_list = self.plan_service.get_test_job_list_by_plan_id()
             if len(test_job_list) == 0:
                 logger.warning(f"测试项目:{test_plan.projectName},测试计划:{test_plan.planName}没有配置job,退出执行")
             else:
                 loop = asyncio.new_event_loop() if loop is None else loop
                 for test_job in test_job_list:
+                    logger.info(plan_id)
                     self.execute_test_job(test_plan_status_table_obj, test_job, test_job.id, loop)
-                    logger.info(loop.is_closed())
 
     def stop_test_plan(self, plan_status_id: str):
         self.plan_status_service.plan_status_id = int(plan_status_id)

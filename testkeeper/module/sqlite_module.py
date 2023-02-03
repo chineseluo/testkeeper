@@ -20,7 +20,7 @@ from sqlalchemy import Column, String, Integer, DateTime, Text, Table, ForeignKe
 from sqlalchemy.dialects.sqlite import *
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
 from sqlalchemy.orm import relationship, backref, sessionmaker
-
+from testkeeper.util.file_operation import FileOption
 Base = declarative_base()
 
 
@@ -276,6 +276,7 @@ class User(Base):
 
 if __name__ == '__main__':
     db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))), "db")
+    FileOption().create_dir(db_path)
     db_name = "testkeeper.db"
     sql = SQLalchemyDbOperation(db_path, db_name)
     sql.create_table()

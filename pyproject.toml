@@ -17,6 +17,7 @@ pydantic = "^1.10.2"
 mkdocs = "^1.4.2"
 python-crontab = "^2.6.0"
 apscheduler = "^3.9.1"
+prettytable = "^3.6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
