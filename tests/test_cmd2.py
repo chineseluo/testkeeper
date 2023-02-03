@@ -64,7 +64,7 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_plan_stop(self):
-        sys.argv = ["Tk", "plan_stop", "-plan_status_id", "1"]
+        sys.argv = ["Tk", "plan_stop", "-plan_status_id", "2"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)

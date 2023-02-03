@@ -72,7 +72,6 @@ class JobStatusService(SqlInterface):
         else:
             test_job_status_list = [test_job.__repr__() for test_job in
                                     self.mul_session.query(TestJobStatusTable).filter().all()]
-        logger.info(test_job_status_list)
         return test_job_status_list
 
     def update_test_job_status(self, name: str, value: str):

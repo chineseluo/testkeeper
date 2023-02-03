@@ -145,6 +145,9 @@ class TestCmd(unittest.TestCase):
         sys.argv = ["Tk", "job_show"]
         with self.assertRaises(SystemExit) as cm:
             entry()
+        sys.argv = ["Tk", "plan_status_show"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
         sys.argv = ["Tk", "job_status_show"]
         with self.assertRaises(SystemExit) as cm:
             entry()

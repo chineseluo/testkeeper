@@ -37,6 +37,7 @@ class JobCenter:
         self.job_service = JobService()
         self.plan_service = PlanService()
         # self.loop = asyncio.get_event_loop()
+        # self.loop = asyncio.new_event_loop()
         # self.loop = asyncio.set_event_loop(asyncio.new_event_loop())
         self.shell_client = ShellClient()
         self.execute_result = {}
@@ -45,7 +46,7 @@ class JobCenter:
     # 2、如果测试plan下面有测试job，顺序执行job
     # 3、如果测试job下面没有测试step，执行job命令即可
     # 4、如果测试job下面有测试step，顺序执行测试step
-    def execute_test_job(self, loop, test_plan_status_table_obj, test_job: TestJobTable, job_id: str):
+    def execute_test_job(self, test_plan_status_table_obj, test_job: TestJobTable, job_id: int, loop=None):
         logger.info(self.plan_status_service.mul_session.hash_key)
         self.job_service.job_id = job_id
         test_job = self.job_service.get_test_job_by_id() if test_job is None else test_job
@@ -65,13 +66,8 @@ class JobCenter:
             test_job_status_table_obj.executeStatus = ExecuteStatus.SKIPPED
         else:
             logger.info(f"正在执行任务：{test_job.jobName}")
-            test_step_list = self.job_service.get_test_step_list_by_job_id()
-            if len(test_step_list) == 0:
-                logger.info("当前任务没有配置测试步骤，直接执行job")
-                self.check_execute_job_cmd_by_async(loop, test_job, test_plan_status_table_obj,
-                                                    test_job_status_table_obj)
-            else:
-                logger.info("当前任务已配置测试步骤，执行测试步骤")
+            self.check_execute_job_cmd_by_async(loop, test_job, test_plan_status_table_obj,
+                                                test_job_status_table_obj)
             logger.info(f'ret:{self.execute_result["ret"]}')
             if test_job.runFailedIsNeedContinue is not True and self.execute_result["ret"] != 0:
                 insert_status_table(ExecuteStatus.FAILED)
@@ -114,8 +110,6 @@ class JobCenter:
                 process_is_exists, process_is_status = SystemInfo.get_process_status(test_job.executeScriptCmd, pid)
                 test_job_status_table_obj.updateTime = datetime.datetime.now()
                 test_plan_status_table_obj.updateTime = datetime.datetime.now()
-                logger.info(process_is_exists)
-                logger.info(process_is_status)
                 if process_is_exists is True and process_is_status != "running":
                     logger.warning(f"任务:{test_job.jobName}，运行异常，进程状态{process_is_status},运行状态:{process_is_status}")
                     # 查询状态表，job_status_table状态是否为STOP，如果是，直接结束，如果不是写入异常状态
@@ -159,11 +153,11 @@ class JobCenter:
                      self.watch_execute_cmd_by_async(test_job, test_plan_status_table_obj, test_job_status_table_obj))]
         loop.run_until_complete(asyncio.wait(tasks))
 
-    async def execute_cmd_by_async(self,loop, test_job):
+    async def execute_cmd_by_async(self, loop, test_job):
         logger.info("开始执行命令")
         await loop.run_in_executor(None, functools.partial(self.shell_client.run_cmd,
-                                                                cmd=f"cd {test_job.executeScriptPath} &&  echo 测试计划_id_{test_job.testPlan.id}_测试任务id_{test_job.id} &&  {test_job.executeScriptCmd}",
-                                                                timeout=600))
+                                                           cmd=f"cd {test_job.executeScriptPath} &&  echo 测试计划_id_{test_job.testPlan.id}_测试任务id_{test_job.id} &&  {test_job.executeScriptCmd}",
+                                                           timeout=600))
 
     def start_test_job(self, job_id: str):
         """
@@ -176,7 +170,7 @@ class JobCenter:
         test_plan_table_obj = test_job_table_obj.testPlan
         test_plan_status_table_obj = self.plan_status_service.generate_test_plan_status_table_obj(test_plan_table_obj,
                                                                                                   ExecuteStatus.START)
-
+        logger.info(test_job_table_obj.id)
         self.execute_test_job(test_plan_status_table_obj, test_job_table_obj, test_job_table_obj.id)
 
     def stop_test_job(self, job_status_id: str):
@@ -188,13 +182,12 @@ class JobCenter:
             test_job_status_obj.executeStatus = ExecuteStatus.STOP
             test_plan_status_obj.executeStatus = ExecuteStatus.STOP
             test_plan_status_obj.testJobStatusList.append(test_job_status_obj)
-            self.mul_session.add(test_plan_status_obj)
-            self.mul_session.commit()
+            self.plan_status_service.mul_session.add(test_plan_status_obj)
+            self.plan_status_service.mul_session.commit()
         else:
             logger.info(f"当前测试任务{test_job_status_obj.id}，不需要停止")
 
-    def execute_test_plan(self, loop, plan_id: str):
-        loop = asyncio.new_event_loop() if loop is None else loop
+    def execute_test_plan(self, plan_id: str, loop=None):
         self.plan_status_service.plan_id = plan_id
         test_plan_status_table_obj = self.plan_status_service.get_plan_status_table_obj_by_plan_id()
         # 检查是否有正在运行的任务，任务状态是否是running或者start，如果有，需要等待上一个任务完成，或者，修改上一个任务的状态
@@ -214,8 +207,10 @@ class JobCenter:
             if len(test_job_list) == 0:
                 logger.warning(f"测试项目:{test_plan.projectName},测试计划:{test_plan.planName}没有配置job,退出执行")
             else:
+                loop = asyncio.new_event_loop() if loop is None else loop
                 for test_job in test_job_list:
-                    self.execute_test_job(loop, test_plan_status_table_obj, test_job, test_job.id)
+                    self.execute_test_job(test_plan_status_table_obj, test_job, test_job.id, loop)
+                    logger.info(loop.is_closed())
 
     def stop_test_plan(self, plan_status_id: str):
         self.plan_status_service.plan_status_id = int(plan_status_id)
@@ -238,3 +233,6 @@ class JobCenter:
                     logger.info(f"当前测试任务{test_job_status_obj.id}，不需要停止")
         else:
             logger.error(f"测试计划:{plan_status_id}状态为非RUNNING，不能进行STOP操作!!!")
+
+    # def __del__(self):
+    #     self.loop.close()

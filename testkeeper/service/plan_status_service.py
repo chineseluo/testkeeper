@@ -84,9 +84,12 @@ class PlanStatusService(SqlInterface):
         if plan_id is None:
             raise TestKeeperArgvCheckException(f"参数planId:{plan_id},不能为None！")
         else:
-            if not isinstance(plan_id, Text):
+            try:
+                logger.info(plan_id)
+                self.__plan_id = int(plan_id)
+            except Exception as e:
+                logger.error(e)
                 raise TestKeeperArgvCheckException(f"参数planId:{plan_id},类型错误，应当为str类型！")
-            self.__plan_id = plan_id
 
     def update_test_plan_status(self, name: str, value: str):
         self.common_update_method(TestPlanStatusTable, self.__plan_status_id, name, value)
@@ -118,11 +121,14 @@ class PlanStatusService(SqlInterface):
             createTime=now_time
         )
         self.mul_session.add(test_plan_status_table_obj)
-        # self.mul_session.commit()
         return test_plan_status_table_obj
 
-    def get_plan_status_table_obj(self) -> TestPlanStatusTable:
+    def get_plan_status_table(self) -> TestPlanStatusTable:
         plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(id=self.__plan_status_id).first()
+        return plan_status_table_obj
+
+    def get_plan_status_table_obj(self) -> TestPlanStatusTable:
+        plan_status_table_obj = self.mul_session.query(TestPlanStatusTable).filter_by(id=self.__plan_status_id)
         return plan_status_table_obj
 
     def get_plan_status_table_obj_by_plan_id(self) -> TestPlanStatusTable:

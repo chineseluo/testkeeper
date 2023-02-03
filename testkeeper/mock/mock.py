@@ -18,7 +18,7 @@ import datetime
 from loguru import logger
 from typing import Text
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
-from testkeeper.module.sqlite_module import TestJobTable, TestPlanTable, TestStepTable, TestMachineTable
+from testkeeper.module.sqlite_module import TestJobTable, TestPlanTable, TestMachineTable
 
 
 def get_string_md5(string: str) -> str:
@@ -80,19 +80,6 @@ class MockData:
                         createTime=datetime.datetime.now()
                     )
                     test_job_table_obj.executeMachineIpList.append(test_machine_table)
-
-                for step_index in range(1, step_count):
-                    test_step_table_obj = TestStepTable(
-                        stepName=f"step0{step_index}",
-                        executeScriptPath="/tmp",
-                        executeScriptCmd=f"sleep 700 && echo test{step_index}",
-                        runFailedIsNeedContinue=True,
-                        isSkipped=False,
-                        checkInterval=10,
-                        updateTime=datetime.datetime.now(),
-                        createTime=datetime.datetime.now()
-                    )
-                    test_job_table_obj.testSteps.append(test_step_table_obj)
                 test_plan_table_obj.testJobs.append(test_job_table_obj)
             self.db_session.add(test_plan_table_obj)
             self.db_session.commit()

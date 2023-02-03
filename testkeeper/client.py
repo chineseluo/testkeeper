@@ -94,6 +94,7 @@ def plan_start(*args, **kwargs):
     :param kwargs:
     :return:
     """
+
     job_center.execute_test_plan(args[0].plan_id)
 
 

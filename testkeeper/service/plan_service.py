@@ -14,12 +14,7 @@
 import os
 from loguru import logger
 from testkeeper.interface.sql_interface import SqlInterface
-from testkeeper.module.sqlite_module import \
-    TestJobTable, \
-    TestPlanTable, \
-    TestPlanStatusTable, \
-    TestJobStatusTable, \
-    TestMachineTable
+from testkeeper.module.sqlite_module import TestJobTable, TestPlanTable
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.service.job_service import JobService
 from testkeeper.service.plan_status_service import PlanStatusService
@@ -93,7 +88,7 @@ class PlanService(SqlInterface):
         return test_plan_list
 
     def delete_test_plan(self):
-        self.get_test_plan_by_id().delete()
+        self.get_test_plan_obj_by_id().delete()
         self.mul_session.query(TestJobTable).filter_by(planId=self.__plan_id).delete()
         self.mul_session.commit()
         logger.info(f"删除测试计划成功:{self.__plan_id}")
@@ -103,11 +98,15 @@ class PlanService(SqlInterface):
         logger.info(f"更新测试计划成功:{self.__plan_id}")
 
     def get_test_plan_by_id(self) -> TestPlanTable:
+        test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == self.__plan_id).first()
+        return test_plan_table_obj
+
+    def get_test_plan_obj_by_id(self) -> TestPlanTable:
         test_plan_table_obj = self.mul_session.query(TestPlanTable).filter(TestPlanTable.id == self.__plan_id)
         return test_plan_table_obj
 
     def get_test_job_list_by_plan_id(self) -> list:
-        test_job_list = self.mul_session.query(TestJobTable).filter_by(planId=self.__plan_id)
+        test_job_list = self.mul_session.query(TestJobTable).filter_by(planId=self.__plan_id).all()
         return test_job_list
 
 
