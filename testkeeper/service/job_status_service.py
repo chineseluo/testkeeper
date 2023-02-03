@@ -21,8 +21,7 @@ from testkeeper.module.sqlite_module import \
     TestPlanTable, \
     TestPlanStatusTable, \
     TestJobStatusTable, \
-    TestStepStatusTable, \
-    TestStepTable, TestMachineTable
+    TestMachineTable
 from testkeeper.exception.exception import *
 
 
@@ -79,7 +78,6 @@ class JobStatusService(SqlInterface):
 
     def delete_test_job_status(self):
         self.mul_session.query(TestJobStatusTable).filter_by(id=self.__job_status_id).delete()
-        self.mul_session.query(TestStepStatusTable).filter_by(jobStatusId=self.__job_status_id).delete()
         self.mul_session.commit()
         logger.info(f"删除测试任务成功:{self.__job_status_id}")
 

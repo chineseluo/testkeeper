@@ -15,7 +15,7 @@ import asyncio
 import time
 
 from loguru import logger
-from testkeeper.module.sqlite_module import TestPlanTable, TestJobTable, TestStepTable
+from testkeeper.module.sqlite_module import TestPlanTable, TestJobTable
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.gevent import GeventScheduler

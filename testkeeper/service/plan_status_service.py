@@ -21,9 +21,9 @@ from testkeeper.module.sqlite_module import \
     TestPlanTable, \
     TestPlanStatusTable, \
     TestJobStatusTable, \
-    TestStepStatusTable, \
-    TestStepTable, TestMachineTable
+    TestMachineTable
 from testkeeper.exception.exception import *
+from typing import Text
 
 
 class PlanStatusService(SqlInterface):
@@ -35,7 +35,6 @@ class PlanStatusService(SqlInterface):
         self.__project_name = None
         self.__limit = 3
         self.__plan_id = None
-        logger.info(self.mul_session.hash_key)
 
     @property
     def limit(self):

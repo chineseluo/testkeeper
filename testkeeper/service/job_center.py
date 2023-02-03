@@ -13,7 +13,6 @@
 """
 from testkeeper.service.job_status_service import JobStatusService
 from testkeeper.service.plan_status_service import PlanStatusService
-from testkeeper.service.step_status_service import StepStatusService
 from testkeeper.util.system_info import SystemInfo
 import asyncio
 import datetime
@@ -24,8 +23,7 @@ from testkeeper.module.sqlite_module import \
     TestPlanTable, \
     TestPlanStatusTable, \
     TestJobStatusTable, \
-    TestStepStatusTable, \
-    TestStepTable, TestMachineTable
+    TestMachineTable
 from testkeeper.service.job_service import JobService
 from testkeeper.service.plan_service import PlanService
 from testkeeper.module.execute_status_module import ExecuteStatus
@@ -36,7 +34,6 @@ class JobCenter:
     def __init__(self):
         self.job_status_service = JobStatusService()
         self.plan_status_service = PlanStatusService()
-        self.step_status_service = StepStatusService()
         self.job_service = JobService()
         self.plan_service = PlanService()
         # self.loop = asyncio.get_event_loop()
@@ -44,6 +41,10 @@ class JobCenter:
         self.shell_client = ShellClient()
         self.execute_result = {}
 
+    # 1、如果测试计划下面，没有测试job，退出执行测试计划
+    # 2、如果测试plan下面有测试job，顺序执行job
+    # 3、如果测试job下面没有测试step，执行job命令即可
+    # 4、如果测试job下面有测试step，顺序执行测试step
     def execute_test_job(self, loop, test_plan_status_table_obj, test_job: TestJobTable, job_id: str):
         logger.info(self.plan_status_service.mul_session.hash_key)
         self.job_service.job_id = job_id
@@ -57,11 +58,6 @@ class JobCenter:
             test_plan_status_table_obj.testJobStatusList.append(test_job_status_table_obj)
             logger.info(self.plan_status_service.mul_session.hash_key)
             self.plan_status_service.mul_session.add(test_plan_status_table_obj)
-            # except Exception as e:
-            #     logger.info(e)
-            #     self.mul_session.query(TestPlanStatusTable).filter_by(planId=test_plan_status_table_obj.planId).update(
-            #         {"executeStatus": execute_status})
-            # finally:
             self.plan_status_service.mul_session.commit()
 
         if test_job.isSkipped:
@@ -69,7 +65,13 @@ class JobCenter:
             test_job_status_table_obj.executeStatus = ExecuteStatus.SKIPPED
         else:
             logger.info(f"正在执行任务：{test_job.jobName}")
-            self.check_execute_job_cmd_by_async(loop, test_job, test_plan_status_table_obj, test_job_status_table_obj)
+            test_step_list = self.job_service.get_test_step_list_by_job_id()
+            if len(test_step_list) == 0:
+                logger.info("当前任务没有配置测试步骤，直接执行job")
+                self.check_execute_job_cmd_by_async(loop, test_job, test_plan_status_table_obj,
+                                                    test_job_status_table_obj)
+            else:
+                logger.info("当前任务已配置测试步骤，执行测试步骤")
             logger.info(f'ret:{self.execute_result["ret"]}')
             if test_job.runFailedIsNeedContinue is not True and self.execute_result["ret"] != 0:
                 insert_status_table(ExecuteStatus.FAILED)
@@ -93,11 +95,6 @@ class JobCenter:
         test_job_status_table_obj.processPid = pid
 
         def insert_status_data(execute_status: ExecuteStatus):
-            for test_step in test_job.testSteps:
-                test_step_status_table_obj = self.step_status_service.generate_test_step_status_table_obj(test_step,
-                                                                                                          test_job_status_table_obj.executeStatus,
-                                                                                                          pid)
-                test_job_status_table_obj.testStepStatusList.append(test_step_status_table_obj)
             test_plan_status_table_obj.executeStatus = execute_status
             test_job_status_table_obj.executeStatus = execute_status
             test_plan_status_table_obj.testJobStatusList.append(test_job_status_table_obj)
@@ -203,19 +200,22 @@ class JobCenter:
         # 检查是否有正在运行的任务，任务状态是否是running或者start，如果有，需要等待上一个任务完成，或者，修改上一个任务的状态
         if test_plan_status_table_obj is not None and test_plan_status_table_obj.executeStatus in [
             ExecuteStatus.RUNNING, ExecuteStatus.START]:
-            logger.error(f"当前测试计划{plan_id},有正在运行的计划，待上一个计划执行完在执行......")
-            return
+            logger.warning(f"当前测试计划{plan_id},有正在运行的计划，请等待上一个计划执行完在执行，或者手动停止上一个计划......")
         else:
             self.plan_service.plan_id = plan_id
             test_plan = self.plan_service.get_test_plan_by_id()
-            logger.info(test_plan.__repr__())
             logger.info(
                 f"当前测试计划没有正在运行的计划，开始执行，测试项目:{test_plan.projectName},测试计划:{test_plan.planName}，测试计划id:{test_plan.id}")
 
             test_plan_status_table_obj = self.plan_status_service.generate_test_plan_status_table_obj(test_plan,
                                                                                                       ExecuteStatus.START)
-            for test_job in self.plan_service.get_test_job_list_by_plan_id(plan_id):
-                self.execute_test_job(loop, test_plan_status_table_obj, test_job, test_job.id)
+            self.plan_service.plan_id = plan_id
+            test_job_list = self.plan_service.get_test_job_list_by_plan_id()
+            if len(test_job_list) == 0:
+                logger.warning(f"测试项目:{test_plan.projectName},测试计划:{test_plan.planName}没有配置job,退出执行")
+            else:
+                for test_job in test_job_list:
+                    self.execute_test_job(loop, test_plan_status_table_obj, test_job, test_job.id)
 
     def stop_test_plan(self, plan_status_id: str):
         self.plan_status_service.plan_status_id = int(plan_status_id)

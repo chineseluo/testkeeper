@@ -18,7 +18,7 @@ from testkeeper.module.test_plan_conf import TestPlanConfig, TestJobConfig, Test
 from testkeeper.module.sqlite_module import \
     TestJobTable, \
     TestPlanTable, \
-    TestStepTable, TestMachineTable
+    TestMachineTable
 
 
 class PlanConfigService(SqlInterface):
@@ -52,20 +52,6 @@ class PlanConfigService(SqlInterface):
         )
         return test_job_table_obj
 
-    def generate_test_step_table_obj_by_plan_config(self, test_step: TestStepConfig,
-                                                    test_job: TestJobConfig) -> TestStepTable:
-        test_step_table_obj = TestStepTable(
-            stepName=test_step.stepName,
-            executeScriptPath=test_step.executeScriptPath,
-            executeScriptCmd=test_step.executeScriptCmd,
-            runFailedIsNeedContinue=test_step.runFailedIsNeedContinue,
-            isSkipped=test_job.isSkipped,
-            checkInterval=test_job.checkInterval,
-            updateTime=datetime.datetime.now(),
-            createTime=datetime.datetime.now(),
-        )
-        return test_step_table_obj
-
     def generate_test_machine_table_obj_by_plan_config(self, test_machine: TestMachineConfig) -> TestMachineTable:
         test_machine_table_obj = TestMachineTable(
             ip=test_machine.ip,
@@ -88,9 +74,6 @@ class PlanConfigService(SqlInterface):
             for test_machine in test_job.executeMachineIpList:
                 test_machine_table_obj = self.generate_test_machine_table_obj_by_plan_config(test_machine)
                 test_job_table_obj.executeMachineIpList.append(test_machine_table_obj)
-            for test_step in test_job.TestStep:
-                test_step_table_obj = self.generate_test_step_table_obj_by_plan_config(test_step, test_job)
-                test_job_table_obj.testSteps.append(test_step_table_obj)
             test_plan_table_obj.testJobs.append(test_job_table_obj)
         self.mul_session.add(test_plan_table_obj)
         self.mul_session.commit()

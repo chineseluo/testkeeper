@@ -18,8 +18,7 @@ from testkeeper.module.sqlite_module import \
     TestPlanTable, \
     TestPlanStatusTable, \
     TestJobStatusTable, \
-    TestStepStatusTable, \
-    TestStepTable, TestMachineTable
+    TestMachineTable
 from testkeeper.exception.exception import *
 
 

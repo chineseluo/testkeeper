@@ -21,8 +21,7 @@ from testkeeper.module.sqlite_module import \
     TestPlanTable, \
     TestPlanStatusTable, \
     TestJobStatusTable, \
-    TestStepStatusTable, \
-    TestStepTable, TestMachineTable
+    TestMachineTable
 
 
 class SqlInterface:

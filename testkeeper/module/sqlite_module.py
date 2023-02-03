@@ -87,7 +87,6 @@ class TestJobTable(Base):
     updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
     testPlan = relationship("TestPlanTable", back_populates="testJobs")
-    testSteps = relationship("TestStepTable", back_populates="testJob")
     executeMachineIpList = relationship("TestMachineTable", back_populates="testJob")
 
     def __repr__(self):
@@ -122,51 +121,6 @@ class TestJobTable(Base):
             "createTime": str(self.createTime)
         }
         return json.dumps(test_job_table_dict)
-
-
-class TestStepTable(Base):
-    __tablename__ = "test_step_table"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    jobId = Column(String(100), ForeignKey('test_job_table.id'))
-    stepName = Column(String(500), nullable=False)
-    executeScriptPath = Column(String(500), nullable=False)
-    executeScriptCmd = Column(String(500), nullable=False)
-    runFailedIsNeedContinue = Column(BOOLEAN, nullable=False)
-    isSkipped = Column(BOOLEAN, nullable=False)
-    checkInterval = Column(Integer, nullable=False, default=10)
-    updateTime = Column(TIMESTAMP, nullable=False)
-    createTime = Column(TIMESTAMP, nullable=False)
-    testJob = relationship("TestJobTable", back_populates="testSteps")
-
-    def __repr__(self):
-        test_step_table_dict = {
-            "stepId": self.id,
-            "jobId": self.jobId,
-            "stepName": self.stepName,
-            "executeScriptPath": self.executeScriptPath,
-            "executeScriptCmd": self.executeScriptCmd,
-            "isSkipped": self.isSkipped,
-            "checkInterval": self.checkInterval,
-            "runFailedIsNeedContinue": self.runFailedIsNeedContinue,
-            "updateTime": str(self.updateTime),
-            "createTime": str(self.createTime)
-        }
-        return test_step_table_dict
-
-    def __str__(self):
-        test_step_table_dict = {
-            "stepId": self.id,
-            "jobId": self.jobId,
-            "stepName": self.stepName,
-            "executeScriptPath": self.executeScriptPath,
-            "executeScriptCmd": self.executeScriptCmd,
-            "isSkipped": self.isSkipped,
-            "checkInterval": self.checkInterval,
-            "runFailedIsNeedContinue": self.runFailedIsNeedContinue,
-            "updateTime": str(self.updateTime),
-            "createTime": str(self.createTime)
-        }
-        return json.dumps(test_step_table_dict)
 
 
 class TestPlanStatusTable(Base):
@@ -215,7 +169,6 @@ class TestJobStatusTable(Base):
     updateTime = Column(TIMESTAMP, nullable=False)
     createTime = Column(TIMESTAMP, nullable=False)
     testPlanStatus = relationship("TestPlanStatusTable", back_populates="testJobStatusList")
-    testStepStatusList = relationship("TestStepStatusTable", back_populates="testJobStatus")
 
     def __str__(self):
         test_job_status_table_dir = {
@@ -246,45 +199,6 @@ class TestJobStatusTable(Base):
             "createTime": str(self.createTime)
         }
         return test_job_status_table_dir
-
-
-class TestStepStatusTable(Base):
-    __tablename__ = "test_step_status_table"
-    jobStatusId = Column(String(100), ForeignKey("test_job_status_table.id"))
-    stepId = Column(String(100), nullable=False)
-    stepName = Column(String(100), nullable=False)
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    executeStatus = Column(String(100), nullable=False)
-    processPid = Column(Integer, nullable=False)
-    updateTime = Column(TIMESTAMP, nullable=False)
-    createTime = Column(TIMESTAMP, nullable=False)
-    testJobStatus = relationship("TestJobStatusTable", back_populates="testStepStatusList")
-
-    def __str__(self):
-        test_step_status_table_dir = {
-            "stepStatusId": self.id,
-            "jobStatusId": self.jobStatusId,
-            "stepId": self.stepId,
-            "processPid": self.processPid,
-            "stepName": self.stepName,
-            "executeStatus": self.executeStatus,
-            "updateTime": self.updateTime,
-            "createTime": str(self.createTime)
-        }
-        return json.dumps(test_step_status_table_dir)
-
-    def __repr__(self):
-        test_step_status_table_dir = {
-            "stepStatusId": self.id,
-            "jobStatusId": self.jobStatusId,
-            "stepId": self.stepId,
-            "processPid": self.processPid,
-            "stepName": self.stepName,
-            "executeStatus": self.executeStatus,
-            "updateTime": self.updateTime,
-            "createTime": str(self.createTime)
-        }
-        return test_step_status_table_dir
 
 
 class TestMachineTable(Base):

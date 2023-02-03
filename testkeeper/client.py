@@ -20,8 +20,6 @@ from testkeeper.service.plan_service import PlanService
 from testkeeper.service.plan_status_service import PlanStatusService
 from testkeeper.service.job_service import JobService
 from testkeeper.service.job_status_service import JobStatusService
-from testkeeper.service.step_service import StepService
-from testkeeper.service.step_status_service import StepStatusService
 from testkeeper.service.plan_config_service import PlanConfigService
 from testkeeper.service.job_center import JobCenter
 from testkeeper.app import app
@@ -33,8 +31,6 @@ plan_service = PlanService()
 plan_status_service = PlanStatusService()
 job_service = JobService()
 job_status_service = JobStatusService()
-step_service = StepService()
-step_status_service = StepStatusService()
 plan_config_service = PlanConfigService()
 machine_service = MachineService()
 job_center = JobCenter()
@@ -53,7 +49,6 @@ def plan_show(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    logger.info("*args")
     title = "PLAN CONFIG LIST SHOW ** 计划配置列表展示"
     plan_service.project_name = args[0].project_name
     plan_service.limit = args[0].limit
@@ -125,27 +120,6 @@ def job_stop(*args, **kwargs):
     """
     job_center.stop_test_job(args[0].job_status_id)
 
-
-def step_start(*args, **kwargs):
-    """
-    运行测试步骤，根据step_status_id运行，运行测试步骤会生成一条job_status，以及一条plan_status数据
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    step_service.start_test_step(args[0].step_id)
-
-
-def step_stop(*args, **kwargs):
-    """
-    停止正在运行的测试步骤，根据step_status_id进行停止
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    step_service.stop_test_step(args[0].step_status_id)
-
-
 def job_add(*args, **kwargs):
     """
     添加测试job配置
@@ -158,7 +132,7 @@ def job_add(*args, **kwargs):
 
 def job_delete(*args, **kwargs):
     """
-    删除测试job配置，及对应step配置
+    删除测试job配置
     :param args:
     :param kwargs:
     :return:
@@ -188,40 +162,6 @@ def job_show(*args, **kwargs):
     title = "JOB CONFIG LIST SHOW ** 任务配置列表展示"
     job_service.plan_id = args[0].plan_id
     LoggerFormat.console_pretty_table(title, job_service.get_test_job_list())
-
-
-def step_show(*args, **kwargs):
-    """
-    查询所有测试步骤配置
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    title = "STEP CONFIG LIST SHOW ** 步骤配置列表展示"
-    if args[0].job_id is not None:
-        LoggerFormat.console_pretty_table(title, step_service.get_test_step_list(args[0].job_id))
-    else:
-        LoggerFormat.console_pretty_table(title, step_service.get_test_step_list())
-
-
-def step_update(*args, **kwargs):
-    """
-    更新测试步骤中的字段
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    step_service.update_test_step(args[0].step_id, args[0].name, args[0].value)
-
-
-def step_delete(*args, **kwargs):
-    """
-    删除测试步骤
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    step_service.delete_test_step(args[0].step_id)
 
 
 def plan_status_show(*args, **kwargs):
@@ -258,17 +198,6 @@ def job_status_delete(*args, **kwargs):
     job_status_service.job_status_id = args[0].job_status_id
     job_status_service.delete_test_job_status()
 
-
-def step_status_delete(*args, **kwargs):
-    """
-    删除测试步骤运行状态
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    step_status_service.delete_test_step_status(args[0].step_status_id)
-
-
 def plan_status_update(*args, **kwargs):
     """
     更新测试计划执行状态
@@ -301,31 +230,6 @@ def job_status_update(*args, **kwargs):
     """
     job_status_service.job_status_id = args[0].job_status_id
     job_status_service.update_test_job_status(args[0].name, args[0].value)
-
-
-def step_status_show(*args, **kwargs):
-    """
-    显示所有步骤状态信息
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    title = "STEP EXECUTE STATUS LIST SHOW ** 步骤执行状态列表展示"
-    if args[0].job_status_id is not None:
-        LoggerFormat.console_pretty_table(title, step_status_service.get_test_step_status_list(args[0].job_status_id))
-    else:
-        LoggerFormat.console_pretty_table(title, step_status_service.get_test_step_status_list())
-
-
-def step_status_update(*args, **kwargs):
-    """
-    更新步骤执行状态信息
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    step_status_service.update_test_step_status(args[0].step_status_id, args[0].name, args[0].value)
-
 
 def show_testkeeper_machine_info(*args, **kwargs):
     title = "TESTKEEPER INSTALL MACHINE INFO ** TestKeeper安装机器资源信息展示"

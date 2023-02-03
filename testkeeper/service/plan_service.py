@@ -19,14 +19,11 @@ from testkeeper.module.sqlite_module import \
     TestPlanTable, \
     TestPlanStatusTable, \
     TestJobStatusTable, \
-    TestStepStatusTable, \
-    TestStepTable, TestMachineTable
+    TestMachineTable
 from testkeeper.util.shell_utils import ShellClient
 from testkeeper.service.job_service import JobService
-from testkeeper.service.step_service import StepService
 from testkeeper.service.plan_status_service import PlanStatusService
 from testkeeper.service.job_status_service import JobStatusService
-from testkeeper.service.step_status_service import StepStatusService
 from testkeeper.exception.exception import *
 from typing import Text
 
@@ -37,10 +34,8 @@ class PlanService(SqlInterface):
         self.shell_client = ShellClient()
         self.execute_result = {}
         self.job_service = JobService()
-        self.step_service = StepService()
         self.plan_status_service = PlanStatusService()
         self.job_status_service = JobStatusService()
-        self.step_status_service = StepStatusService()
         self.__limit = 3
         self.__project_name = None
         self.__plan_id = None
