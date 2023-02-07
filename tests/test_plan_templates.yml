@@ -17,7 +17,7 @@ TestJob:
     isSkipped: False # 是否跳过该任务
     checkInterval: 10 # 巡逻检查该任务进程的间隔时间
     executeMachineIpList: #"执行机器" 可能不是本机
-      - ip: "127.0.0.1"
+      - ip: "127.0.0.1:5000"
         username: "root" # 账号
         password: "123456" # 密码
         hostName: "env" #主机名称
@@ -64,7 +64,7 @@ TestJob:
   - jobName: "测试登陆接口"
     createUser: "mumu" # 创建者
     executeMachineIpList: #"执行机器" 可能不是本机
-      - ip: "127.0.0.1"
+      - ip: "127.0.0.1:5000"
         username: "root"
         password: "123456"
       - ip: "127.0.0.2"

@@ -88,7 +88,7 @@ class JobStatusService(SqlInterface):
             jobId=test_job.id,
             jobName=test_job.jobName,
             executeStatus=execute_status,
-            executeMachineIp="127.0.0.1",
+            executeMachineIp="127.0.0.1:5000",
             logFilePath="/tmp",
             updateTime=now_time,
             createTime=now_time

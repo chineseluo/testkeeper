@@ -3,7 +3,7 @@
 import os
 import json
 import threading
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from loguru import logger
 from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
 from testkeeper.service.plan_service import PlanService
@@ -41,6 +41,15 @@ app.config.from_object(Config)
 @app.route('/<path:path>')
 def hello_world(path):
     return render_template("index.html")
+
+
+@app.route("/auth/login/", methods=["POST"])
+def login():
+    try:
+        if request.method == "POST":
+            print(request.json)
+    except Exception as e:
+        logger.info(e)
 
 
 @app.route("/job/update/")
