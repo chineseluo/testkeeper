@@ -9,6 +9,7 @@ from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
 from testkeeper.service.plan_service import PlanService
 from testkeeper.module.sqlite_module import TestJobTable, TestPlanTable
 from testkeeper.builtin.task_scheduler import TaskScheduler
+from testkeeper.webapi.auth import auth_blue
 
 
 class FlaskApp(Flask):
@@ -35,21 +36,13 @@ class Config(object):
 
 
 app.config.from_object(Config)
+app.register_blueprint(auth_blue)
 
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def hello_world(path):
     return render_template("index.html")
-
-
-@app.route("/auth/login/", methods=["POST"])
-def login():
-    try:
-        if request.method == "POST":
-            print(request.json)
-    except Exception as e:
-        logger.info(e)
 
 
 @app.route("/job/update/")
