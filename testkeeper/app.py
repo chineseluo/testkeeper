@@ -26,7 +26,7 @@ class FlaskApp(Flask):
 
 
 app = FlaskApp(__name__, static_folder="./templates/static", template_folder="./templates")
-
+app.secret_key = "test"
 plan_service = PlanService()
 
 
