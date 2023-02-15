@@ -10,6 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from testkeeper.webapi.auth import auth_blue
 from testkeeper.webapi.menu import menu_blue
+from testkeeper.webapi.api import api_blue
 from loguru import logger
 from testkeeper.service.plan_service import PlanService
 from testkeeper.builtin.task_scheduler import TaskScheduler
@@ -55,12 +56,16 @@ app.secret_key = "testkeeper.user@secret.key"
 app.config.from_object(Config)
 # 绑定APP
 from testkeeper.ext import db
+
 jwt = JWTManager(app)
 db.init_app(app)
 # 注册蓝图
 app.register_blueprint(auth_blue)
 app.register_blueprint(menu_blue)
-
+app.register_blueprint(api_blue)
+# 设置session过期时间
+app.permanent_session_lifetime = datetime.timedelta(seconds=20)
+# 初始化迁移框架
 migrate = Migrate(app=app, db=db)
 """
 migrate

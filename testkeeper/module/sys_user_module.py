@@ -57,7 +57,6 @@ class SysUser(db.Model):
         db.session.commit()
 
 
-
 class SysUsersJob(db.Model):
     __tablename__ = "sys_user_job"
     user_id = db.Column(db.Integer, db.ForeignKey('sys_user.user_id'), primary_key=True)
@@ -88,7 +87,7 @@ class SysUserRoles(db.Model):
 class SysDept(db.Model):
     __tablename__ = "sys_dept"
     dept_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    pid = db.Column(db.Integer, nullable=False)  # 上级部门Id
+    pid = db.Column(db.Integer, nullable=True)  # 上级部门Id
     sub_count = db.Column(db.Integer, nullable=False)  # 子部门数目
     name = db.Column(db.String(100), nullable=False)  # 部门名称
     dept_sort = db.Column(db.Integer, nullable=False)  # 排序
@@ -98,17 +97,31 @@ class SysDept(db.Model):
     create_time = db.Column(db.TIMESTAMP, nullable=False)  # 创建日期
     update_time = db.Column(db.TIMESTAMP, nullable=False)  # 更新日期
 
+    def __repr__(self):
+        sys_dept_dict = {
+            "id": self.dept_id,
+            "subCount": self.sub_count,
+            "name": self.name,
+            "deptSort": self.dept_sort,
+            "enable": True if self.enable == "enable" else False,
+            "createBy": self.create_by,
+            "updateBy": self.update_by,
+            "createTime": self.create_time,
+            "updateTime": self.update_time
+        }
+        return sys_dept_dict
+
     @staticmethod
     def init_sys_dept_data():
         """
         初始化部门表数据
         :return:
         """
-        rd_dept = SysDept(dept_id=1, pid=7, sub_count=1, name="研发部", dept_sort=3, enable="enable", create_by="admin",
+        rd_dept = SysDept(dept_id=1, pid=None, sub_count=0, name="研发部", dept_sort=1, enable="enable", create_by="admin",
                           update_by="admin", create_time=datetime.datetime.now(), update_time=datetime.datetime.now())
-        op_dept = SysDept(dept_id=2, pid=8, sub_count=0, name="运维部", dept_sort=6, enable="enable", create_by="admin",
+        op_dept = SysDept(dept_id=2, pid=None, sub_count=0, name="运维部", dept_sort=2, enable="enable", create_by="admin",
                           update_by="admin", create_time=datetime.datetime.now(), update_time=datetime.datetime.now())
-        qa_dept = SysDept(dept_id=3, pid=8, sub_count=0, name="测试部", dept_sort=6, enable="enable", create_by="admin",
+        qa_dept = SysDept(dept_id=3, pid=None, sub_count=0, name="测试部", dept_sort=3, enable="enable", create_by="admin",
                           update_by="admin", create_time=datetime.datetime.now(), update_time=datetime.datetime.now())
         db.session.add_all([rd_dept, op_dept, qa_dept])
         db.session.commit()
@@ -319,9 +332,18 @@ class SysRoleMenus(db.Model):
 
     @staticmethod
     def init_sys_role_menus():
-        menu_role_first = SysRoleMenus(menu_id=1, role_id=1)
+        menu_role_1 = SysRoleMenus(menu_id=1, role_id=1)
+        menu_role_2 = SysRoleMenus(menu_id=2, role_id=1)
+        menu_role_3 = SysRoleMenus(menu_id=3, role_id=1)
+        menu_role_4 = SysRoleMenus(menu_id=4, role_id=1)
+        menu_role_5 = SysRoleMenus(menu_id=5, role_id=1)
+        menu_role_6 = SysRoleMenus(menu_id=6, role_id=1)
+        menu_role_7 = SysRoleMenus(menu_id=7, role_id=1)
+        menu_role_9 = SysRoleMenus(menu_id=9, role_id=1)
         menu_role_second = SysRoleMenus(menu_id=2, role_id=2)
-        db.session.add_all([menu_role_first, menu_role_second])
+        db.session.add_all(
+            [menu_role_1, menu_role_2, menu_role_3, menu_role_4, menu_role_5, menu_role_6, menu_role_7, menu_role_9,
+             menu_role_second])
         db.session.commit()
 
 
@@ -335,6 +357,7 @@ def init_data():
     SysUser().init_sys_user()
     SysUsersJob().init_sys_users_job()
     SysUserRoles().init_sys_user_roles()
+    SysDictDetail().init_sys_dict_detail()
 
 
 if __name__ == '__main__':

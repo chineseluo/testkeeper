@@ -41,26 +41,26 @@ def build():
             if not menu.pid:
                 root_menu = {
                     "alwaysShow": True,
-                    "component": menu.component,
-                    "hidden": menu.hidden,
+                    "component": "Layout",
+                    "hidden": False,
                     "meta": {
                         "icon": menu.icon,
-                        "noCache": menu.cache,
+                        "noCache": True if menu.cache == "0" else False,
                         "title": menu.title
                     },
-                    "name": menu.name,
-                    "path": menu.path,
+                    "name": menu.title,
+                    "path": f'/{menu.path}',
                     "redirect": "noredirect",
                     "children": []
                 }
                 for other_meun in role.menus:
-                    if other_meun.pid == menu.pid:
+                    if other_meun.pid == menu.menu_id:
                         children_menu = {
                             "component": other_meun.component,
-                            "hidden": other_meun.hidden,
+                            "hidden": False,
                             "meta": {
                                 "icon": other_meun.icon,
-                                "noCache": other_meun.cache,
+                                "noCache": True if other_meun.cache == "0" else False,
                                 "title": other_meun.title
                             },
                             "name": other_meun.name,

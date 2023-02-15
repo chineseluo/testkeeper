@@ -23,7 +23,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from testkeeper.module.sys_user_module import SysUser, SysRole, SysUserRoles, SysDept
 from werkzeug.datastructures import ImmutableMultiDict
 from testkeeper.util.decode_opeation import decryption
+from functools import wraps, update_wrapper
 
+
+def session_check(func):
+    @wraps(func)
+    def check(*args, **kwargs):
+        if session.get("username"):
+            ret = func(*args, **kwargs)
+            return ret
+        else:
+            return 200
+    return check
 
 @auth_blue.route("/login", methods=["POST"])
 def login():
@@ -43,6 +54,9 @@ def login():
         logger.info(generate_password_hash(password))
         if user.password == decryption(password):
             session['user_id'] = user.user_id
+            session['username'] = username
+            session['password'] = password
+            session.permanent = True
             logger.info(session['user_id'])
             access_token = create_access_token(identity=user.user_id)
             logger.info(user.roles)
@@ -115,7 +129,13 @@ def test():
     return "test success"
 
 
-
+@session_check
+@auth_blue.route("/logout", methods=["DELETE"])
+def logout():
+    session.pop("id", None)
+    session.pop("username", None)
+    session.pop("password", None)
+    return "200"
 
 
 @auth_blue.route("/code", methods=["GET"])
@@ -139,6 +159,8 @@ def code():
         "img": f"data:img/png;base64,{buf_str}"
     }
     return test_dict
+
+
 
 
 if __name__ == '__main__':
