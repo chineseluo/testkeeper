@@ -1,42 +1,75 @@
 #!/user/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import json
+import sys
 import threading
 from flask import Flask, jsonify, render_template, request
-from loguru import logger
-from testkeeper.util.sqlalchemy_db_operation import SQLalchemyDbOperation
-from testkeeper.service.plan_service import PlanService
-from testkeeper.module.sqlite_module import TestJobTable, TestPlanTable
-from testkeeper.builtin.task_scheduler import TaskScheduler
+
+# sys.path.insert(0, "../")
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from testkeeper.webapi.auth import auth_blue
+from testkeeper.webapi.menu import menu_blue
+from loguru import logger
+from testkeeper.service.plan_service import PlanService
+from testkeeper.builtin.task_scheduler import TaskScheduler
+from flask_migrate import Migrate
+from testkeeper.module.sys_user_module import init_data
+from testkeeper.module.sys_user_module import *
+from flask_jwt_extended import JWTManager
 
 
 class FlaskApp(Flask):
     def __init__(self, *args, **kwargs):
         super(FlaskApp, self).__init__(*args, **kwargs)
-        self._run_task_scheduler()
+    #     self._run_task_scheduler()
+    #
+    # @staticmethod
+    # def _run_task_scheduler():
+    #     ts = TaskScheduler()
+    #     task_scheduler_thread = threading.Thread(target=ts.start_execute_time_job, args=())
+    #     task_scheduler_thread.setDaemon(True)
+    #     task_scheduler_thread.start()
 
-    @staticmethod
-    def _run_task_scheduler():
-        ts = TaskScheduler()
-        task_scheduler_thread = threading.Thread(target=ts.start_execute_time_job, args=())
-        task_scheduler_thread.setDaemon(True)
-        task_scheduler_thread.start()
-
-
-app = FlaskApp(__name__, static_folder="./templates/static", template_folder="./templates")
-app.secret_key = "test"
-plan_service = PlanService()
+    # @staticmethod
+    # def _init_database_data():
 
 
 class Config(object):
     DEBUG = True
     JSON_AS_ASCII = False
 
+    DATABASE = 'testkeeper.db'
+    DBPATH = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))), "testkeeper",
+                          "db")
+    DBURL = f'sqlite:///{os.path.join(DBPATH, DATABASE)}'
+    SQLALCHEMY_DATABASE_URI = DBURL
+    logger.info(DBURL)
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SQLALCHEMY_ECHO = True
 
+
+app = FlaskApp(__name__, static_folder="./templates/static", template_folder="./templates")
+app.secret_key = "testkeeper.user@secret.key"
+# 初始化配置
 app.config.from_object(Config)
+# 绑定APP
+from testkeeper.ext import db
+jwt = JWTManager(app)
+db.init_app(app)
+# 注册蓝图
 app.register_blueprint(auth_blue)
+app.register_blueprint(menu_blue)
+
+migrate = Migrate(app=app, db=db)
+"""
+migrate
+初始化一个环境：python manage.py db init 只需要执行一次
+自动检测模型，生成迁移脚本：python manage.py db migrate 识别ORM模型的改变，生成前迁移脚本
+将迁移脚本映射到数据库中：python manage.py db upgrade  运行迁移脚本，同步到数据库中
+更多命令：python manage.py db --help
+"""
+plan_service = PlanService()
 
 
 @app.route('/', defaults={'path': ''})
@@ -98,3 +131,9 @@ def delete_test_plan():
 
 if __name__ == '__main__':
     app.run(debug=True, threaded=True)
+    # print(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))))
+    # DBPATH = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"testkeeper", "db")
+    # print("###")
+    # print(DBPATH)
+    # with app.app_context():
+    #     init_data()

@@ -12,13 +12,8 @@
 ------------------------------------
 """
 import asyncio
-import time
-
 from loguru import logger
-from testkeeper.module.sqlite_module import TestPlanTable, TestJobTable
-from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
-from apscheduler.schedulers.gevent import GeventScheduler
 from testkeeper.service.plan_service import PlanService
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from testkeeper.service.job_center import JobCenter
