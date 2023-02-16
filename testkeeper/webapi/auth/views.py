@@ -48,10 +48,6 @@ def login():
         if not user:
             logger.error(f"用户:{username}未注册!!!")
             return ""
-        logger.info(user.password)
-        logger.info(password)
-        logger.info(decryption(password))
-        logger.info(generate_password_hash(password))
         if user.password == decryption(password):
             session['user_id'] = user.user_id
             session['username'] = username

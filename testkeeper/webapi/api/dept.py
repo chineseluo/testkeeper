@@ -35,7 +35,7 @@ def get_dept():
     }
     for dept in sys_depts:
         dept_dict = dept.__repr__()
-        dept_dict.update({"leaf": False})
+        dept_dict.update({"leaf": True})
         dept_dict.update({"label": dept.name})
         dept_dict.update({"hasChildren": False})
         return_dict["content"].append(dept_dict)

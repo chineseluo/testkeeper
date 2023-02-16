@@ -64,7 +64,7 @@ app.register_blueprint(auth_blue)
 app.register_blueprint(menu_blue)
 app.register_blueprint(api_blue)
 # 设置session过期时间
-app.permanent_session_lifetime = datetime.timedelta(seconds=20)
+app.permanent_session_lifetime = datetime.timedelta(seconds=60*30)
 # 初始化迁移框架
 migrate = Migrate(app=app, db=db)
 """
@@ -135,10 +135,10 @@ def delete_test_plan():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, threaded=True)
+    # app.run(debug=True, threaded=True)
     # print(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))))
     # DBPATH = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"testkeeper", "db")
     # print("###")
     # print(DBPATH)
-    # with app.app_context():
-    #     init_data()
+    with app.app_context():
+        init_data()

@@ -237,6 +237,10 @@ class SysMenu(db.Model):
                          component='monitor/log/index', menu_sort=11, icon="log", path="logs", i_frame='0', cache='1',
                          hidden='0', permission=None, create_by="admin",
                          update_by="admin", create_time=datetime.datetime.now(), update_time=datetime.datetime.now())
+        server_monitor = SysMenu(menu_id=8, pid=6, sub_count=0, type=1, title="服务监控", name="ServerMonitor",
+                                 component="monitor/server/index", menu_sort=14, icon="codeConsole", path="server",
+                                 i_frame='0', cache='0', hidden='0', permission=None, create_by="admin",
+                                 update_by="admin", create_time=datetime.datetime.now(), update_time=datetime.datetime.now())
         sql_monitor = SysMenu(menu_id=9, pid=6, sub_count=0, type=1, title="SQL监控", name='Sql',
                               component='monitor/sql/index', menu_sort=18, icon="sqlMonitor", path="druid", i_frame='0',
                               cache='0', hidden='0', permission=None, create_by="admin",
@@ -249,7 +253,8 @@ class SysMenu(db.Model):
         #                              i_frame='0',
         #                              cache='0', hidden='0', permission=None)
 
-        db.session.add_all([sys_manager, user_manager, role_manager, menu_manager, sys_monitor, op_log, sql_monitor])
+        db.session.add_all(
+            [sys_manager, user_manager, role_manager, menu_manager, sys_monitor, op_log, server_monitor, sql_monitor])
         db.session.commit()
 
 
