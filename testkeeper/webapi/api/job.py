@@ -4,10 +4,10 @@
 """
 ------------------------------------
 @Project : testkeeper
-@Time    : 17:03
+@Time    : 11:16
 @Auth    : 成都-阿木木
 @Email   : 848257135@qq.com
-@File    : dept.py
+@File    : job.py
 @IDE     : PyCharm
 ------------------------------------
 """
@@ -20,26 +20,22 @@ from testkeeper.webapi.api import api_blue
 from testkeeper.util.image_operation import ImageCode
 from testkeeper.util.forms import LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from testkeeper.module.sys_user_module import SysUser, SysRole, SysUserRoles, SysDept
+from testkeeper.module.sys_user_module import SysUser, SysRole, SysUserRoles, SysDept, SysJob
 from werkzeug.datastructures import ImmutableMultiDict
 from testkeeper.util.decode_opeation import decryption
 from functools import wraps, update_wrapper
 
 
-@api_blue.route("/dept", methods=["GET"])
-def get_dept():
-    sort = request.args.get("sort")
+@api_blue.route("/job", methods=["GET", "DELETE"])
+def job_opt():
+    page = request.args.get("page")
+    size = request.args.get("size")
     enable = request.args.get("enable")
-    if enable is None:
-        sys_depts = SysDept.query.order_by(SysDept.dept_id.desc()).all()
-    else:
-        sys_depts = SysDept.query.fiter_by(enable=bool(enable)).order_by(SysDept.dept_id.desc()).all()
-    return_dict = {
-        "content": []
+    if not enable:
+        enable = True if enable == "true" else False
+    jobs = SysJob.query.all() if enable is not None else SysJob.query.filter_by(enable=bool(enable)).all()
+    job_content = {
+        "content": [job.__repr__() for job in jobs],
+        "totalElements": len(jobs)
     }
-    for dept in sys_depts:
-        dept_dict = dept.__repr__()
-        return_dict["content"].append(dept_dict)
-    return_dict.update({"totalElements": len(sys_depts)})
-    logger.info(return_dict)
-    return return_dict
+    return job_content

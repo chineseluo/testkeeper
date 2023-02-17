@@ -17,3 +17,5 @@ api_blue = Blueprint("api", __name__, url_prefix="/api")
 from . import dept
 from . import dict_detail
 from . import users
+from . import job
+from . import roles
