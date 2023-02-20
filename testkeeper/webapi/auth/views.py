@@ -55,7 +55,6 @@ def login():
             session.permanent = True
             logger.info(session['user_id'])
             access_token = create_access_token(identity=user.user_id)
-            logger.info(user.roles)
             roles = []
             roles_level_list = ["admin"]
             for role in user.roles:

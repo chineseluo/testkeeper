@@ -33,4 +33,9 @@ def level_opt():
 
 @api_blue.route("/roles/all", methods=["GET"])
 def roles_opt():
-    ...
+    sys_roles = SysRole.query.all()
+    sys_roles_list = [sys_role.__repr__() for sys_role in sys_roles]
+    logger.info(sys_roles_list)
+    return sys_roles_list
+
+

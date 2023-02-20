@@ -90,15 +90,19 @@ class SysUser(db.Model):
     def __repr__(self):
         return self.__str__()
 
+    # def __setattr__(self, key, value):
+    #     return self[key]=value
+
     @staticmethod
     def delete_by_user_id(user_id):
         sys_user = SysUser.query.get(user_id)
-        logger.info(sys_user)
         if sys_user is None:
             return "500"
         else:
             db.session.delete(sys_user)
             db.session.commit()
+
+
 
 
 class SysUsersJob(db.Model):
@@ -246,7 +250,6 @@ class SysMenu(db.Model):
     update_by = db.Column(db.String(100), nullable=True)  # 修改者
     create_time = db.Column(db.TIMESTAMP, nullable=False)  # 创建日期
     update_time = db.Column(db.TIMESTAMP, nullable=False)  # 更新日期
-    roles = db.relationship("SysRole", backref="menus", secondary="sys_role_menu")
 
     @staticmethod
     def init_sys_menu():
@@ -305,34 +308,34 @@ class SysMenu(db.Model):
             [sys_manager, user_manager, role_manager, menu_manager, sys_monitor, op_log, server_monitor, sql_monitor])
         db.session.commit()
 
-    # def __str__(self):
-    #     menu_info = {
-    #         "id": self.menu_id,
-    #         "cache": self.cache,
-    #         "component": self.component,
-    #         "componentName": self.name,
-    #         "hasChildren": False,
-    #         "hidden": self.hidden,
-    #         "iFrame": self.i_frame,
-    #         "icon": self.icon,
-    #         "lable": self.name,
-    #         "leaf": False,
-    #         "menuSort": self.menu_sort,
-    #         "path": self.path,
-    #         "permission": self.permission,
-    #         "pid": self.pid,
-    #         "subCount": self.sub_count,
-    #         "title": self.name,
-    #         "type": self.type,
-    #         "createBy": self.create_by,
-    #         "createTime": self.create_time,
-    #         "updateBy": self.update_by,
-    #         "updateTime": self.update_time
-    #     }
-    #     return menu_info
+    def __str__(self):
+        menu_info = {
+            "id": self.menu_id,
+            "cache": self.cache,
+            "component": self.component,
+            "componentName": self.name,
+            "hasChildren": False,
+            "hidden": self.hidden,
+            "iFrame": self.i_frame,
+            "icon": self.icon,
+            "lable": self.name,
+            "leaf": False,
+            "menuSort": self.menu_sort,
+            "path": self.path,
+            "permission": self.permission,
+            "pid": self.pid,
+            "subCount": self.sub_count,
+            "title": self.name,
+            "type": self.type,
+            "createBy": self.create_by,
+            "createTime": self.create_time,
+            "updateBy": self.update_by,
+            "updateTime": self.update_time
+        }
+        return menu_info
 
-    # def __repr__(self):
-    #     return self.__str__()
+    def __repr__(self):
+        return self.__str__()
 
 
 class SysJob(db.Model):
@@ -407,6 +410,7 @@ class SysRole(db.Model):
     update_by = db.Column(db.String(100), nullable=True)  # 修改者
     create_time = db.Column(db.TIMESTAMP, nullable=False)  # 创建日期
     update_time = db.Column(db.TIMESTAMP, nullable=False)  # 更新日期
+    menus = db.relationship("SysMenu", backref="roles", secondary="sys_role_menu")
 
     @staticmethod
     def init_sys_role():
@@ -423,7 +427,7 @@ class SysRole(db.Model):
         db.session.commit()
 
     def __str__(self):
-        menus = self.meuns
+        menus = [menu.__repr__() for menu in self.menus]
         role_info = {
             "id": self.role_id,
             "name": self.name,

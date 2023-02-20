@@ -33,8 +33,6 @@ def build():
     # 获取用户的角色
     real_meun_list = []
     for role in user.roles:
-        logger.info(role.name)
-        logger.info(role.menus)
         for menu in role.menus:
             # 先查出根菜单
             # 再查出子菜单
