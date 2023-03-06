@@ -30,7 +30,7 @@ from testkeeper.util.decode_opeation import decryption
 from functools import wraps, update_wrapper
 
 
-@api_blue.route("/users", methods=["GET", "DELETE", "POST"])
+@api_blue.route("/users", methods=["GET", "DELETE", "POST", "PUT"])
 def users_opt():
     if request.method == "GET":
         page = request.args["page"]
@@ -53,11 +53,15 @@ def users_opt():
             SysUser.delete_by_user_id(user_id)
             logger.info(f"删除用户ID:{user_id}成功")
         return "SUCCESS"
-    if request.method == "POST":
+    if request.method in ["POST", "PUT"]:
         user_json = request.json
-        logger.info(user_json["dept"]["id"])
-        logger.info([SysJob.query.filter_by(job_id=job_dict['id']).first().__repr__() for job_dict in user_json["jobs"]])
-        dept_id = user_json["dept"]["id"]
+        if isinstance(user_json["dept"], list):
+            dept_id = [dept['id'] for dept in user_json["dept"]]
+        else:
+            dept_id = user_json["dept"]["id"]
+        logger.info(
+            [SysJob.query.filter_by(job_id=job_dict['id']).first().__repr__() for job_dict in user_json["jobs"]])
+
         user = SysUser(dept_id=dept_id,
                        email=user_json.get("email"),
                        enable=str(user_json["enabled"]),
@@ -66,7 +70,8 @@ def users_opt():
                        nick_name=user_json['nickName'],
                        user_name=user_json['username'],
                        phone=user_json['phone'],
-                       roles=[SysRole.query.filter_by(role_id=role_dict['id']).first() for role_dict in user_json["roles"]],
+                       roles=[SysRole.query.filter_by(role_id=role_dict['id']).first() for role_dict in
+                              user_json["roles"]],
                        pwd_reset_time=datetime.datetime.now(),
                        create_time=datetime.datetime.now(),
                        update_time=datetime.datetime.now(),
