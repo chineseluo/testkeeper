@@ -14,6 +14,7 @@
 from loguru import logger
 from io import BytesIO
 import base64
+from distutils.util import strtobool
 from flask import Flask, jsonify, render_template, request, make_response, session
 from flask_jwt_extended import create_access_token
 from testkeeper.webapi.auth import auth_blue
@@ -34,7 +35,9 @@ def session_check(func):
             return ret
         else:
             return 200
+
     return check
+
 
 @auth_blue.route("/login", methods=["POST"])
 def login():
@@ -85,7 +88,7 @@ def login():
                         "avatarPath": user.avatar_path,
                         "createTime": user.create_time,
                         "email": user.email,
-                        "enable": user.enable,
+                        "enable": user.enabled,
                         "gender": user.gender,
                         "id": user.user_id,
                         "isAdmin": user.is_admin,
@@ -154,8 +157,6 @@ def code():
         "img": f"data:img/png;base64,{buf_str}"
     }
     return test_dict
-
-
 
 
 if __name__ == '__main__':

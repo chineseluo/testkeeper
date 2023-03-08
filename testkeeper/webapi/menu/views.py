@@ -19,7 +19,6 @@ from flask import Flask, jsonify, render_template, request, make_response, sessi
 
 @menu_blue.route("/build", methods=["GET"])
 def build():
-    logger.info("##########")
     menu_list = []
     children = {
         "alwaysShow": True,
@@ -70,3 +69,13 @@ def build():
     # 更具角色获取用户具有哪些菜单权限
     logger.info(real_meun_list)
     return real_meun_list
+
+
+@menu_blue.route("/lazy", methods=["GET"])
+def get_lazy():
+    pid = request.args.get("pid", None)
+    pid = pid if pid != "0" else None
+    menus = SysMenu.query.filter_by(pid=pid).all()
+    menu_list = [menu.__repr__() for menu in menus]
+    logger.info(menu_list)
+    return menu_list

@@ -12,7 +12,9 @@
 ------------------------------------
 """
 import datetime
-
+import re
+import time
+from distutils.util import strtobool
 from loguru import logger
 import jsonpickle
 from io import BytesIO
@@ -28,24 +30,57 @@ from testkeeper.module.sys_user_module import SysUser, SysRole, SysUserRoles, Sy
 from werkzeug.datastructures import ImmutableMultiDict
 from testkeeper.util.decode_opeation import decryption
 from functools import wraps, update_wrapper
+from sqlalchemy import or_, and_
 
 
 @api_blue.route("/users", methods=["GET", "DELETE", "POST", "PUT"])
 def users_opt():
     if request.method == "GET":
-        page = request.args["page"]
-        size = request.args["size"]
-        sort = request.args["sort"]
+        page = request.args.get("page", None)
+        size = request.args.get("size", None)
+        sort = request.args.get("sort", None)
+        sort_list = sort.split(",")
         dept_id = request.args.get("deptId", None)
-        logger.info(dept_id)
-        content_dict = {
-            "content": []
+        enabled = request.args.get("enabled", None)
+        # 搜索字段
+        blurry = request.args.get("blurry", None)
+        create_time_list = None
+        if "createTime" in request.args.keys():
+            create_time_list = request.args.getlist("createTime")
+        sql_filter = []
+        if dept_id:
+            sql_filter.append(SysUser.dept_id == dept_id)
+        if enabled:
+            sql_filter.append(SysUser.enabled == strtobool(enabled))
+        if blurry:
+            # 判断是邮箱还是名称
+            like = SysUser.user_name.like(f"%{blurry}%") if not re.match(
+                r'^[0-9a-za-z_]{0,19}@[0-9a-za-z]{1,13}\.[com,cn,net]{1,3}$', blurry) else SysUser.email.like(
+                f"%{blurry}%")
+            sql_filter.append(like)
+        if create_time_list:
+            user_create_time = SysUser.create_time
+            start_time = datetime.datetime.strptime(create_time_list[0], "%Y-%m-%d %H:%M:%S")
+            end_time = datetime.datetime.strptime(create_time_list[1], "%Y-%m-%d %H:%M:%S")
+            sql_filter.append(user_create_time >= start_time)
+            sql_filter.append(user_create_time <= end_time)
+        SORT_MAP = {
+            "desc": {
+                "id": SysUser.user_id.desc()
+            },
+            "asc": {
+                "id": SysUser.user_id.asc()
+            }
         }
-        users = SysUser.query.all() if dept_id is None else SysUser.query.filter_by(dept_id=dept_id).all()
-        if len(users) != 0:
-            for user in users:
-                content_dict["content"].append(user.__repr__())
-        content_dict.update({"totalElements": len(users)})
+        offset = int(page) * int(size)
+        users = SysUser.query.filter(and_(*tuple(sql_filter))).order_by(
+            SORT_MAP[sort_list[1]][sort_list[0]]).offset(offset).limit(
+            size).all()
+        logger.info(users)
+        content_dict = {
+            "content": [user.to_dict() for user in users],
+            "totalElements": len(users)
+        }
         return content_dict
     if request.method == "DELETE":
         user_ids = request.json
@@ -53,30 +88,33 @@ def users_opt():
             SysUser.delete_by_user_id(user_id)
             logger.info(f"删除用户ID:{user_id}成功")
         return "SUCCESS"
-    if request.method in ["POST", "PUT"]:
+    if request.method in ["PUT", "POST"]:
         user_json = request.json
-        if isinstance(user_json["dept"], list):
-            dept_id = [dept['id'] for dept in user_json["dept"]]
+        update_user = {}
+        for key in user_json.keys():
+            if key in SysUser.get_key_map().keys():
+                # 针对dept特殊处理一下
+                if key == "dept":
+                    user_json[key] = user_json[key]["id"]
+                if key == "enabled":
+                    if not isinstance(user_json[key], bool):
+                        user_json[key] = strtobool(user_json[key])
+                if key == "createTime":
+                    user_json[key] = datetime.datetime.strptime(user_json[key], '%a, %d %b %Y %H:%M:%S GMT')
+                if key == "updateTime":
+                    user_json[key] = datetime.datetime.strptime(user_json[key], '%a, %d %b %Y %H:%M:%S GMT')
+                if key == "pwdResetTime":
+                    user_json[key] = datetime.datetime.strptime(user_json[key], '%a, %d %b %Y %H:%M:%S GMT')
+                update_user.update({SysUser.get_key_map()[key]: user_json[key]})
+        jobs = [SysJob.query.filter_by(job_id=job['id']).first() for job in user_json["jobs"]]
+        roles = [SysRole.query.filter_by(role_id=role['id']).first() for role in user_json["roles"]]
+        if request.method == "PUT":
+            sys_user = SysUser.query.filter_by(user_id=user_json['id']).first()
         else:
-            dept_id = user_json["dept"]["id"]
-        logger.info(
-            [SysJob.query.filter_by(job_id=job_dict['id']).first().__repr__() for job_dict in user_json["jobs"]])
-
-        user = SysUser(dept_id=dept_id,
-                       email=user_json.get("email"),
-                       enable=str(user_json["enabled"]),
-                       gender=user_json["gender"],
-                       jobs=[SysJob.query.filter_by(job_id=job_dict['id']).first() for job_dict in user_json["jobs"]],
-                       nick_name=user_json['nickName'],
-                       user_name=user_json['username'],
-                       phone=user_json['phone'],
-                       roles=[SysRole.query.filter_by(role_id=role_dict['id']).first() for role_dict in
-                              user_json["roles"]],
-                       pwd_reset_time=datetime.datetime.now(),
-                       create_time=datetime.datetime.now(),
-                       update_time=datetime.datetime.now(),
-
-                       )
-        db.session.add(user)
+            sys_user = SysUser()
+        sys_user.from_dict(update_user)
+        sys_user.roles = roles
+        sys_user.jobs = jobs
+        db.session.add(sys_user)
         db.session.commit()
-        return "200"
+        return "SUCCESS"

@@ -39,3 +39,15 @@ def roles_opt():
     return sys_roles_list
 
 
+@api_blue.route("/roles", methods=["GET"])
+def roles_get():
+    page = request.args["page"]
+    size = request.args["size"]
+    sort = request.args["sort"]
+    sys_roles = SysRole.query.all()
+    sys_roles_list = [sys_role.__repr__() for sys_role in sys_roles]
+    roles_dict = {
+        "content": sys_roles_list,
+        "totalElements": len(sys_roles_list)
+    }
+    return roles_dict
