@@ -19,6 +19,7 @@ import datetime
 from flask import Flask, jsonify, render_template, request, make_response, session
 from flask_jwt_extended import create_access_token
 from testkeeper.webapi.api import api_blue
+from distutils.util import strtobool
 from testkeeper.util.image_operation import ImageCode
 from testkeeper.util.forms import LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
