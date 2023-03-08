@@ -14,6 +14,7 @@
 from loguru import logger
 from io import BytesIO
 import base64
+import re
 import datetime
 from flask import Flask, jsonify, render_template, request, make_response, session
 from flask_jwt_extended import create_access_token
@@ -58,7 +59,7 @@ def job_opt():
         if name:
             # 判断是邮箱还是名称
             like = SysUser.user_name.like(f"%{name}%") if not re.match(
-                r'^[0-9a-za-z_]{0,19}@[0-9a-za-z]{1,13}\.[com,cn,net]{1,3}$', blurry) else SysUser.email.like(
+                r'^[0-9a-za-z_]{0,19}@[0-9a-za-z]{1,13}\.[com,cn,net]{1,3}$', name) else SysJob.email.like(
                 f"%{name}%")
             sql_filter.append(like)
         if create_time_list:
