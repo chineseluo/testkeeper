@@ -43,15 +43,16 @@ def dept():
         name = request.args.get("name", None)
         enabled = request.args.get("enabled", None)
         sql_filter = []
-        SORT_MAP = {
-            "desc": {
-                "id": SysDept.dept_id.desc()
-            },
-            "asc": {
-                "id": SysDept.dept_id.asc()
-            }
-        }
+
         if sort:
+            SORT_MAP = {
+                "desc": {
+                    "id": SysDept.dept_id.desc()
+                },
+                "asc": {
+                    "id": SysDept.dept_id.asc()
+                }
+            }
             sort_list = sort.split(",")
             order = SORT_MAP[sort_list[1]][sort_list[0]]
         else:

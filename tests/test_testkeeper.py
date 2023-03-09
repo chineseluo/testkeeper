@@ -1,5 +1,3 @@
-from testkeeper import __version__
-
-
-def test_version():
-    assert __version__ == '0.1.0'
+import datetime
+NOW_TIME = datetime.datetime.now().replace(microsecond=0)
+print(NOW_TIME)

@@ -286,6 +286,40 @@ class SysDict(db.Model):
         db.session.add_all([user_status, dept_status, job_status])
         db.session.commit()
 
+    @staticmethod
+    def get_key_map():
+        map_data = {
+            "id": "dict_id",
+            "name": "name",
+            "description": "description",
+            "createBy": "create_by",
+            "updateBy": "update_by",
+            "createTime": "create_time",
+            "updateTime": "update_time",
+        }
+        return map_data
+
+    def from_dict(self, data):
+        for field in ['dict_id', 'name', "description",
+                      'create_by', 'update_by',
+                      'create_time', 'update_time']:
+            if field in data:
+                setattr(self, field, data[field])
+
+    def to_dict(self):
+        dict_content = {
+            "id": self.dict_id,
+            "name": self.name,
+            "description": self.description,
+            "createTime": self.create_time,
+            "dictDetails": [sys_dict_detail.to_dict() for sys_dict_detail in
+                            SysDictDetail.query.filter_by(dict_id=self.dict_id).all()]
+        }
+        return dict_content
+
+    def __repr__(self):
+        return f'<SysDict {self.name}>'
+
 
 class SysDictDetail(db.Model):
     __tablename__ = "sys_dict_detail"
@@ -343,6 +377,9 @@ class SysDictDetail(db.Model):
         }
         return dict_detail_content
 
+    def __repr__(self):
+        return f'<SysDictDetail {self.name}>'
+
 
 class SysMenu(db.Model):
     __tablename__ = "sys_menu"
@@ -364,23 +401,6 @@ class SysMenu(db.Model):
     update_by = db.Column(db.String(100), nullable=True)  # 修改者
     create_time = db.Column(db.DateTime, nullable=False)  # 创建日期
     update_time = db.Column(db.DateTime, nullable=False)  # 更新日期
-
-    # def __init__(self):
-    #     super().__init__(self)
-    #
-    # @staticmethod
-    # def bind(instance):
-    #     cls = type(instance)
-    #     for name, obj in cls.__dict__.items():
-    #         """ __dict__ 获取这个对象的所有属性"""
-    #         if type(obj) is SysMenu:
-    #             """如果检测到该 instance 中有BoundClass类属性
-    #                 则设置相同的实例属性。
-    #             """
-    #             # 得到类属性的值
-    #             bound_class_obj = getattr(instance, name)
-    #             # 设置实例属性
-    #             setattr(instance, name, bound_class_obj)
 
     @staticmethod
     def init_sys_menu():
@@ -532,18 +552,18 @@ class SysMenu(db.Model):
              deploy_manager, deploy_backup, db_manager, task_manager, plan_manager, execute_manager, job_manager])
         db.session.commit()
 
-    def __str__(self):
+    def to_dict(self):
         menu_info = {
             "id": self.menu_id,
-            "cache": False,
+            "cache": False if self.cache == "0" else True,
             "component": self.component,
             "componentName": self.name,
-            "hasChildren": True,
-            "hidden": False,
-            "iFrame": False,
+            "hasChildren": False if self.sub_count == 0 else True,
+            "hidden": False if self.hidden == "0" else True,
+            "iFrame": False if self.i_frame == "0" else True,
             "icon": self.icon,
             "lable": self.title,
-            "leaf": False,
+            "leaf": True if self.sub_count == 0 else False,
             "menuSort": self.menu_sort,
             "path": self.path,
             "permission": self.permission,
@@ -559,7 +579,7 @@ class SysMenu(db.Model):
         return menu_info
 
     def __repr__(self):
-        return self.__str__()
+        return f'<SysMenu {self.name}>'
 
 
 class SysJob(db.Model):
@@ -609,7 +629,7 @@ class SysJob(db.Model):
         db.session.add_all([qa_job, op_job, rd_job])
         db.session.commit()
 
-    def __str__(self):
+    def to_dict(self):
         job_info = {
             "id": self.job_id,
             "name": self.name,
@@ -623,7 +643,7 @@ class SysJob(db.Model):
         return job_info
 
     def __repr__(self):
-        return self.__str__()
+        return f'<SysJob {self.name}>'
 
 
 class MntDeploy(db.Model):
@@ -661,6 +681,30 @@ class SysRole(db.Model):
     menus = db.relationship("SysMenu", backref="roles", secondary="sys_role_menu")
 
     @staticmethod
+    def get_key_map():
+        map_data = {
+            "id": "role_id",
+            "name": "name",
+            "level": "level",
+            "dataScope": "data_scope",
+            "description": "description",
+            "menus": "menus",
+            "depts": "depts",
+            "createBy": "create_by",
+            "updateBy": "update_by",
+            "createTime": "create_time",
+            "updateTime": "update_time",
+        }
+        return map_data
+
+    def from_dict(self, data):
+        for field in ['job_id', 'name', 'job_sort', 'enabled',
+                      'create_by', 'update_by',
+                      'create_time', 'update_time']:
+            if field in data:
+                setattr(self, field, data[field])
+
+    @staticmethod
     def init_sys_role():
         # 超级管理员
         admin_role = SysRole(role_id=1, name='超级管理员', level=1, description='超级管理员', data_scope="全部", create_by="admin",
@@ -674,7 +718,7 @@ class SysRole(db.Model):
         db.session.add_all([admin_role, ordinary_role])
         db.session.commit()
 
-    def __str__(self):
+    def to_dict(self):
         menus = [menu.__repr__() for menu in self.menus]
         role_info = {
             "id": self.role_id,
@@ -692,7 +736,14 @@ class SysRole(db.Model):
         return role_info
 
     def __repr__(self):
-        return self.__str__()
+        return f'<SysRole {self.name}>'
+
+
+class SysRoleDepts(db.Model):
+    # 角色部门关联
+    __tablename__ = "sys_roles_depts"
+    role_id = db.Column(db.Integer, db.ForeignKey('sys_role.role_id'), primary_key=True)  # 角色Id
+    dept_id = db.Column(db.Integer, db.ForeignKey('sys_dept.dept_id'), primary_key=True)  # 菜单Id
 
 
 class SysRoleMenus(db.Model):

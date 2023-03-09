@@ -19,3 +19,5 @@ from . import dict_detail
 from . import users
 from . import job
 from . import roles
+from . import dict
+from . import menus
