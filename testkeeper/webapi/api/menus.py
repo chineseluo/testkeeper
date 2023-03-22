@@ -27,8 +27,8 @@ def menus():
         page = request.args.get("page", None)
         size = request.args.get("size", None)
         blurry = request.args.get("blurry", None)
+        pid = request.args.get("pid", None)
         sql_filter = []
-
         if sort:
             SORT_MAP = {
                 "desc": {
@@ -54,16 +54,16 @@ def menus():
         if blurry:
             like = SysMenu.name.like(f"%{blurry}%")
             sql_filter.append(like)
-
+        sql_filter.append(SysMenu.pid == pid)
         if page and size:
             offset = int(page) * int(size)
-            sys_meuns = SysMenu.query.filter(and_(*tuple(sql_filter))).order_by(order).offset(offset).limit(
+            sys_menus = SysMenu.query.filter(and_(*tuple(sql_filter))).order_by(order).offset(offset).limit(
                 size).all()
         else:
-            sys_meuns = SysMenu.query.filter(and_(*tuple(sql_filter))).order_by(order).all()
+            sys_menus = SysMenu.query.filter(and_(*tuple(sql_filter))).order_by(order).all()
         return_dict = {
-            "content": [menu.to_dict() for menu in sys_meuns],
-            "totalElements": len(sys_meuns)
+            "content": [menu.to_dict() for menu in sys_menus],
+            "totalElements": len(sys_menus)
         }
         return return_dict
     if request.method in ["POST", "PUT"]:

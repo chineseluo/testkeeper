@@ -100,13 +100,16 @@ def roles_get():
                     role_json[key] = datetime.datetime.strptime(role_json[key], '%a, %d %b %Y %H:%M:%S GMT')
                 update_role.update({SysRole.get_key_map()[key]: role_json[key]})
         if request.method == "PUT":
-            sys_role = SysRole.query.filter_by(dept_id=role_json['id']).first()
+            sys_role = SysRole.query.filter_by(role_id=role_json['id']).first()
         else:
             sys_role = SysRole()
             NOW_TIME = datetime.datetime.now().replace(microsecond=0)
             sys_role.create_time = NOW_TIME
             sys_role.update_time = NOW_TIME
+        logger.info(update_role)
         sys_role.from_dict(update_role)
+        logger.info(sys_role.to_dict())
+
         db.session.add(sys_role)
         db.session.commit()
         return "SUCCESS"
@@ -118,3 +121,8 @@ def roles_get():
             db.session.delete(sys_role)
             db.session.commit()
         return "SUCCESS"
+
+
+@api_blue.route("/roles/menu", methods=["GET", "POST", "DELETE", "PUT"])
+def roles_menu():
+    ...

@@ -15,6 +15,7 @@ from testkeeper.webapi.menu import menu_blue
 from loguru import logger
 from testkeeper.module.sys_user_module import SysMenu, SysUser
 from flask import Flask, jsonify, render_template, request, make_response, session
+from sqlalchemy import and_
 
 
 @menu_blue.route("/build", methods=["GET"])
@@ -73,9 +74,10 @@ def build():
 
 @menu_blue.route("/lazy", methods=["GET"])
 def get_lazy():
-    pid = request.args.get("pid", None)
-    pid = pid if pid != "0" else None
-    menus = SysMenu.query.filter_by(pid=pid).all()
-    menu_list = [menu.__repr__() for menu in menus]
+    pid = None if request.args.get("pid", None) == '0' else request.args.get("pid", None)
+
+    sys_menus = SysMenu.query.filter(SysMenu.pid == pid).all()
+    logger.info(sys_menus)
+    menu_list = [menu.to_dict() for menu in sys_menus]
     logger.info(menu_list)
     return menu_list

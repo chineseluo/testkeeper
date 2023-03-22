@@ -136,10 +136,11 @@ def delete_test_plan():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True, threaded=True)
     # print(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))))
     # DBPATH = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"testkeeper", "db")
     # print("###")
     # print(DBPATH)
-    with app.app_context():
-        init_data()
+    app.run(debug=True, threaded=True)
+
+    # with app.app_context():
+    #     init_data()

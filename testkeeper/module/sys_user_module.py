@@ -277,9 +277,11 @@ class SysDict(db.Model):
 
     @staticmethod
     def init_sys_dict():
-        user_status = SysDict(dict_id=1, name="user_status", description="用户状态", create_by="admin", update_by="admin",
+        user_status = SysDict(dict_id=1, name="user_status", description="用户状态", create_by="admin",
+                              update_by="admin",
                               create_time=NOW_TIME, update_time=NOW_TIME)
-        dept_status = SysDict(dict_id=2, name="dept_status", description="部门状态", create_by="admin", update_by="admin",
+        dept_status = SysDict(dict_id=2, name="dept_status", description="部门状态", create_by="admin",
+                              update_by="admin",
                               create_time=NOW_TIME, update_time=NOW_TIME)
         job_status = SysDict(dict_id=3, name="job_status", description="岗位状态", create_by="admin", update_by="admin",
                              create_time=NOW_TIME, update_time=NOW_TIME)
@@ -404,6 +406,7 @@ class SysMenu(db.Model):
 
     @staticmethod
     def init_sys_menu():
+        # 系统管理
         sys_manager = SysMenu(menu_id=1, pid=None, sub_count=7, type=0, title="系统管理", name=None, component=None,
                               menu_sort=1, icon="system", path="system", i_frame='0', cache='0', hidden="0",
                               permission=None, create_by="admin",
@@ -445,7 +448,7 @@ class SysMenu(db.Model):
                                cache='0', hidden='0',
                                permission='dict:list',
                                create_by="admin", update_by="admin", create_time=NOW_TIME, update_time=NOW_TIME)
-
+        # 系统监控
         sys_monitor = SysMenu(menu_id=6, pid=None, sub_count=5, type=0, title="系统监控", name=None,
                               component=None,
                               menu_sort=10, icon="monitor", path="monitor", i_frame='0', cache='0', hidden='0',
@@ -475,7 +478,7 @@ class SysMenu(db.Model):
                                       update_time=NOW_TIME)
 
         # 运维管理
-        devops_manager = SysMenu(menu_id=14, pid=None, sub_count=5, type=1, title='运维管理', name='Mnt', component='',
+        devops_manager = SysMenu(menu_id=14, pid=None, sub_count=5, type=0, title='运维管理', name='Mnt', component='',
                                  menu_sort=20, icon='mnt', path='mnt', i_frame='0', cache='0', hidden='0',
                                  permission=None, create_by="admin",
                                  update_by="admin",
@@ -515,19 +518,19 @@ class SysMenu(db.Model):
                              create_time=NOW_TIME, update_time=NOW_TIME)
 
         # 测试任务管理
-        task_manager = SysMenu(menu_id=20, pid=None, sub_count=2, type=0, title='任务管理', name=None, component='',
+        task_manager = SysMenu(menu_id=20, pid=None, sub_count=3, type=0, title='任务管理', name=None, component='',
                                menu_sort=900, icon='menu', path='nested', cache='0', i_frame='0', hidden='0',
                                permission=None, create_by='admin',
                                update_by='admin',
                                create_time=NOW_TIME, update_time=NOW_TIME)
 
-        plan_manager = SysMenu(menu_id=21, pid=20, sub_count=2, type=0, title='计划管理', name=None, component='',
+        plan_manager = SysMenu(menu_id=21, pid=20, sub_count=0, type=1, title='计划列表', name=None, component='',
                                menu_sort=999, icon='menu', path='menu1', cache='0', i_frame='0', hidden='0',
                                permission=None, create_by='admin',
                                update_by='admin',
                                create_time=NOW_TIME, update_time=NOW_TIME)
 
-        job_manager = SysMenu(menu_id=22, pid=20, sub_count=0, type=1, title='任务管理', name=None,
+        job_manager = SysMenu(menu_id=22, pid=20, sub_count=0, type=1, title='任务列表', name=None,
                               component='nested/menu2/index', menu_sort=999, icon='menu', path='menu2', cache='0',
                               i_frame='0', hidden='0',
                               permission=None, create_by='admin',
@@ -562,7 +565,7 @@ class SysMenu(db.Model):
             "hidden": False if self.hidden == "0" else True,
             "iFrame": False if self.i_frame == "0" else True,
             "icon": self.icon,
-            "lable": self.title,
+            "label": self.title,
             "leaf": True if self.sub_count == 0 else False,
             "menuSort": self.menu_sort,
             "path": self.path,
@@ -698,16 +701,20 @@ class SysRole(db.Model):
         return map_data
 
     def from_dict(self, data):
-        for field in ['job_id', 'name', 'job_sort', 'enabled',
+        for field in ['role_id', 'name', 'level', 'description', 'data_scope', 'menus',
                       'create_by', 'update_by',
                       'create_time', 'update_time']:
             if field in data:
-                setattr(self, field, data[field])
+                if field == "menus" and data['menus'] is None:
+                    setattr(self, field, [])
+                else:
+                    setattr(self, field, data[field])
 
     @staticmethod
     def init_sys_role():
         # 超级管理员
-        admin_role = SysRole(role_id=1, name='超级管理员', level=1, description='超级管理员', data_scope="全部", create_by="admin",
+        admin_role = SysRole(role_id=1, name='超级管理员', level=1, description='超级管理员', data_scope="全部",
+                             create_by="admin",
                              update_by="admin",
                              create_time=NOW_TIME, update_time=NOW_TIME)
         # 普通用户

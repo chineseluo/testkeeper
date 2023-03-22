@@ -263,6 +263,7 @@ def print_child_help(sub_scaffold_parser_list, argv_list, argv_index):
             sub_scaffold_parser.print_help()
 
 
+
 def entry():
     tk_argv = sys.argv
     parser = argparse.ArgumentParser(description=__description__)
