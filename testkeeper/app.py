@@ -73,7 +73,14 @@ migrate
 自动检测模型，生成迁移脚本：python manage.py db migrate 识别ORM模型的改变，生成前迁移脚本
 将迁移脚本映射到数据库中：python manage.py db upgrade  运行迁移脚本，同步到数据库中
 更多命令：python manage.py db --help
-rm -rf ./db/testkeeper.db && rm -rf ./migrations && flask db init && flask db migrate && flask db upgrade
+数据库初始化操作：
+1、删除migrations目录
+2、创建表，进入testkeeper/testkeeper目录，执行flask db init && flask db migrate && flask db upgrade
+3、写入初始化数据，在app.py文件中，取消下面的代码注释，然后将app.run(debug=True, threaded=True)注释掉，执行app.py即可，初始化完成后，记得将下面的代码注释掉，打开app.run(debug=True, threaded=True)注释    
+    # with app.app_context():
+        #     init_data()
+        
+cd ./testkeeper && rm -rf ./db/testkeeper.db && rm -rf ./migrations && flask db init && flask db migrate && flask db upgrade
 """
 plan_service = PlanService()
 

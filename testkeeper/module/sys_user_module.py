@@ -440,36 +440,142 @@ class SysMenu(db.Model):
                                permission=None, create_by="admin",
                                update_by="admin", create_time=NOW_TIME,
                                update_time=NOW_TIME)
+        button_user_add = SysMenu(menu_id=24, pid=2, sub_count=0, type=2, title="用户新增", name=None,
+                                  component="",
+                                  menu_sort=2, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                  permission="user:add", create_by="admin",
+                                  update_by="admin", create_time=NOW_TIME,
+                                  update_time=NOW_TIME)
+        button_user_update = SysMenu(menu_id=25, pid=2, sub_count=0, type=2, title="用户编辑", name=None,
+                                     component="",
+                                     menu_sort=3, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="user:edit", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
+        button_user_delete = SysMenu(menu_id=26, pid=2, sub_count=0, type=2, title="用户删除", name=None,
+                                     component="",
+                                     menu_sort=4, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="user:del", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
+
         role_manager = SysMenu(menu_id=3, pid=1, sub_count=3, type=1, title="角色管理", name="Role",
                                component="system/role/index",
                                menu_sort=3, icon="role", path="role", i_frame='0', cache='0', hidden='roles:list',
                                permission=None, create_by="admin",
                                update_by="admin", create_time=NOW_TIME,
                                update_time=NOW_TIME)
+        button_role_add = SysMenu(menu_id=27, pid=3, sub_count=0, type=2, title="角色创建", name=None,
+                                  component="",
+                                  menu_sort=2, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                  permission="roles:add", create_by="admin",
+                                  update_by="admin", create_time=NOW_TIME,
+                                  update_time=NOW_TIME)
+        button_role_update = SysMenu(menu_id=28, pid=3, sub_count=0, type=2, title="角色修改", name=None,
+                                     component="",
+                                     menu_sort=3, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="roles:edit", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
+        button_role_delete = SysMenu(menu_id=29, pid=3, sub_count=0, type=2, title="角色删除", name=None,
+                                     component="",
+                                     menu_sort=4, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="roles:del", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
         menu_manager = SysMenu(menu_id=5, pid=1, sub_count=3, type=1, title="菜单管理", name="Menu",
                                component="system/menu/index",
                                menu_sort=5, icon="menu", path="menu", i_frame='0', cache='0', hidden='menu:list',
                                permission=None, create_by="admin",
                                update_by="admin", create_time=NOW_TIME,
                                update_time=NOW_TIME)
-
+        button_menu_add = SysMenu(menu_id=30, pid=5, sub_count=0, type=2, title="菜单新增", name=None,
+                                  component="",
+                                  menu_sort=2, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                  permission="menu:add", create_by="admin",
+                                  update_by="admin", create_time=NOW_TIME,
+                                  update_time=NOW_TIME)
+        button_menu_update = SysMenu(menu_id=31, pid=5, sub_count=0, type=2, title="菜单编辑", name=None,
+                                     component="",
+                                     menu_sort=3, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="menu:edit", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
+        button_menu_delete = SysMenu(menu_id=32, pid=5, sub_count=0, type=2, title="菜单删除", name=None,
+                                     component="",
+                                     menu_sort=4, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="menu:del", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
         dept_manager = SysMenu(menu_id=10, pid=1, sub_count=3, type=1, title='部门管理', name='Dept',
                                component='system/dept/index', menu_sort=6, icon='dept', path='dept', i_frame='0',
                                cache='0', hidden='0',
                                permission='dept:list', create_by="admin", update_by="admin", create_time=NOW_TIME,
                                update_time=NOW_TIME)
-
+        button_dept_add = SysMenu(menu_id=33, pid=10, sub_count=0, type=2, title="部门新增", name=None,
+                                  component="",
+                                  menu_sort=2, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                  permission="dept:add", create_by="admin",
+                                  update_by="admin", create_time=NOW_TIME,
+                                  update_time=NOW_TIME)
+        button_dept_update = SysMenu(menu_id=34, pid=10, sub_count=0, type=2, title="部门编辑", name=None,
+                                     component="",
+                                     menu_sort=3, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="dept:edit", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
+        button_dept_delete = SysMenu(menu_id=35, pid=10, sub_count=0, type=2, title="部门删除", name=None,
+                                     component="",
+                                     menu_sort=4, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="dept:del", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
         post_manager = SysMenu(menu_id=11, pid=1, sub_count=3, type=1, title='岗位管理', name='Job',
                                component='system/job/index', menu_sort=7, icon='Steve-Jobs', path='job', i_frame='0',
                                cache='0', hidden='0',
                                permission='job:list',
                                create_by="admin", update_by="admin", create_time=NOW_TIME, update_time=NOW_TIME)
-
+        button_post_add = SysMenu(menu_id=36, pid=11, sub_count=0, type=2, title="岗位新增", name=None,
+                                  component="",
+                                  menu_sort=2, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                  permission="job:add", create_by="admin",
+                                  update_by="admin", create_time=NOW_TIME,
+                                  update_time=NOW_TIME)
+        button_post_update = SysMenu(menu_id=37, pid=11, sub_count=0, type=2, title="岗位编辑", name=None,
+                                     component="",
+                                     menu_sort=3, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="job:edit", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
+        button_post_delete = SysMenu(menu_id=38, pid=11, sub_count=0, type=2, title="岗位删除", name=None,
+                                     component="",
+                                     menu_sort=4, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="job:del", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
         dict_manager = SysMenu(menu_id=12, pid=1, sub_count=3, type=1, title='字典管理', name='Dict',
                                component='system/dict/index', menu_sort=8, icon='dictionary', path='dict', i_frame='0',
                                cache='0', hidden='0',
                                permission='dict:list',
                                create_by="admin", update_by="admin", create_time=NOW_TIME, update_time=NOW_TIME)
+        button_dict_add = SysMenu(menu_id=39, pid=12, sub_count=0, type=2, title="字典新增", name=None,
+                                  component="",
+                                  menu_sort=2, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                  permission="dict:add", create_by="admin",
+                                  update_by="admin", create_time=NOW_TIME,
+                                  update_time=NOW_TIME)
+        button_dict_update = SysMenu(menu_id=40, pid=12, sub_count=0, type=2, title="字典编辑", name=None,
+                                     component="",
+                                     menu_sort=3, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="dict:edit", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
+        button_dict_delete = SysMenu(menu_id=41, pid=12, sub_count=0, type=2, title="字典删除", name=None,
+                                     component="",
+                                     menu_sort=4, icon="", path="", i_frame='0', cache='0', hidden='0',
+                                     permission="dict:del", create_by="admin",
+                                     update_by="admin", create_time=NOW_TIME,
+                                     update_time=NOW_TIME)
         # 系统监控
         sys_monitor = SysMenu(menu_id=6, pid=None, sub_count=5, type=0, title="系统监控", name=None,
                               component=None,
