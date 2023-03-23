@@ -21,3 +21,4 @@ from . import job
 from . import roles
 from . import dict
 from . import menus
+from . import server_deploy

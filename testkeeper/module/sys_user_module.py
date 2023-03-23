@@ -366,6 +366,28 @@ class SysDictDetail(db.Model):
              job_status_stop])
         db.session.commit()
 
+    @staticmethod
+    def get_key_map():
+        map_data = {
+            "id": "detail_id",
+            "dictSort": "dict_sort",
+            "label": "label",
+            "value": "value",
+            "dict_id": "dict_id",
+            "createBy": "create_by",
+            "updateBy": "update_by",
+            "createTime": "create_time",
+            "updateTime": "update_time",
+        }
+        return map_data
+
+    def from_dict(self, data):
+        for field in ['detail_id', 'dict_id', "label", "value", "dict_sort",
+                      'create_by', 'update_by',
+                      'create_time', 'update_time']:
+            if field in data:
+                setattr(self, field, data[field])
+
     def to_dict(self):
         dict_detail_content = {
             "createTime": self.create_time,
@@ -751,6 +773,61 @@ class SysRoleDepts(db.Model):
     __tablename__ = "sys_roles_depts"
     role_id = db.Column(db.Integer, db.ForeignKey('sys_role.role_id'), primary_key=True)  # 角色Id
     dept_id = db.Column(db.Integer, db.ForeignKey('sys_dept.dept_id'), primary_key=True)  # 菜单Id
+
+
+class MntServer(db.Model):
+    __tablename__ = "mnt_server"
+    server_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    account = db.Column(db.String(100), nullable=False)  # 账号
+    ip = db.Column(db.String(100), nullable=False)  # ip地址
+    name = db.Column(db.String(100), nullable=False)  # 名称
+    password = db.Column(db.String(100), nullable=True)  # 密码
+    port = db.Column(db.Integer, nullable=False)  # 端口
+    create_by = db.Column(db.String(100), nullable=True)  # 创建者
+    update_by = db.Column(db.String(100), nullable=True)  # 修改者
+    create_time = db.Column(db.DateTime, nullable=False)  # 创建日期
+    update_time = db.Column(db.DateTime, nullable=False)  # 更新日期
+
+    def from_dict(self, data):
+        for field in ['server_id', 'account', 'ip', 'name',
+                      'password', 'port', 'create_by', 'update_by',
+                      'create_time', 'update_time']:
+            if field in data:
+                setattr(self, field, data[field])
+
+    @staticmethod
+    def get_key_map():
+        map_data = {
+            "id": "server_id",
+            "account": "account",
+            "ip": "ip",
+            "name": "name",
+            "port": "port",
+            "password": "password",
+            "createBy": "create_by",
+            "updateBy": "update_by",
+            "createTime": "create_time",
+            "updateTime": "update_time",
+        }
+        return map_data
+
+    def to_dict(self):
+        role_info = {
+            "id": self.server_id,
+            "account": self.account,
+            "ip": self.ip,
+            "name": self.name,
+            "port": self.port,
+            "password": self.password,
+            "createBy": self.create_by,
+            "createTime": self.create_time,
+            "updateBy": self.update_by,
+            "updateTime": self.update_time
+        }
+        return role_info
+
+    def __repr__(self):
+        return f'<MntServer {self.name}>'
 
 
 class SysRoleMenus(db.Model):

@@ -13,6 +13,7 @@
 """
 from loguru import logger
 from io import BytesIO
+import datetime
 import base64
 from flask import Flask, jsonify, render_template, request, make_response, session
 from flask_jwt_extended import create_access_token
@@ -28,7 +29,7 @@ from sqlalchemy import and_
 from testkeeper.ext import db
 
 
-@api_blue.route("/dictDetail", methods=["GET", "DELETE", "PUT", "POST"])
+@api_blue.route("/dictDetail", methods=["GET", "PUT", "POST"])
 def get_dict_detail():
     if request.method == "GET":
         dict_name = request.args.get("dictName", None)
@@ -51,30 +52,30 @@ def get_dict_detail():
         }
         return return_dict
     if request.method in ["POST", "PUT"]:
-        job_json = request.json
-        update_job = {}
-        for key in job_json.keys():
-            if key in SysJob.get_key_map().keys():
-                update_job.update({SysJob.get_key_map()[key]: job_json[key]})
+        dict_detail_json = request.json
+        update_dict_detail = {}
+        for key in dict_detail_json.keys():
+            if key in SysDictDetail.get_key_map().keys():
+                update_dict_detail.update({SysDictDetail.get_key_map()[key]: dict_detail_json[key]})
+            if key == "dict":
+                update_dict_detail.update({SysDictDetail.get_key_map()["dict_id"]: dict_detail_json[key]["id"]})
         if request.method == "PUT":
-            sys_job = SysJob.query.filter_by(user_id=job_json['id']).first()
+            sys_dict_detail = SysDictDetail.query.filter_by(detail_id=dict_detail_json['id']).first()
         else:
-            sys_job = SysJob()
-        sys_job.from_dict(update_job)
-        db.session.add(sys_job)
+            sys_dict_detail = SysDictDetail()
+            NOW_TIME = datetime.datetime.now().replace(microsecond=0)
+            sys_dict_detail.create_time = NOW_TIME
+            sys_dict_detail.update_time = NOW_TIME
+        sys_dict_detail.from_dict(update_dict_detail)
+        db.session.add(sys_dict_detail)
         db.session.commit()
         return "SUCCESS"
-    if request.method == "DELETE":
-        job_json = request.json
-        update_job = {}
-        for key in job_json.keys():
-            if key in SysJob.get_key_map().keys():
-                update_job.update({SysJob.get_key_map()[key]: job_json[key]})
-        if request.method == "PUT":
-            sys_job = SysJob.query.filter_by(user_id=job_json['id']).first()
-        else:
-            sys_job = SysJob()
-        sys_job.from_dict(update_job)
-        db.session.add(sys_job)
-        db.session.commit()
-        return "SUCCESS"
+
+@api_blue.route("/dictDetail/<detail_id>", methods=["DELETE"])
+def delete_dict_detail(detail_id):
+    logger.info(detail_id)
+    sys_dict_detail = SysDictDetail.query.get(detail_id)
+    db.session.delete(sys_dict_detail)
+    db.session.commit()
+    return "SUCCESS"
+
