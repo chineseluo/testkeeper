@@ -9,4 +9,4 @@ testkeeper/.idea
 testkeeperweb/node_modules
 .idea
 site.tar
-testkeeper/templates
+#testkeeper/templates
