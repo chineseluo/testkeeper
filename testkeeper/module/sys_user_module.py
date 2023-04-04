@@ -138,7 +138,10 @@ class SysUser(db.Model):
         return user_info
 
     def from_dict(self, data, new_user=False):
-        for field in self.__annotations__:
+        for field in ['dept_id', 'user_name', 'nick_name', 'gender',
+                      'phone', 'email', 'avatar_name', 'avatar_path',
+                      'is_admin', 'enabled', 'create_by', 'update_by',
+                      'pwd_reset_time', 'password', 'create_time', 'update_time']:
             if field in data:
                 setattr(self, field, data[field])
         if new_user and 'password' in data:
@@ -146,6 +149,9 @@ class SysUser(db.Model):
 
     def __repr__(self):
         return f'<SysUser {self.user_name}>'
+
+    # def __setattr__(self, key, value):
+    #     return self[key]=value
 
     @staticmethod
     def delete_by_user_id(user_id):
@@ -198,7 +204,9 @@ class SysDept(db.Model):
     update_time = db.Column(db.DateTime, nullable=False)  # 更新日期
 
     def from_dict(self, data):
-        for field in self.__annotations__:
+        for field in ['dept_id', 'pid', 'sub_count', 'name',
+                      'dept_sort', 'enabled', 'create_by', 'update_by',
+                      'create_time', 'update_time']:
             if field in data:
                 setattr(self, field, data[field])
 
@@ -294,7 +302,9 @@ class SysDict(db.Model):
         return map_data
 
     def from_dict(self, data):
-        for field in self.__annotations__:
+        for field in ['dict_id', 'name', "description",
+                      'create_by', 'update_by',
+                      'create_time', 'update_time']:
             if field in data:
                 setattr(self, field, data[field])
 
@@ -372,7 +382,9 @@ class SysDictDetail(db.Model):
         return map_data
 
     def from_dict(self, data):
-        for field in self.__annotations__:
+        for field in ['detail_id', 'dict_id', "label", "value", "dict_sort",
+                      'create_by', 'update_by',
+                      'create_time', 'update_time']:
             if field in data:
                 setattr(self, field, data[field])
 
@@ -727,7 +739,9 @@ class SysJob(db.Model):
         return map_data
 
     def from_dict(self, data):
-        for field in self.__annotations__:
+        for field in ['job_id', 'name', 'job_sort', 'enabled',
+                      'create_by', 'update_by',
+                      'create_time', 'update_time']:
             if field in data:
                 setattr(self, field, data[field])
 
@@ -815,7 +829,9 @@ class SysRole(db.Model):
         return map_data
 
     def from_dict(self, data):
-        for field in self.__annotations__:
+        for field in ['role_id', 'name', 'level', 'description', 'data_scope', 'menus',
+                      'create_by', 'update_by',
+                      'create_time', 'update_time']:
             if field in data:
                 if field == "menus" and data['menus'] is None:
                     setattr(self, field, [])
@@ -879,7 +895,9 @@ class MntServer(db.Model):
     update_time = db.Column(db.DateTime, nullable=False)  # 更新日期
 
     def from_dict(self, data):
-        for field in self.__annotations__:
+        for field in ['server_id', 'account', 'ip', 'name',
+                      'password', 'port', 'create_by', 'update_by',
+                      'create_time', 'update_time']:
             if field in data:
                 setattr(self, field, data[field])
 

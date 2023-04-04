@@ -112,6 +112,11 @@ def users_opt():
             sys_user = SysUser.query.filter_by(user_id=user_json['id']).first()
         else:
             sys_user = SysUser()
+            NOW_TIME = datetime.datetime.now().replace(microsecond=0)
+            update_user["create_time"] = NOW_TIME
+            update_user["update_time"] = NOW_TIME
+            update_user["pwd_reset_time"] = NOW_TIME
+        logger.info(update_user)
         sys_user.from_dict(update_user)
         sys_user.roles = roles
         sys_user.jobs = jobs
