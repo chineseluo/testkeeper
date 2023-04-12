@@ -32,19 +32,20 @@ class TaskScheduler:
         }
         self._scheduler = BlockingScheduler()
         self._plan_service = PlanService()
+        self._loop = asyncio.new_event_loop()
 
     def add_time_job(self):
         self._plan_service.limit = 1000
         test_plan_list = self._plan_service.get_test_plan_list()
+        logger.info(test_plan_list)
         for test_plan in test_plan_list:
             logger.info(test_plan)
             job_center = JobCenter()
-            loop = asyncio.new_event_loop()
             self._scheduler.add_job(id=str(test_plan["planId"]),
                                     name=f'{test_plan["projectName"]}_{test_plan["planName"]}_scheduler_task_{test_plan["planId"]}',
                                     func=job_center.execute_test_plan, trigger="interval",
-                                    seconds=30, replace_existing=True, timezone='Asia/Shanghai',
-                                    args=[loop, test_plan["planId"]])
+                                    seconds=60, replace_existing=True, timezone='Asia/Shanghai',
+                                    args=[ str(test_plan["planId"]), self._loop])
 
     def update_time_job(self):
         ...

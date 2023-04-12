@@ -81,13 +81,16 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_delete_plan(self):
-        sys.argv = ["Tk", "plan_delete", "-plan_id", "1"]
+        sys.argv = ["Tk", "plan_delete", "-plan_id", "12"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
+        sys.argv = ["Tk", "plan_show", "-l", "10"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
 
     def test_update_plan(self):
-        sys.argv = ["Tk", "plan_update", "-plan_id", "2", "-name", "messagePushMethod", "-value",
+        sys.argv = ["Tk", "plan_update", "-plan_id", "7", "-name", "messagePushMethod", "-value",
                     "微信"]
         with self.assertRaises(SystemExit) as cm:
             entry()

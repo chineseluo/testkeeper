@@ -12,6 +12,9 @@
 ------------------------------------
 """
 import json
+from loguru import logger
+from sqlalchemy import event
+
 # from sqlalchemy.ext.declarative import declarative_base
 # from sqlalchemy import db.Column, db.String, db.Integer, DateTime, Text, Table, db.ForeignKey, db.BOOLEAN
 # from sqlalchemy.dialects.sqlite import *
@@ -20,6 +23,7 @@ import json
 # from testkeeper.util.file_operation import FileOption
 # db.Model = declarative_base()
 from testkeeper.ext import db
+
 
 class TestPlanTable(db.Model):
     __tablename__ = "test_plan_table"
@@ -256,20 +260,42 @@ class User(db.Model):
     updateTime = db.Column(db.TIMESTAMP, nullable=False)
     createTime = db.Column(db.TIMESTAMP, nullable=False)
 
-#
-# @event.listens_for(TestPlanTable, 'after_insert', raw=True)
-# @event.listens_for(TestPlanTable, 'after_update', raw=True)
-# @event.listens_for(TestPlanTable, 'after_delete', raw=True)
-# def watcher_plan_table_cron_change(mapper, connection, target):
-#     logger.info(mapper)
-#     logger.info(connection)
-#     logger.info(target.dict['cron'])
-#     logger.info(target.dict['isConfigMessagePush'])
-#     logger.info(dir(target))
-#     for item in target.__dict__:
-#         logger.info(item)
-#     logger.info("数据发生变更")
 
+class Watcher(db.Model):
+    __tablename__ = "plan_watcher"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    plan_id = db.Column(db.Integer, nullable=True)  # plan id
+    task_type = db.Column(db.String(100), nullable=True)  # 数据语句操作类型，update/insert/delete
+    createTime = db.Column(db.TIMESTAMP, nullable=False)
+
+
+@event.listens_for(TestPlanTable, 'after_insert', raw=True)
+def watcher_plan_table_insert(mapper, connection, target):
+    # {"planId": 6, "projectName": "\u6d4b\u8bd5\u9879\u76ee31", "planName": "\u6d4b\u8bd5\u8ba1\u52121", "createUser": "\u6210\u90fd-\u963f\u6728\u6728", "isScheduledExecution": true, "cron": "2 3 4 9 6", "isConfigMessagePush": true, "messagePushMethod": "\u4f01\u4e1a\u5fae\u4fe1", "messagePushWebhook": "www.baidu.com", "updateTime": "2023-04-12 11:48:23.655226", "createTime": "2023-04-12 11:48:23.655227"}
+    logger.info(f"测试计划表planTable写入数据:{target.__dict__['_strong_obj']}")
+    for item in target.__dict__:
+        logger.info(item)
+        logger.info(target.__dict__[item])
+    logger.info("数据发生变更")
+
+
+@event.listens_for(TestPlanTable, 'after_update', raw=True)
+def watcher_plan_table_update(mapper, connection, target):
+    logger.info(f"测试计划表planTable修改数据:{target.__dict__['_strong_obj']}")
+    for item in target.__dict__:
+        logger.info(item)
+        logger.info(target.__dict__[item])
+    logger.info("数据发生变更")
+
+
+@event.listens_for(TestPlanTable, 'after_delete', raw=True)
+def watcher_plan_table_delete(mapper, connection, target):
+    logger.info("@@@@@@@@@@@")
+    logger.info(f"测试计划表planTable删除数据:{target.__dict__['_strong_obj']}")
+    for item in target.__dict__:
+        logger.info(item)
+        logger.info(target.__dict__[item])
+    logger.info("数据发生变更")
 
 # if __name__ == '__main__':
 #     db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))), "db")

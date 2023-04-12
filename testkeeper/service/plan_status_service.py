@@ -85,7 +85,7 @@ class PlanStatusService(SqlInterface):
             raise TestKeeperArgvCheckException(f"参数planId:{plan_id},不能为None！")
         else:
             try:
-                logger.info(plan_id)
+                logger.info(str(plan_id))
                 self.__plan_id = int(plan_id)
             except Exception as e:
                 logger.error(e)

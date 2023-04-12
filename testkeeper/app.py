@@ -1,8 +1,11 @@
 #!/user/bin/env python
 # -*- coding: utf-8 -*-
+import datetime
 import os
 import sys
 import threading
+import time
+
 from flask import Flask, jsonify, render_template, request
 
 # sys.path.insert(0, "../")
@@ -18,6 +21,7 @@ from flask_migrate import Migrate
 from testkeeper.module.sys_user_module import init_data
 from testkeeper.module.sys_user_module import *
 from flask_jwt_extended import JWTManager
+from multiprocessing import Process
 
 
 class FlaskApp(Flask):
@@ -64,7 +68,7 @@ app.register_blueprint(auth_blue)
 app.register_blueprint(menu_blue)
 app.register_blueprint(api_blue)
 # 设置session过期时间
-app.permanent_session_lifetime = datetime.timedelta(seconds=60*30)
+app.permanent_session_lifetime = datetime.timedelta(seconds=60 * 30)
 # 初始化迁移框架
 migrate = Migrate(app=app, db=db)
 """
@@ -79,7 +83,7 @@ migrate
 3、写入初始化数据，在app.py文件中，取消下面的代码注释，然后将app.run(debug=True, threaded=True)注释掉，执行app.py即可，初始化完成后，记得将下面的代码注释掉，打开app.run(debug=True, threaded=True)注释    
     # with app.app_context():
         #     init_data()
-        
+
 cd ./testkeeper && rm -rf ./db/testkeeper.db && rm -rf ./migrations && flask db init && flask db migrate && flask db upgrade
 """
 plan_service = PlanService()
@@ -142,12 +146,36 @@ def delete_test_plan():
     return ""
 
 
+def test_process():
+    logger.info(f'获取当前进程号:{os.getpid()}')
+    logger.info(f'获取当前父进程号:{os.getppid()}')
+    for i in range(0, 100):
+        time.sleep(1)
+        logger.info(datetime.datetime.now())
+
+
+def start_app(debug, threaded):
+    logger.info(f'获取当前进程号:{os.getpid()}')
+    logger.info(f'获取当前父进程号:{os.getppid()}')
+    # os.system("sudo ulimit -n 65535")
+    logger.info(datetime.datetime.now())
+    app.run(debug=debug, threaded=threaded)
+
+
 if __name__ == '__main__':
     # print(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))))
     # DBPATH = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"testkeeper", "db")
-    # print("###")
-    # print(DBPATH)
-    app.run(debug=True, threaded=True)
 
-    # with app.app_context():
-    #     init_data()
+    # app.run(debug=True, threaded=True)
+    # 注意，开启多进程模式的时候，不能设置debug=True
+    # app_process = Process(target=start_app, args=(False, True,))
+    # app_process.daemon = True
+    # app_process.start()
+    # test_process1 = Process(target=test_process, daemon=True)
+    # test_process1.start()
+    #
+    # app_process.join()
+    # test_process1.join()
+
+    with app.app_context():
+        init_data()
