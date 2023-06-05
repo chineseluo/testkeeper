@@ -41,6 +41,13 @@ class TestCmd(unittest.TestCase):
             entry()
         self.assertEqual(cm.exception.code, 0)
 
+    def test_plan_show_id_is_none(self):
+        sys.argv = ["Tk", "plan_show", "-limit", "20"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        self.assertEqual(cm.exception.code, 0)
+
+
     def test_plan_status_delete(self):
         sys.argv = ["Tk", "plan_status_delete", "-plan_status_id", "1"]
         with self.assertRaises(SystemExit) as cm:

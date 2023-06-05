@@ -38,7 +38,8 @@ class TestPlanTable(db.Model):
     messagePushWebhook = db.Column(db.String(500), nullable=False)
     updateTime = db.Column(db.TIMESTAMP, nullable=False)
     createTime = db.Column(db.TIMESTAMP, nullable=False)
-    testJobs = db.relationship("TestJobTable", back_populates="testPlan")
+    testJobs = db.relationship("TestJobTable", back_populates="testPlan", cascade="all,delete,delete-orphan",
+                               passive_deletes=True)
 
     def __repr__(self):
         test_plan_table_dict = {
@@ -76,7 +77,7 @@ class TestPlanTable(db.Model):
 class TestJobTable(db.Model):
     __tablename__ = "test_job_table"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    planId = db.Column(db.String(100), db.ForeignKey('test_plan_table.id'))
+    planId = db.Column(db.Integer, db.ForeignKey(TestPlanTable.id, ondelete="CASCADE"))
     jobName = db.Column(db.String(100), nullable=False)
     createUser = db.Column(db.String(100), nullable=False)
     executeScriptPath = db.Column(db.String(500), nullable=False)
@@ -87,8 +88,9 @@ class TestJobTable(db.Model):
     checkInterval = db.Column(db.Integer, nullable=False, default=10)
     updateTime = db.Column(db.TIMESTAMP, nullable=False)
     createTime = db.Column(db.TIMESTAMP, nullable=False)
-    testPlan = db.relationship("TestPlanTable", back_populates="testJobs")
-    executeMachineIpList = db.relationship("TestMachineTable", back_populates="testJob")
+    testPlan = db.relationship(TestPlanTable, back_populates="testJobs")
+    executeMachineIpList = db.relationship("TestMachineTable", back_populates="testJob",
+                                           cascade="all,delete,delete-orphan")
 
     def __repr__(self):
         test_job_table_dict = {
@@ -126,7 +128,7 @@ class TestJobTable(db.Model):
 
 class TestPlanStatusTable(db.Model):
     __tablename__ = "test_plan_status_table"
-    planId = db.Column(db.String(100), nullable=False)
+    planId = db.Column(db.Integer, nullable=False)
     planName = db.Column(db.String(100), nullable=False)
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     executeStatus = db.Column(db.String(100), nullable=False)
@@ -160,7 +162,7 @@ class TestPlanStatusTable(db.Model):
 class TestJobStatusTable(db.Model):
     __tablename__ = "test_job_status_table"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    jobId = db.Column(db.String(100), nullable=False)
+    jobId = db.Column(db.Integer, nullable=False)
     jobName = db.Column(db.String(100), nullable=False)
     planStatusId = db.Column(db.String(100), db.ForeignKey("test_plan_status_table.id"))
     executeStatus = db.Column(db.String(100), nullable=False)
@@ -288,7 +290,7 @@ def watcher_plan_table_update(mapper, connection, target):
     logger.info("数据发生变更")
 
 
-@event.listens_for(TestPlanTable, 'after_delete', raw=True)
+@event.listens_for(TestPlanTable, 'before_delete', raw=True)
 def watcher_plan_table_delete(mapper, connection, target):
     logger.info("@@@@@@@@@@@")
     logger.info(f"测试计划表planTable删除数据:{target.__dict__['_strong_obj']}")
@@ -296,6 +298,13 @@ def watcher_plan_table_delete(mapper, connection, target):
         logger.info(item)
         logger.info(target.__dict__[item])
     logger.info("数据发生变更")
+
+# @event.listens_for(db, "after_cursor_execute")
+# def after_cursor_execute(conn, cursor, statement,
+#                         parameters, context, executemany):
+#     total = time.time() - conn.info['query_start_time'].pop(-1)
+#     logger.debug("Query Complete!")
+
 
 # if __name__ == '__main__':
 #     db_path = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))), "db")

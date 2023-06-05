@@ -88,10 +88,14 @@ class PlanService(SqlInterface):
         return test_plan_list
 
     def delete_test_plan(self):
-        self.get_test_plan_obj_by_id().delete()
-        self.mul_session.query(TestJobTable).filter_by(planId=self.__plan_id).delete()
+        test_plan_obj = self.get_test_plan_obj_by_id()
+        test_plan_obj.delete()
+
+        # self.mul_session.delete(test_plan_obj)
+        # self.mul_session.query(TestJobTable).filter_by(planId=self.__plan_id).delete()
         self.mul_session.commit()
         logger.info(f"删除测试计划成功:{self.__plan_id}")
+        return test_plan_obj
 
     def update_test_plan(self, name: str, value: str):
         self.common_update_method(TestPlanTable, self.__plan_id, name, value)

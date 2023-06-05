@@ -47,6 +47,7 @@ class JobCenter:
     # 3、如果测试job下面没有测试step，执行job命令即可
     # 4、如果测试job下面有测试step，顺序执行测试step
     def execute_test_job(self, test_plan_status_table_obj, test_job: TestJobTable, job_id: int, loop=None):
+        loop = asyncio.new_event_loop() if not loop else loop
         logger.info(self.plan_status_service.mul_session.hash_key)
         self.job_service.job_id = job_id
         test_job = self.job_service.get_test_job_by_id() if test_job is None else test_job

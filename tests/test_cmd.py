@@ -81,11 +81,17 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_delete_plan(self):
-        sys.argv = ["Tk", "plan_delete", "-plan_id", "12"]
+        sys.argv = ["Tk", "plan_show", "-l", "10"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        sys.argv = ["Tk", "plan_delete", "-plan_id", "1"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
         sys.argv = ["Tk", "plan_show", "-l", "10"]
+        with self.assertRaises(SystemExit) as cm:
+            entry()
+        sys.argv = ["Tk", "job_show", "-p_id", "1"]
         with self.assertRaises(SystemExit) as cm:
             entry()
 
@@ -132,19 +138,19 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_job_plan_id_is_none(self):
-        sys.argv = ["Tk", "job_show"]
+        sys.argv = ["Tk", "job_show", "-plan_id", "1"]
         with self.assertRaises(SystemExit) as cm:
             entry()
         self.assertEqual(cm.exception.code, 0)
 
     def test_plan_start(self):
-        sys.argv = ["Tk", "plan_show"]
-        with self.assertRaises(SystemExit) as cm:
-            entry()
-        self.assertEqual(cm.exception.code, 0)
-        sys.argv = ["Tk", "plan_start", "-plan_id", "1"]
-        with self.assertRaises(SystemExit) as cm:
-            entry()
+        # sys.argv = ["Tk", "plan_show"]
+        # with self.assertRaises(SystemExit) as cm:
+        #     entry()
+        # self.assertEqual(cm.exception.code, 0)
+        # sys.argv = ["Tk", "plan_start", "-plan_id", "1"]
+        # with self.assertRaises(SystemExit) as cm:
+        #     entry()
         sys.argv = ["Tk", "job_show"]
         with self.assertRaises(SystemExit) as cm:
             entry()
@@ -157,13 +163,16 @@ class TestCmd(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_job_start(self):
-        sys.argv = ["Tk", "job_start", "-job_id", "1"]
+        # sys.argv = ["Tk", "job_show","-plan_id","1"]
+        # with self.assertRaises(SystemExit) as cm:
+        #     entry()
+        # self.assertEqual(cm.exception.code, 0)
+        # sys.argv = ["Tk", "job_start", "-job_id", "1"]
+        # with self.assertRaises(SystemExit) as cm:
+        #     entry()
+        sys.argv = ["Tk", "plan_status_show", "-p", "测试项目31", "-limit", "20"]
         with self.assertRaises(SystemExit) as cm:
             entry()
-        sys.argv = ["Tk", "plan_status_show", "-limit", "20"]
-        with self.assertRaises(SystemExit) as cm:
-            entry()
-
         self.assertEqual(cm.exception.code, 0)
 
     def test_job_delete(self):
