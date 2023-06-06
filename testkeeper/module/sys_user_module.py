@@ -285,7 +285,13 @@ class SysDict(db.Model):
                               create_time=NOW_TIME, update_time=NOW_TIME)
         job_status = SysDict(dict_id=3, name="job_status", description="岗位状态", create_by="admin", update_by="admin",
                              create_time=NOW_TIME, update_time=NOW_TIME)
-        db.session.add_all([user_status, dept_status, job_status])
+        task_status = SysDict(dict_id=4, name="task_status", description="测试计划状态", create_by="admin",
+                              update_by="admin",
+                              create_time=NOW_TIME, update_time=NOW_TIME)
+        plan_status = SysDict(dict_id=5, name="plan_status", description="测试计划状态", create_by="admin",
+                              update_by="admin",
+                              create_time=NOW_TIME, update_time=NOW_TIME)
+        db.session.add_all([user_status, dept_status, job_status, task_status, plan_status])
         db.session.commit()
 
     @staticmethod
@@ -361,9 +367,25 @@ class SysDictDetail(db.Model):
                                         create_by="admin",
                                         update_by="admin",
                                         create_time=NOW_TIME, update_time=NOW_TIME)
+        plan_start = SysDictDetail(detail_id=7, dict_id=4, label='启用', value='true', dict_sort=1,
+                                   create_by="admin",
+                                   update_by="admin",
+                                   create_time=NOW_TIME, update_time=NOW_TIME)
+        plan_stop = SysDictDetail(detail_id=8, dict_id=4, label='停用', value='false', dict_sort=2,
+                                  create_by="admin",
+                                  update_by="admin",
+                                  create_time=NOW_TIME, update_time=NOW_TIME)
+        task_start = SysDictDetail(detail_id=9, dict_id=5, label='启用', value='true', dict_sort=1,
+                                   create_by="admin",
+                                   update_by="admin",
+                                   create_time=NOW_TIME, update_time=NOW_TIME)
+        task_stop = SysDictDetail(detail_id=10, dict_id=5, label='停用', value='false', dict_sort=2,
+                                  create_by="admin",
+                                  update_by="admin",
+                                  create_time=NOW_TIME, update_time=NOW_TIME)
         db.session.add_all(
             [user_status_enable, user_status_disable, dept_status_start, dept_status_stop, job_status_start,
-             job_status_stop])
+             job_status_stop, plan_start, plan_stop, task_start, task_stop])
         db.session.commit()
 
     @staticmethod
@@ -646,41 +668,44 @@ class SysMenu(db.Model):
                              create_time=NOW_TIME, update_time=NOW_TIME)
 
         # 测试任务管理
-        task_manager = SysMenu(menu_id=20, pid=None, sub_count=3, type=0, title='任务管理', name=None, component='',
+        test_manager = SysMenu(menu_id=20, pid=None, sub_count=4, type=0, title='任务管理', name=None, component='',
                                menu_sort=900, icon='menu', path='nested', cache='0', i_frame='0', hidden='0',
                                permission=None, create_by='admin',
                                update_by='admin',
                                create_time=NOW_TIME, update_time=NOW_TIME)
 
-        plan_manager = SysMenu(menu_id=21, pid=20, sub_count=0, type=1, title='计划列表', name=None, component='',
+        plan_manager = SysMenu(menu_id=21, pid=20, sub_count=0, type=1, title='计划列表', name="Plan",
+                               component='system/plan/index',
                                menu_sort=999, icon='menu', path='menu1', cache='0', i_frame='0', hidden='0',
                                permission=None, create_by='admin',
                                update_by='admin',
                                create_time=NOW_TIME, update_time=NOW_TIME)
 
-        job_manager = SysMenu(menu_id=22, pid=20, sub_count=0, type=1, title='任务列表', name=None,
-                              component='nested/menu2/index', menu_sort=999, icon='menu', path='menu2', cache='0',
-                              i_frame='0', hidden='0',
-                              permission=None, create_by='admin',
-                              update_by='admin', create_time=NOW_TIME, update_time=NOW_TIME)
+        task_manager = SysMenu(menu_id=22, pid=20, sub_count=0, type=1, title='任务列表', name="Task",
+                               component='system/task/index', menu_sort=999, icon='menu', path='menu2', cache='0',
+                               i_frame='0', hidden='0',
+                               permission=None, create_by='admin',
+                               update_by='admin', create_time=NOW_TIME, update_time=NOW_TIME)
 
-        execute_manager = SysMenu(menu_id=23, pid=20, sub_count=0, type=1, title='执行列表', name=None,
-                                  component='nested/menu2/index', menu_sort=999, icon='menu', path='menu2', cache='0',
-                                  i_frame='0', hidden='0',
-                                  permission=None, create_by='admin',
-                                  update_by='admin', create_time=NOW_TIME, update_time=NOW_TIME)
-
-        #
-        # components_manager = SysMenu(menu_id=10, pid=None, sub_count=5, type=0, title="组件管理", name=None,
-        #                              component=None, menu_sort=50, icon="zujian", path="components",
-        #                              i_frame='0',
-        #                              cache='0', hidden='0', permission=None)
+        execute_plan_manager = SysMenu(menu_id=23, pid=20, sub_count=0, type=1, title='计划状态', name="PlanStatus",
+                                       component='system/planStatus/index', menu_sort=999, icon='menu', path='menu3',
+                                       cache='0',
+                                       i_frame='0', hidden='0',
+                                       permission=None, create_by='admin',
+                                       update_by='admin', create_time=NOW_TIME, update_time=NOW_TIME)
+        execute_task_manager = SysMenu(menu_id=24, pid=20, sub_count=0, type=1, title='任务状态', name="TaskStatus",
+                                       component='system/taskStatus/index', menu_sort=999, icon='menu', path='menu4',
+                                       cache='0',
+                                       i_frame='0', hidden='0',
+                                       permission=None, create_by='admin',
+                                       update_by='admin', create_time=NOW_TIME, update_time=NOW_TIME)
 
         db.session.add_all(
             [sys_manager, user_manager, role_manager, menu_manager, sys_monitor, op_log, server_monitor, sql_monitor,
              dept_manager, post_manager, dict_manager, online_user_monitor, devops_manager, machine_manager,
              app_manager,
-             deploy_manager, deploy_backup, db_manager, task_manager, plan_manager, execute_manager, job_manager])
+             deploy_manager, deploy_backup, db_manager, test_manager, plan_manager, task_manager, execute_plan_manager,
+             execute_task_manager])
         db.session.commit()
 
     def to_dict(self):
@@ -966,12 +991,13 @@ class SysRoleMenus(db.Model):
         menu_role_21 = SysRoleMenus(menu_id=21, role_id=1)
         menu_role_22 = SysRoleMenus(menu_id=22, role_id=1)
         menu_role_23 = SysRoleMenus(menu_id=23, role_id=1)
+        menu_role_24 = SysRoleMenus(menu_id=24, role_id=1)
         menu_role_second = SysRoleMenus(menu_id=2, role_id=2)
         db.session.add_all(
             [menu_role_1, menu_role_2, menu_role_3, menu_role_4, menu_role_5, menu_role_6, menu_role_7, menu_role_8,
              menu_role_9, menu_role_10, menu_role_11, menu_role_12, menu_role_13, menu_role_14, menu_role_15,
              menu_role_16, menu_role_17, menu_role_18, menu_role_19, menu_role_20, menu_role_21,
-             menu_role_22, menu_role_23,
+             menu_role_22, menu_role_23, menu_role_24,
              menu_role_second])
         db.session.commit()
 

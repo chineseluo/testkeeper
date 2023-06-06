@@ -31,11 +31,13 @@ class TestPlanTable(db.Model):
     projectName = db.Column(db.String(100), nullable=False)
     planName = db.Column(db.String(100), nullable=False)
     createUser = db.Column(db.String(100), nullable=True)
-    isScheduledExecution = db.Column(db.BOOLEAN, nullable=False)
     cron = db.Column(db.String(100), nullable=False)
     isConfigMessagePush = db.Column(db.BOOLEAN, nullable=False)
     messagePushMethod = db.Column(db.String(500), nullable=False)
     messagePushWebhook = db.Column(db.String(500), nullable=False)
+    enabled = db.Column(db.Boolean, nullable=True)  # 启用/禁用
+    createBy = db.Column(db.String(100), nullable=True)  # 创建者
+    updateBy = db.Column(db.String(100), nullable=True)  # 修改者
     updateTime = db.Column(db.TIMESTAMP, nullable=False)
     createTime = db.Column(db.TIMESTAMP, nullable=False)
     testJobs = db.relationship("TestJobTable", back_populates="testPlan", cascade="all,delete,delete-orphan",
@@ -47,7 +49,6 @@ class TestPlanTable(db.Model):
             "projectName": self.projectName,
             "planName": self.planName,
             "createUser": self.createUser,
-            "isScheduledExecution": self.isScheduledExecution,
             "cron": self.cron,
             "isConfigMessagePush": self.isConfigMessagePush,
             "messagePushMethod": self.messagePushMethod,
@@ -63,7 +64,6 @@ class TestPlanTable(db.Model):
             "projectName": self.projectName,
             "planName": self.planName,
             "createUser": self.createUser,
-            "isScheduledExecution": self.isScheduledExecution,
             "cron": self.cron,
             "isConfigMessagePush": self.isConfigMessagePush,
             "messagePushMethod": self.messagePushMethod,
@@ -72,6 +72,50 @@ class TestPlanTable(db.Model):
             "createTime": str(self.createTime)
         }
         return json.dumps(test_plan_table_dict)
+
+    def to_dict(self):
+        test_plan_table_dict = {
+            "id": self.id,
+            "projectName": self.projectName,
+            "planName": self.planName,
+            "createUser": self.createUser,
+            "cron": self.cron,
+            "isConfigMessagePush": self.isConfigMessagePush,
+            "messagePushMethod": self.messagePushMethod,
+            "messagePushWebhook": self.messagePushWebhook,
+            "enabled": self.enabled,
+            "createBy": self.createBy,
+            "updateBy": self.updateBy,
+            "updateTime": str(self.updateTime),
+            "createTime": str(self.createTime)
+        }
+        return test_plan_table_dict
+
+    @staticmethod
+    def get_key_map():
+        map_data = {
+            "id": "id",
+            "projectName": "projectName",
+            "planName": "planName",
+            "createUser": "createUser",
+            "cron": "cron",
+            "isConfigMessagePush": "isConfigMessagePush",
+            "messagePushMethod": "messagePushMethod",
+            "messagePushWebhook": "messagePushWebhook",
+            "enabled": "enabled",
+            "createBy": "createBy",
+            "updateBy": "updateBy",
+            "updateTime": "updateTime",
+            "createTime": "createTime"
+        }
+        return map_data
+
+    def from_dict(self, data):
+        for field in ['id', 'projectName', "planName", "createUser",
+                      'cron', 'isConfigMessagePush', 'messagePushMethod', 'messagePushWebhook', 'enabled',
+                      'createBy', 'updateBy', 'updateTime', 'createTime']:
+            if field in data:
+                setattr(self, field, data[field])
 
 
 class TestJobTable(db.Model):
@@ -125,6 +169,45 @@ class TestJobTable(db.Model):
         }
         return json.dumps(test_job_table_dict)
 
+    def to_dict(self):
+        test_job_table_dict = {
+            "jobId": self.id,
+            "planId": self.planId,
+            "jobName": self.jobName,
+            "createUser": self.createUser,
+            "executeScriptPath": self.executeScriptPath,
+            "executeScriptCmd": self.executeScriptCmd,
+            "isSkipped": self.isSkipped,
+            "checkInterval": self.checkInterval,
+            "runFailedIsNeedContinue": self.runFailedIsNeedContinue,
+            "updateTime": str(self.updateTime),
+            "createTime": str(self.createTime)
+        }
+        return test_job_table_dict
+
+    @staticmethod
+    def get_key_map():
+        test_job_table_dict = {
+            "jobId": "jobId",
+            "planId": "planId",
+            "jobName": "jobName",
+            "createUser": "createUser",
+            "executeScriptPath": "executeScriptPath",
+            "executeScriptCmd": "executeScriptCmd",
+            "isSkipped": "isSkipped",
+            "checkInterval": "checkInterval",
+            "runFailedIsNeedContinue": "runFailedIsNeedContinue",
+            "updateTime": "updateTime",
+            "createTime": "createTime"
+        }
+        return test_job_table_dict
+
+    def from_dict(self, data):
+        for field in ['jobId', 'planId', "jobName", "createUser",
+                      'executeScriptPath', 'executeScriptCmd', 'isSkipped', 'checkInterval', 'runFailedIsNeedContinue',
+                      'createBy', 'updateBy', 'updateTime', 'createTime']:
+            if field in data:
+                setattr(self, field, data[field])
 
 class TestPlanStatusTable(db.Model):
     __tablename__ = "test_plan_status_table"
@@ -293,7 +376,7 @@ def watcher_plan_table_update(mapper, connection, target):
 @event.listens_for(TestPlanTable, 'before_delete', raw=True)
 def watcher_plan_table_delete(mapper, connection, target):
     logger.info("@@@@@@@@@@@")
-    logger.info(f"测试计划表planTable删除数据:{target.__dict__['_strong_obj']}")
+    # logger.info(f"测试计划表planTable删除数据:{target.__dict__['_strong_obj']}")
     for item in target.__dict__:
         logger.info(item)
         logger.info(target.__dict__[item])

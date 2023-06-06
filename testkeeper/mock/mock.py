@@ -50,13 +50,15 @@ class MockData:
                 projectName=f"测试项目3{plan_index}",
                 planName=f"测试计划{plan_index}",
                 createUser="成都-阿木木",
-                isScheduledExecution=True,
                 cron="2 3 4 9 6",
                 isConfigMessagePush=True,
                 messagePushMethod="企业微信",
                 messagePushWebhook="www.baidu.com",
-                updateTime=datetime.datetime.now(),
-                createTime=datetime.datetime.now()
+                enabled=True,
+                createBy="admin",
+                updateBy="admin",
+                updateTime=datetime.datetime.now().replace(microsecond=0),
+                createTime=datetime.datetime.now().replace(microsecond=0)
             )
             for i in range(1, job_count):
                 test_job_table_obj = TestJobTable(
@@ -68,16 +70,16 @@ class MockData:
                     runFailedIsNeedContinue=True,
                     isSkipped=False,
                     checkInterval=10,
-                    updateTime=datetime.datetime.now(),
-                    createTime=datetime.datetime.now()
+                    updateTime=datetime.datetime.now().replace(microsecond=0),
+                    createTime=datetime.datetime.now().replace(microsecond=0)
                 )
                 for machine_index in range(1, machine_count):
                     test_machine_table = TestMachineTable(
                         ip=f"127.0.0.{machine_index}",
                         username="root",
                         password="123456",
-                        updateTime=datetime.datetime.now(),
-                        createTime=datetime.datetime.now()
+                        updateTime=datetime.datetime.now().replace(microsecond=0),
+                        createTime=datetime.datetime.now().replace(microsecond=0)
                     )
                     test_job_table_obj.executeMachineIpList.append(test_machine_table)
                 test_plan_table_obj.testJobs.append(test_job_table_obj)

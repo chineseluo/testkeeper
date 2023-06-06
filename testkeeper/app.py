@@ -166,7 +166,7 @@ if __name__ == '__main__':
     # print(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))))
     # DBPATH = os.path.join(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"testkeeper", "db")
 
-    # app.run(debug=True, threaded=True)
+    app.run(debug=True, threaded=True)
     # 注意，开启多进程模式的时候，不能设置debug=True
     # app_process = Process(target=start_app, args=(False, True,))
     # app_process.daemon = True
@@ -176,6 +176,6 @@ if __name__ == '__main__':
     #
     # app_process.join()
     # test_process1.join()
-
-    with app.app_context():
-        init_data()
+    #
+    # with app.app_context():
+    #     init_data()
