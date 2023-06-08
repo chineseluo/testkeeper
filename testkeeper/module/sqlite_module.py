@@ -171,7 +171,7 @@ class TestJobTable(db.Model):
 
     def to_dict(self):
         test_job_table_dict = {
-            "jobId": self.id,
+            "id": self.id,
             "planId": self.planId,
             "jobName": self.jobName,
             "createUser": self.createUser,
@@ -188,7 +188,7 @@ class TestJobTable(db.Model):
     @staticmethod
     def get_key_map():
         test_job_table_dict = {
-            "jobId": "jobId",
+            "id": "jobId",
             "planId": "planId",
             "jobName": "jobName",
             "createUser": "createUser",
@@ -203,11 +203,12 @@ class TestJobTable(db.Model):
         return test_job_table_dict
 
     def from_dict(self, data):
-        for field in ['jobId', 'planId', "jobName", "createUser",
+        for field in ['id', 'planId', "jobName", "createUser",
                       'executeScriptPath', 'executeScriptCmd', 'isSkipped', 'checkInterval', 'runFailedIsNeedContinue',
                       'createBy', 'updateBy', 'updateTime', 'createTime']:
             if field in data:
                 setattr(self, field, data[field])
+
 
 class TestPlanStatusTable(db.Model):
     __tablename__ = "test_plan_status_table"
@@ -240,6 +241,35 @@ class TestPlanStatusTable(db.Model):
             "createTime": str(self.createTime)
         }
         return test_plan_status_table_dict
+
+    def to_dict(self):
+        test_plan_status_table_dict = {
+            "id": self.id,
+            "planId": self.planId,
+            "planName": self.planName,
+            "executeStatus": self.executeStatus,
+            "updateTime": self.updateTime,
+            "createTime": str(self.createTime)
+        }
+        return test_plan_status_table_dict
+
+    @staticmethod
+    def get_key_map():
+        test_job_table_dict = {
+            "id": "planStatusId",
+            "planId": "planId",
+            "planName": "planName",
+            "executeStatus": "executeStatus",
+            "updateTime": "updateTime",
+            "createTime": "createTime"
+        }
+        return test_job_table_dict
+
+    def from_dict(self, data):
+        for field in ['id', 'planId', "planName", "executeStatus",
+                      'createBy', 'updateBy', 'updateTime', 'createTime']:
+            if field in data:
+                setattr(self, field, data[field])
 
 
 class TestJobStatusTable(db.Model):

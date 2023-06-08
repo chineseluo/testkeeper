@@ -291,7 +291,16 @@ class SysDict(db.Model):
         plan_status = SysDict(dict_id=5, name="plan_status", description="测试计划状态", create_by="admin",
                               update_by="admin",
                               create_time=NOW_TIME, update_time=NOW_TIME)
-        db.session.add_all([user_status, dept_status, job_status, task_status, plan_status])
+        plan_execute_status = SysDict(dict_id=6, name="planStatus_status", description="测试计划执行状态",
+                                      create_by="admin",
+                                      update_by="admin",
+                                      create_time=NOW_TIME, update_time=NOW_TIME)
+        task_execute_status = SysDict(dict_id=7, name="taskStatus_status", description="测试计划执行状态",
+                                      create_by="admin",
+                                      update_by="admin",
+                                      create_time=NOW_TIME, update_time=NOW_TIME)
+        db.session.add_all(
+            [user_status, dept_status, job_status, task_status, plan_status, plan_execute_status, task_execute_status])
         db.session.commit()
 
     @staticmethod
@@ -383,9 +392,39 @@ class SysDictDetail(db.Model):
                                   create_by="admin",
                                   update_by="admin",
                                   create_time=NOW_TIME, update_time=NOW_TIME)
+        plan_execute_status_running = SysDictDetail(detail_id=11, dict_id=6, label='运行中', value='running',
+                                                    dict_sort=1,
+                                                    create_by="admin",
+                                                    update_by="admin",
+                                                    create_time=NOW_TIME, update_time=NOW_TIME)
+        plan_execute_status_success = SysDictDetail(detail_id=12, dict_id=6, label='运行成功', value='success',
+                                                    dict_sort=1,
+                                                    create_by="admin",
+                                                    update_by="admin",
+                                                    create_time=NOW_TIME, update_time=NOW_TIME)
+        plan_execute_status_fail = SysDictDetail(detail_id=13, dict_id=6, label='运行失败', value='fail', dict_sort=2,
+                                                 create_by="admin",
+                                                 update_by="admin",
+                                                 create_time=NOW_TIME, update_time=NOW_TIME)
+        task_execute_status_running = SysDictDetail(detail_id=12, dict_id=7, label='运行中', value='running',
+                                                    dict_sort=1,
+                                                    create_by="admin",
+                                                    update_by="admin",
+                                                    create_time=NOW_TIME, update_time=NOW_TIME)
+        task_execute_status_success = SysDictDetail(detail_id=13, dict_id=8, label='运行成功', value='success',
+                                                    dict_sort=1,
+                                                    create_by="admin",
+                                                    update_by="admin",
+                                                    create_time=NOW_TIME, update_time=NOW_TIME)
+        task_execute_status_fail = SysDictDetail(detail_id=14, dict_id=9, label='运行失败', value='fail', dict_sort=2,
+                                                 create_by="admin",
+                                                 update_by="admin",
+                                                 create_time=NOW_TIME, update_time=NOW_TIME)
         db.session.add_all(
             [user_status_enable, user_status_disable, dept_status_start, dept_status_stop, job_status_start,
-             job_status_stop, plan_start, plan_stop, task_start, task_stop])
+             job_status_stop, plan_start, plan_stop, task_start, task_stop, plan_execute_status_running,
+             plan_execute_status_success, plan_execute_status_fail, task_execute_status_running,
+             task_execute_status_success, task_execute_status_fail])
         db.session.commit()
 
     @staticmethod

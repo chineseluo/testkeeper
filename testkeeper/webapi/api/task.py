@@ -47,7 +47,7 @@ def task():
         if enabled:
             sql_filter.append(TestJobTable.enabled == strtobool(enabled))
         if name:
-            like = TestJobTable.taskName.like(f"%{name}%")
+            like = TestJobTable.jobName.like(f"%{name}%")
             sql_filter.append(like)
         if page and size:
             offset = int(page) * int(size)
